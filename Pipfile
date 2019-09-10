@@ -1,0 +1,24 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pytest = "*"
+
+[packages]
+requests = "*"
+flask-restful = "*"
+flask-marshmallow = "*"
+pymysql = "*"
+pyota = "*"
+numpy = "*"
+authlib = "*"
+loginpass = "*"
+pycryptodomex = "*"
+marshmallow = "==2.19.5"
+flask-sqlalchemy = "*"
+marshmallow-sqlalchemy = "*"
+
+[requires]
+python_version = "3.6"
