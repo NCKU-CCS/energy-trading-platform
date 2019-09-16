@@ -19,6 +19,7 @@ pycryptodomex = "*"
 marshmallow = "==2.19.5"
 flask-sqlalchemy = "*"
 marshmallow-sqlalchemy = "*"
+flask-httpauth = "*"
 
 [requires]
 python_version = "3.6"
