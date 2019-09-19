@@ -125,7 +125,14 @@ pressure_test/
 tests/
 
 # certificate
-platform/certificate/
+platform/certificate/*
 
 # RSA
 platform/rsa/
+
+# db_init
+platform/db_init.py
+
+# config file
+config/
+
