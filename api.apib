@@ -1,0 +1,379 @@
+FORMAT: 1A
+
+# Energy Trading (ET) API Document
+
+ET's back-end API<p>
+API-version: 0.1
+
+# Group Restful
+
+## User [/api/user]
+
+Use to login platform.
+
+### Login [POST]
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+
+    + Attributes
+
+        + account: User1 (required) - User Account
+        + password: User1pwd (required) - User PassWord
+
++ Response 200 (application/json)
+
+    + Attributes
+
+        + bearer: xOobS2dFtPCo0rEwVxGBSXeszkDynvCV1IC2A8WgmcJyJJAWHuzTGtRU2PbuaUFr - Authentication Bearer Token
+
++ Response 400 (application/json)
+
+    + Attributes
+
+        + message: Login Fail. - Error Message
+
+### User Info [GET]
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Bearer: xOobS2dFtPCo0rEwVxGBSXeszkDynvCV1IC2A8WgmcJyJJAWHuzTGtRU2PbuaUFr - Authentication Bearer Token
+
++ Response 200 (application/json)
+
+    + Attributes
+        + username: BEMS1
+        + picture: https://imgur.com/0JMAdHM - Profile Picture's URL
+        + balance: 1000 (number)- User's Token balance
+        + address: 711台南市歸仁區 - User's Building Address
+        + ETH_address: 0x207512E9C5183f0997ABa67cf4eF8D97c9aCc12f - User's ETH Address
+
+## AMI [/api/amis]
+
+Get User's AMIs.
+
+### AMIs [GET]
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Bearer: xOobS2dFtPCo0rEwVxGBSXeszkDynvCV1IC2A8WgmcJyJJAWHuzTGtRU2PbuaUFr - Authentication Bearer Token
+
++ Response 200 (application/json)
+
+    + Attributes (array, fixed-type)
+        + (object)
+            + id: `a6d2a4cd-fc78-4636-9c42-c0006976244b` - UUID
+            + name: AMI1
+            + Description: 太陽能
+
+## News [/api/news{?offset,count}]
+
+Get System news.
+
++ Parameters
+    + offset: 1 (optional, number)- message start index, if empty will show latest messages
+        + Default: 1
+    + count: 10 (optional, number)- number of return messages
+        + Default: 10
+
+### News [GET]
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Bearer: xOobS2dFtPCo0rEwVxGBSXeszkDynvCV1IC2A8WgmcJyJJAWHuzTGtRU2PbuaUFr - Authentication Bearer Token
+
++ Response 200 (application/json)
+
+    + Attributes (array, fixed-type)
+        + (object)
+            + id: `5f3276c2-ec53-4dd3-ada3-081ca3f9d4f9` - The news' UUID
+            + date: 2019/08/25 10:00 - The Message Upload Date
+            + message: Website Upload to Version 0.2 - The Message Content
+
+## Bid [/api/bid]
+
+Related to bidding.
+
+### Bidding Info [GET /api/bid{?offset,count}]
+
+Return details information sets of the user's bids.
+
++ Parameters
+    + offset: 1 (optional, number)- message start index, if empty will show latest messages
+        + Default: 1
+    + count: 10 (optional, number)- number of return messages
+        + Default: 10
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Bearer: xOobS2dFtPCo0rEwVxGBSXeszkDynvCV1IC2A8WgmcJyJJAWHuzTGtRU2PbuaUFr - Authentication Bearer Token
+
++ Response 200 (application/json)
+
+    + Attributes (array, fixed-type)
+        + (BID)
+        + (BID)
+            + id: xxxo
+            + type: buy
+
+### Order [PUT /api/bid?{type}]
+
++ Parameters
+    + type: sell (required)- Order type, must be `sell` or `buy`.
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Bearer: xOobS2dFtPCo0rEwVxGBSXeszkDynvCV1IC2A8WgmcJyJJAWHuzTGtRU2PbuaUFr - Authentication Bearer Token
+
+    + Attributes
+
+        + id: `104fa450-c688-4f7f-8cca-fae7a18f2eb8` - Item's UUID
+        + date: 2019/09/01 13:00 ~ 14:00 - Bidding Time
+        + value: 10 (number)- kWh
+        + price: 4.3 (number)- NT Dollars
+
++ Response 200 (application/json)
+
+    + Attributes
+
+        + message: Accept
+
++ Response 400 (application/json)
+
+    + Attributes
+
+        + message: Reject
+        + description: The bid has been closed - Error message
+
+### Remove [DELETE /api/bid?{type}]
+
++ Parameters
+    + type: sell (required)- Order type, must be `sell` or `buy`.
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Bearer: xOobS2dFtPCo0rEwVxGBSXeszkDynvCV1IC2A8WgmcJyJJAWHuzTGtRU2PbuaUFr - Authentication Bearer Token
+
+    + Attributes
+
+        + id: `104fa450-c688-4f7f-8cca-fae7a18f2eb8` - Remove item's UUID
+
++ Response 200 (application/json)
+
+    + Attributes
+
+        + message: Accept
+
++ Response 400 (application/json)
+
+    + Attributes
+
+        + message: Reject
+        + description: The bid has been closed - Error message
+
+## Schematic Diagram [/api/relation]
+
+Return participants in the transaction to paint schematic diagram.
+
+### Participants [GET]
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Bearer: xOobS2dFtPCo0rEwVxGBSXeszkDynvCV1IC2A8WgmcJyJJAWHuzTGtRU2PbuaUFr - Authentication Bearer Token
+
++ Response 200 (application/json)
+
+    + Attributes (array, fixed-type)
+        + (object)
+            + userID: `7e54877b-3743-4d20-bbfc-5b4deb131116` - User's UUID
+            + username: BEMS1
+
+## Electricity History Usage [/api/usage]
+
+Retuen Electricity History Usage.
+
+### Electricity History Usage [GET /api/usage{?offset,count}]
+
++ Parameters
+    + offset: 1 (optional, number)- message start index, if empty will show latest messages
+        + Default: 1
+    + count: 10 (optional, number)- number of return messages
+        + Default: 10
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Bearer: xOobS2dFtPCo0rEwVxGBSXeszkDynvCV1IC2A8WgmcJyJJAWHuzTGtRU2PbuaUFr - Authentication Bearer Token
+
++ Response 200 (application/json)
+
+    + Attributes (array, fixed-type)
+        + (HOMEPAGE) - 總用電
+        + (ESS) - 儲能系統
+        + (EV) - 充電樁
+        + (PV) - 太陽光電
+        + (WT) - 中小型風力機
+
+# Group Web Socket
+## Association Diagram [/s1]
+
+Return transaction status.
+
+### Association [OPTIONS /socket/association]
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Bearer: xOobS2dFtPCo0rEwVxGBSXeszkDynvCV1IC2A8WgmcJyJJAWHuzTGtRU2PbuaUFr - Authentication Bearer Token
+
+    + Attributes
+
+        + event: association - Socket Event Name
+
++ Response 200 (application/json)
+
+    + Attributes (array, fixed-type)
+        + (object)
+            + seller: `e900b7b0-c097-4ce8-9426-7399d6412b26` - Seller's UUID
+            + buyer: `9eef88ba-abf3-4cdc-a2cc-c63e331c4c47` - Buyer's UUID
+            + value: 10 - win value
+            + achievement: 4
+
+## Bidding Status [/s2]
+
+### Bidding Status [OPTIONS /socket/bids]
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Bearer: xOobS2dFtPCo0rEwVxGBSXeszkDynvCV1IC2A8WgmcJyJJAWHuzTGtRU2PbuaUFr - Authentication Bearer Token
+
+    + Attributes
+
+        + event: bids - Socket Event Name
+
++ Response 200 (application/json)
+
+    + Attributes (array, fixed-type)
+        + (BID)
+
+## Electricity History [/s3]
+
+Return Electricity History Data.
+
+### Electricity History [OPTIONS /socket/history]
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Bearer: xOobS2dFtPCo0rEwVxGBSXeszkDynvCV1IC2A8WgmcJyJJAWHuzTGtRU2PbuaUFr - Authentication Bearer Token
+
+    + Attributes
+
+        + event: history - Socket Event Name
+
++ Response 200 (application/json)
+
+    + Attributes (array, fixed-type)
+        + (HOMEPAGE) - 總用電
+        + (ESS) - 儲能系統
+        + (EV) - 充電樁
+        + (PV) - 太陽光電
+        + (WT) - 中小型風力機
+
+## Data Structures
+### BID (object)
++ id: `b345273d-ffc9-4916-bf7e-5615f0ee8a39` - Message's UUID
++ date: 2019/09/01 - Bidding Date
++ time: 13:00 ~ 14:00 - Bidding Time
++ type: sell - sell or buy
++ win: 1 - Win the bidding or not.[not_yet,yes,no]
++ status: 結算完成 - Bidding Status
++ transaction_id: cmf5ts2ym7upmhdv8rhieefpd4215unm - Transaction ID
++ upload: 2019/09/01T12:55 - Bid Upload Time
++ counterpart
+    + name: 國立成功大學
+    + address: 701台南市東區大學路1號
++ price
+    + bid: 5 (number)- Bidding Price
+    + win: 4 (number)- Winning Price
++ value
+    + bid: 10 (number)- Bidding Value
+    + win: 10 (number)- Winning Value
++ achievement: 5 - kWh
++ settlement: 200 (number)- Settlement Transaction Price
+
+### HOMEPAGE
++ table: homepage
++ id: `b6953af5-0803-4559-af5c-115613627624` - Data's UUID
++ field: NCKU (string)- 場域
++ grid: 2.516 (number)- 電網即時功率
++ pv: 0.000 (number)- 太陽能即時功率
++ building: 2.466 (number)- 大樓即時用電
++ ess: 0.000 (number)- 儲能即時功率
++ ev: 0.000(number)- 充電樁即時功率
++ updated_at: `2019-09-04T12:00:00` - 資料上傳時間
+
+### ESS
++ table: ess
++ id: `486fbca4-9bc1-42bd-af93-92ceb77d89ec` - Data's UUID
++ field: NCKU (string)- 場域
++ cluster: 1 - ESS編號
++ power_display: `-0.035` (number)- 讀取實功輸出(kW)
++ updated_at: `2019-09-04T12:00:00` - 資料上傳時間
+
+### EV
++ table: ev
++ id: `c363a32e-3dbe-42c5-bfe2-398436192c6f` - Data's UUID
++ field: NCKU (string)- 場域
++ cluster: 1 - 充電柱編號
++ power_display: 0.000 (number)- 充電功率(kW)
++ updated_at: `2019-09-04T12:00:00` - 資料上傳時間
+
+### PV
++ table: pv
++ id: `e257ccca-409a-4297-a6c2-c6d91b6dd334` - Data's UUID
++ field: NCKU (string)- 場域
++ cluster: 1 - 太陽能編號
++ PAC: 0.000 (number)- 市電功率
++ updated_at: `2019-09-04T12:00:00` - 資料上傳時間
+
+### WT
++ table: wt
++ id: `c15107ab-afed-4d9c-a123-ca6d0626d868` - Data's UUID
++ field: NCKU (string)- 場域
++ cluster: 1 - 風機編號
++ WindGridPower: 0.000 (number)- 風機功率
++ updated_at: `2019-09-04T12:00:00` - 資料上傳時間
