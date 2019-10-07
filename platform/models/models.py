@@ -216,9 +216,7 @@ class Bid(db.Column):
     win_price = db.Column(db.Float)
     achievement = db.Column(db.Float)
     settlement = db.Column(db.Float)
-    bid_tx = db.Column(db.String(80))
-    award_tx = db.Column(db.String(80))
-    settlement_tx = db.Column(db.String(80))
+    transaction_hash = db.Column(db.String(80))
     upload = db.Column(db.Date, unique=False, nullable=False)
     # ForeignKey to User
     user_id = db.Column(db.String(80), db.ForeignKey('User.id'), nullable=False)

@@ -210,9 +210,7 @@ API-version: 0.1</p>
     "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"sell"</span></span>,
     "<span class="hljs-attribute">win</span>": <span class="hljs-value"><span class="hljs-string">"1"</span></span>,
     "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"結算完成"</span></span>,
-    "<span class="hljs-attribute">bid_tx</span>": <span class="hljs-value"><span class="hljs-string">"0xdb13d6c572a482f2a9578bfb3cc41a2f0e349852138e788db795ee51ce40b439"</span></span>,
-    "<span class="hljs-attribute">award_tx</span>": <span class="hljs-value"><span class="hljs-string">"0xdb13d6c572a482f2a9578bfb3cc41a2f0e349852138e788db795ee51ce40b439"</span></span>,
-    "<span class="hljs-attribute">settlement_tx</span>": <span class="hljs-value"><span class="hljs-string">"0xdb13d6c572a482f2a9578bfb3cc41a2f0e349852138e788db795ee51ce40b439"</span></span>,
+    "<span class="hljs-attribute">transaction_hash</span>": <span class="hljs-value"><span class="hljs-string">"0xdb13d6c572a482f2a9578bfb3cc41a2f0e349852138e788db795ee51ce40b439"</span></span>,
     "<span class="hljs-attribute">upload</span>": <span class="hljs-value"><span class="hljs-string">"2019/09/01T12:55"</span></span>,
     "<span class="hljs-attribute">counterpart</span>": <span class="hljs-value">{
       "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"國立成功大學"</span></span>,
@@ -235,9 +233,7 @@ API-version: 0.1</p>
     "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"buy"</span></span>,
     "<span class="hljs-attribute">win</span>": <span class="hljs-value"><span class="hljs-string">"1"</span></span>,
     "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"結算完成"</span></span>,
-    "<span class="hljs-attribute">bid_tx</span>": <span class="hljs-value"><span class="hljs-string">"0xdb13d6c572a482f2a9578bfb3cc41a2f0e349852138e788db795ee51ce40b439"</span></span>,
-    "<span class="hljs-attribute">award_tx</span>": <span class="hljs-value"><span class="hljs-string">"0xdb13d6c572a482f2a9578bfb3cc41a2f0e349852138e788db795ee51ce40b439"</span></span>,
-    "<span class="hljs-attribute">settlement_tx</span>": <span class="hljs-value"><span class="hljs-string">"0xdb13d6c572a482f2a9578bfb3cc41a2f0e349852138e788db795ee51ce40b439"</span></span>,
+    "<span class="hljs-attribute">transaction_hash</span>": <span class="hljs-value"><span class="hljs-string">"0xdb13d6c572a482f2a9578bfb3cc41a2f0e349852138e788db795ee51ce40b439"</span></span>,
     "<span class="hljs-attribute">upload</span>": <span class="hljs-value"><span class="hljs-string">"2019/09/01T12:55"</span></span>,
     "<span class="hljs-attribute">counterpart</span>": <span class="hljs-value">{
       "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"國立成功大學"</span></span>,
@@ -281,21 +277,13 @@ API-version: 0.1</p>
           "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
           "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Bidding Status"</span>
         </span>}</span>,
-        "<span class="hljs-attribute">bid_tx</span>": <span class="hljs-value">{
-          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
-          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Transaction Hash"</span>
-        </span>}</span>,
-        "<span class="hljs-attribute">award_tx</span>": <span class="hljs-value">{
-          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
-          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Transaction Hash"</span>
-        </span>}</span>,
-        "<span class="hljs-attribute">settlement_tx</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">transaction_hash</span>": <span class="hljs-value">{
           "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
           "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Transaction Hash"</span>
         </span>}</span>,
         "<span class="hljs-attribute">upload</span>": <span class="hljs-value">{
           "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
-          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Upload Time(最新編輯時間)"</span>
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Upload Time"</span>
         </span>}</span>,
         "<span class="hljs-attribute">counterpart</span>": <span class="hljs-value">{
           "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
@@ -367,21 +355,13 @@ API-version: 0.1</p>
           "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
           "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Bidding Status"</span>
         </span>}</span>,
-        "<span class="hljs-attribute">bid_tx</span>": <span class="hljs-value">{
-          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
-          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Transaction Hash"</span>
-        </span>}</span>,
-        "<span class="hljs-attribute">award_tx</span>": <span class="hljs-value">{
-          "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
-          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Transaction Hash"</span>
-        </span>}</span>,
-        "<span class="hljs-attribute">settlement_tx</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">transaction_hash</span>": <span class="hljs-value">{
           "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
           "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Transaction Hash"</span>
         </span>}</span>,
         "<span class="hljs-attribute">upload</span>": <span class="hljs-value">{
           "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
-          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Upload Time(最新編輯時間)"</span>
+          "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Upload Time"</span>
         </span>}</span>,
         "<span class="hljs-attribute">counterpart</span>": <span class="hljs-value">{
           "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
@@ -805,9 +785,7 @@ API-version: 0.1</p>
     "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"sell"</span></span>,
     "<span class="hljs-attribute">win</span>": <span class="hljs-value"><span class="hljs-string">"1"</span></span>,
     "<span class="hljs-attribute">status</span>": <span class="hljs-value"><span class="hljs-string">"結算完成"</span></span>,
-    "<span class="hljs-attribute">bid_tx</span>": <span class="hljs-value"><span class="hljs-string">"0xdb13d6c572a482f2a9578bfb3cc41a2f0e349852138e788db795ee51ce40b439"</span></span>,
-    "<span class="hljs-attribute">award_tx</span>": <span class="hljs-value"><span class="hljs-string">"0xdb13d6c572a482f2a9578bfb3cc41a2f0e349852138e788db795ee51ce40b439"</span></span>,
-    "<span class="hljs-attribute">settlement_tx</span>": <span class="hljs-value"><span class="hljs-string">"0xdb13d6c572a482f2a9578bfb3cc41a2f0e349852138e788db795ee51ce40b439"</span></span>,
+    "<span class="hljs-attribute">transaction_hash</span>": <span class="hljs-value"><span class="hljs-string">"0xdb13d6c572a482f2a9578bfb3cc41a2f0e349852138e788db795ee51ce40b439"</span></span>,
     "<span class="hljs-attribute">upload</span>": <span class="hljs-value"><span class="hljs-string">"2019/09/01T12:55"</span></span>,
     "<span class="hljs-attribute">counterpart</span>": <span class="hljs-value">{
       "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"國立成功大學"</span></span>,
@@ -850,21 +828,13 @@ API-version: 0.1</p>
         "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
         "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Bidding Status"</span>
       </span>}</span>,
-      "<span class="hljs-attribute">bid_tx</span>": <span class="hljs-value">{
-        "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
-        "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Transaction Hash"</span>
-      </span>}</span>,
-      "<span class="hljs-attribute">award_tx</span>": <span class="hljs-value">{
-        "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
-        "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Transaction Hash"</span>
-      </span>}</span>,
-      "<span class="hljs-attribute">settlement_tx</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">transaction_hash</span>": <span class="hljs-value">{
         "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
         "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Transaction Hash"</span>
       </span>}</span>,
       "<span class="hljs-attribute">upload</span>": <span class="hljs-value">{
         "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
-        "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Upload Time(最新編輯時間)"</span>
+        "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Upload Time"</span>
       </span>}</span>,
       "<span class="hljs-attribute">counterpart</span>": <span class="hljs-value">{
         "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
