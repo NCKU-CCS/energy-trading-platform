@@ -7,9 +7,9 @@ API-version: 0.1
 
 # Group Restful
 
-## User [/api/user]
+## Login [/api/login]
 
-Use to login platform.
+Used to login platform.
 
 ### Login [POST]
 
@@ -36,6 +36,10 @@ Use to login platform.
 
         + message: Login Fail. - Error Message
 
+## User [/api/user]
+
+User's information.
+
 ### User Info [GET]
 
 + Request (application/json)
@@ -49,10 +53,37 @@ Use to login platform.
 
     + Attributes
         + username: BEMS1
-        + picture: https://imgur.com/0JMAdHM - Profile Picture's URL
+        + avatar: https://imgur.com/0JMAdHM - Profile Picture's URL
         + balance: 1000 (number)- User's Token balance
         + address: 711台南市歸仁區 - User's Building Address
         + ETH_address: 0x207512E9C5183f0997ABa67cf4eF8D97c9aCc12f - User's ETH Address
+
+### Change Password [PUT]
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            bearer: xOobS2dFtPCo0rEwVxGBSXeszkDynvCV1IC2A8WgmcJyJJAWHuzTGtRU2PbuaUFr - Authentication Bearer Token
+
+    + Attributes
+
+        + original_passwd: User1pwd - User input original password
+        + new_passwd: User1new - User input new password
+
++ Response 200 (application/json)
+
+    + Attributes
+
+        + message: Accept.
+
+
++ Response 400 (application/json)
+
+    + Attributes
+
+        + message: Fail. - Error Message
 
 ## AMI [/api/amis]
 
@@ -106,7 +137,28 @@ Get System news.
 
 Related to bidding.
 
-### Bidding Info [GET /api/bid{?offset,count}]
+### Bidding Project [GET]
+
+Return the bid content.
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Bearer: xOobS2dFtPCo0rEwVxGBSXeszkDynvCV1IC2A8WgmcJyJJAWHuzTGtRU2PbuaUFr - Authentication Bearer Token
+
++ Response 200 (application/json)
+
+    + Attributes (array, fixed-type)
+        + (object)
+            + id: `b345273d-ffc9-4916-bf7e-5615f0ee8a39`
+            + date: 2019/09/01 13:00 ~ 14:00 - Bidding Datetime
+            + value: 10
+            + price: 4.5
+            + type: sell - sell or buy
+
+### Bidding Info [GET /api/bids{?offset,count}]
 
 Return details information sets of the user's bids.
 
@@ -131,7 +183,7 @@ Return details information sets of the user's bids.
             + id: xxxo
             + type: buy
 
-### Order [PUT /api/bid?{type}]
+### Order [PUT /api/bid{?type}]
 
 + Parameters
     + type: sell (required)- Order type, must be `sell` or `buy`.
@@ -163,7 +215,7 @@ Return details information sets of the user's bids.
         + message: Reject
         + description: The bid has been closed - Error message
 
-### Remove [DELETE /api/bid?{type}]
+### Remove [DELETE /api/bid{?type}]
 
 + Parameters
     + type: sell (required)- Order type, must be `sell` or `buy`.
@@ -192,7 +244,7 @@ Return details information sets of the user's bids.
         + message: Reject
         + description: The bid has been closed - Error message
 
-## Schematic Diagram [/api/relation]
+## Schematic Diagram [/api/participant]
 
 Return participants in the transaction to paint schematic diagram.
 
@@ -212,11 +264,11 @@ Return participants in the transaction to paint schematic diagram.
             + userID: `7e54877b-3743-4d20-bbfc-5b4deb131116` - User's UUID
             + username: BEMS1
 
-## Electricity History Usage [/api/usage]
+## Electricity History Usage [/api/electricity_history]
 
 Retuen Electricity History Usage.
 
-### Electricity History Usage [GET /api/usage{?offset,count}]
+### Electricity History Usage [GET /api/electricity_history{?offset,count}]
 
 + Parameters
     + offset: 1 (optional, number)- message start index, if empty will show latest messages
@@ -316,13 +368,14 @@ Return Electricity History Data.
 ## Data Structures
 ### BID (object)
 + id: `b345273d-ffc9-4916-bf7e-5615f0ee8a39` - Message's UUID
-+ date: 2019/09/01 - Bidding Date
-+ time: 13:00 ~ 14:00 - Bidding Time
++ date: 2019/09/01 13:00 ~ 14:00 - Bidding Datetime
 + type: sell - sell or buy
 + win: 1 - Win the bidding or not.[not_yet,yes,no]
 + status: 結算完成 - Bidding Status
-+ transaction_id: cmf5ts2ym7upmhdv8rhieefpd4215unm - Transaction ID
-+ upload: 2019/09/01T12:55 - Bid Upload Time
++ bid_tx: 0xdb13d6c572a482f2a9578bfb3cc41a2f0e349852138e788db795ee51ce40b439 - Transaction Hash
++ award_tx: 0xdb13d6c572a482f2a9578bfb3cc41a2f0e349852138e788db795ee51ce40b439 - Transaction Hash
++ settlement_tx:0xdb13d6c572a482f2a9578bfb3cc41a2f0e349852138e788db795ee51ce40b439 - Transaction Hash
++ upload: 2019/09/01T12:55 - Upload Time(最新編輯時間)
 + counterpart
     + name: 國立成功大學
     + address: 701台南市東區大學路1號
