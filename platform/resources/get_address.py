@@ -9,6 +9,7 @@ from database import get_address, check_uploader
 
 auth = HTTPTokenAuth(scheme='Bearer')
 
+
 @auth.verify_token
 def verify_token(token):
     user = check_uploader(token)
@@ -18,17 +19,17 @@ def verify_token(token):
         return True
     return False
 
-class Get_address (Resource):
+
+class Get_address(Resource):
     # token check
     @auth.login_required
     def post(self):
         name = str(g.current_user)
         address = get_address(name, date.today())
-        
-        logging.info("[Get_address Request]\nUser name:%s\nField name:%s\nReturn Address:%s" % (g.current_user, name, address))
 
-        return {
-            'address': address
-        }, 200
+        logging.info(
+            "[Get_address Request]\nUser name:%s\nField name:%s\nReturn Address:%s"
+            % (g.current_user, name, address)
+        )
 
-    
+        return {'address': address}, 200
