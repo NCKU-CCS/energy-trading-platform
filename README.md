@@ -1,6 +1,6 @@
 # energy-trading-platform
 
-[![Build Status](https://travis-ci.org/NCKU-CCS/energy-trading-platform.svg?branch=et_platform)](https://travis-ci.org/NCKU-CCS/energy-trading-platform)
+[![Build Status](https://travis-ci.org/NCKU-CCS/energy-trading-platform.svg?branch=cswang%2Fet_platform)](https://travis-ci.org/NCKU-CCS/energy-trading-platform)
 
 ## get_address
 
