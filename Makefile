@@ -7,8 +7,10 @@ init: clean
 	pipenv install
 	# pipenv install --dev
 
+
 flake8:
 	pipenv run flake8
+
 
 pylint:
 	pipenv run pylint $(PKG) --ignore=tests
@@ -20,7 +22,7 @@ black:
 
 lint: flake8 pylint
 
-build_docker: 
+build_docker:
 	pipenv lock --requirements > platform/requirements.txt
 	docker login
 	docker build --no-cache -t platform_docker:latest platform/
