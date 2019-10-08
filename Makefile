@@ -1,4 +1,4 @@
-PKG=platform
+PKG=pt
 
 .PHONY: all clean version init flake8 pylint lint test coverage
 

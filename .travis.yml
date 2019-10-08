@@ -4,8 +4,8 @@ python:
 install:
 - pip install pipenv
 - pipenv install
-script: true
-# - make lint
+script:
+  - make lint
 notifications:
   slack:
     rooms:
