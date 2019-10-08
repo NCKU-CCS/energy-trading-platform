@@ -28,3 +28,5 @@ build_docker:
 	docker build --no-cache -t platform_docker:latest platform/
 	docker tag platform_docker ttw225/platform_docker
 	docker push ttw225/platform_docker
+
+clean:
