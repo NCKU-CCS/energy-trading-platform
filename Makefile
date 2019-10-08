@@ -30,3 +30,4 @@ build_docker:
 	docker push ttw225/platform_docker
 
 clean:
+	find . -type d -name '__pycache__' -delete
