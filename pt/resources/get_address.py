@@ -1,7 +1,6 @@
 from flask import g
 from flask_restful import Resource
 from flask_httpauth import HTTPTokenAuth
-from config import app
 from utils.logging import logging
 from datetime import date
 from database import get_address, check_uploader
@@ -20,7 +19,7 @@ def verify_token(token):
     return False
 
 
-class Get_address(Resource):
+class Get_Address(Resource):
     # token check
     @auth.login_required
     def post(self):
@@ -28,7 +27,7 @@ class Get_address(Resource):
         address = get_address(name, date.today())
 
         logging.info(
-            "[Get_address Request]\nUser name:%s\nField name:%s\nReturn Address:%s"
+            "[Get_Address Request]\nUser name:%s\nField name:%s\nReturn Address:%s"
             % (g.current_user, name, address)
         )
 

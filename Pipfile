@@ -5,7 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 pytest = "==4.4.0"
-pylint = "==2.4.2"
+pylint = "==2.3.1"
 flake8 = "==3.7.8"
 black = "==19.3b0"
 python-dotenv = "==0.10.3"

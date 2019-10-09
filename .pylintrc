@@ -2,5 +2,8 @@
 # C0111: missing-docstring
 # R0903: too-few-public-methods
 # W1203: logging-fstring-interpolation
-disable=C0111, R0903, W1203
+# E0611: no-name-in-module
+# E0401: import-error
+disable=C0111, R0903, W1203, E0611, E0401
 max-line-length=120
+

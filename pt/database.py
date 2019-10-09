@@ -8,14 +8,13 @@ def get_address(name, time):
     field = FieldModel.find(name, time)
     if field:
         return field.address
-    else:
-        if not FieldModel.find_by_name(name):
-            # need to add field into database
-            FieldModel.add_field(FieldModel(name, 'x', time))
-        # Generate address for all fields in database
-        renew_address(time)
-        field = FieldModel.find(name, time)
-        return field.address
+    if not FieldModel.find_by_name(name):
+        # need to add field into database
+        FieldModel.add_field(FieldModel(name, 'x', time))
+    # Generate address for all fields in database
+    renew_address(time)
+    field = FieldModel.find(name, time)
+    return field.address
 
 
 def renew_address(time):
@@ -33,5 +32,4 @@ def check_uploader(tag):
     uploader = UploaderModel.find_by_tag(tag)
     if uploader:
         return uploader
-    else:
-        return None
+    return None
