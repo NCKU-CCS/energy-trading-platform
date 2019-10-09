@@ -1,11 +1,10 @@
-from flask import Flask
 from flask_restful import Api
-from resources.get_address import Get_address
-from config import app
+from resources.get_address import Get_Address
+from config import APP as app
 
-api = Api(app)
+API = Api(app)
 
-api.add_resource(Get_address, "/bems/get_address")
+API.add_resource(Get_Address, "/bems/get_address")
 
 if __name__ == "__main__":
     app.run(
