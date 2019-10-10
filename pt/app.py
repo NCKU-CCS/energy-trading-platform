@@ -48,7 +48,7 @@ def create_app(config_mode):
     # Route Init
     api = Api(app)
     api.add_resource(RESOURCES['address'], '/address')
-    # api.add_resource(RESOURCES['time']['now'], '/time', endpoint='/time')
+    api.add_resource(RESOURCES['user'], '/user')
     # api.add_resource(RESOURCES['version'], '/version', endpoint='/version')
     # api.add_resource(RESOURCES['echonet'], '/echonet')
     # api.add_resource(RESOURCES['smart_lock'], '/smart_lock')
