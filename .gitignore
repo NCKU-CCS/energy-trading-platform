@@ -135,3 +135,6 @@ pt/db_init.py
 
 # config file
 config/
+
+# DB
+pt/data.db

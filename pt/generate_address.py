@@ -1,7 +1,4 @@
-import iota
-from config import APP as app
-
-API = iota.Iota(app.config['API_URI'][0], app.config['SEED'])
+from config import API
 
 
 def get_addresses(index, count):

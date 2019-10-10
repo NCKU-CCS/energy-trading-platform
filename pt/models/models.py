@@ -1,12 +1,13 @@
 from config import db
 
 '''
+import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + \
-    os.path.join(pjdir, 'data.db')
+    os.path.join('/Users/ttw/NCKU/energy-trading-platform/pt', 'data.db')
 db = SQLAlchemy(app)
 '''
 
