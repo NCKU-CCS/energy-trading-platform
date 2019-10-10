@@ -26,7 +26,7 @@ class AddressResource(Resource):
     @auth.login_required
     def get(self):
         logging.info(
-            "[Get_Address Request]\nUser name:%s\nUUID:%s\nIOTA Address:%s"
+            "[Get Address Request]\nUser name:%s\nUUID:%s\nIOTA Address:%s"
             % (g.name, g.uuid, g.address)
         )
         response = jsonify({"address": g.address})
