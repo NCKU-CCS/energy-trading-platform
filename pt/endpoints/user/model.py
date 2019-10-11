@@ -13,7 +13,7 @@ class User(db.Model):
     address = db.Column(db.String(120))
     eth_address = db.Column(db.String(80))
     # Association to AMI
-    amis = db.relationship('AMI', backref='user', lazy='dynamic')
+    # amis = db.relationship('AMI', backref='user', lazy='dynamic')
     # Association to Bid
     # bids = db.relationship('Bid', backref='user', lazy='dynamic')
 

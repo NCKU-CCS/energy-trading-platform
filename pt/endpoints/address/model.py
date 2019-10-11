@@ -1,11 +1,14 @@
 import uuid
 from config import db, API
 from generate_address import get_addresses
+from sqlalchemy.ext.declarative import declared_attr
 from ..user.model import User
+# from ..data.model import Data
 
 
 class AMI(db.Model):
     __tablename__ = 'ami'
+    id = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
     uuid = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
     name = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.String(120))
@@ -15,10 +18,12 @@ class AMI(db.Model):
     tag = db.Column(db.String(120), unique=True, nullable=False)
     # ForeignKey to User
     user_id = db.Column(db.String(40), db.ForeignKey('user.uuid'), nullable=False)
+    user = db.relationship('User')
     # Association to History
-    historys = db.relationship('History', backref='AMI', lazy='dynamic')
+    # historys = db.relationship('History', backref='AMI', lazy='dynamic')
 
     def __init__(self, name, description, iota_address, time, tag, user_id):
+        self.id = AMI.query.count()
         self.uuid = str(uuid.uuid4())
         self.name = name
         self.description = description
@@ -53,6 +58,7 @@ class History(db.Model):
     time_stamp = db.Column(db.Integer, unique=False, nullable=False)
     # ForeignKey to AMI
     ami_id = db.Column(db.String(40), db.ForeignKey('ami.uuid'), nullable=False)
+    ami = db.relationship("AMI")
     # Association to Data
     # datas = db.relationship('Data', backref='history', lazy='dynamic')
 
@@ -91,7 +97,7 @@ def address(token, time):
             index=int(time.strftime("%s")), count=AMI.query.count()
         )['addresses']
         for idx, ami in enumerate(AMI.query.all()):
-            ami.iota_address = str(new_address[idx])
+            ami.iota_address = str(new_address[ami.id])
             ami.time = time
             ami.time_stamp = time.strftime("%s")
             AMI.update(ami)
