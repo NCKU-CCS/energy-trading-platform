@@ -11,6 +11,7 @@ def verify_token(token):
     user = User.query.filter_by(tag=token).first()
     if user:
         g.uuid = user.uuid
+        g.account = user.account
         # logging.info("User Login: %s" % g.current_user)
         return True
     return False

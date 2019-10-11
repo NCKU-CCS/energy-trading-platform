@@ -1,3 +1,4 @@
+import uuid
 from config import db
 
 class User(db.Model):
@@ -16,8 +17,8 @@ class User(db.Model):
     # Association to Bid
     # bids = db.relationship('Bid', backref='user', lazy='dynamic')
 
-    def __init__(self, uuid, account, password, username, tag, avatar, balance, address, eth_address):
-        self.uuid = uuid
+    def __init__(self, account, password, username, tag, avatar, balance, address, eth_address):
+        self.uuid = str(uuid.uuid4())
         self.account = account
         self.password = password
         self.username = username
