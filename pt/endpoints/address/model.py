@@ -8,7 +8,7 @@ from ..user.model import User
 
 class AMI(db.Model):
     __tablename__ = 'ami'
-    id = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
+    id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
     uuid = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
     name = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.String(120))
@@ -90,23 +90,24 @@ def address(token, time):
     ami = AMI.query.filter_by(tag=token, time=time).first()
     if ami:
         return ami
-    if AMI.query.filter_by(tag=token).first():
-        # Update Address
-        new_address = get_addresses(int(time.strftime("%s")), AMI.query.count())
-        new_address = API.get_new_addresses(
-            index=int(time.strftime("%s")), count=AMI.query.count()
-        )['addresses']
-        for idx, ami in enumerate(AMI.query.all()):
-            ami.iota_address = str(new_address[ami.id])
-            ami.time = time
-            ami.time_stamp = time.strftime("%s")
-            AMI.update(ami)
-            # Add to history table
-            if not History.query.filter_by(ami_id=ami.uuid, time=time).first():
-                History.add(
-                    History(
-                        ami.name, ami.description, ami.iota_address, ami.time, ami.uuid
-                    )
+    renew(time)
+    return AMI.query.filter_by(tag=token, time=time).first()
+
+def renew(time):
+    # Update Address
+    new_address = get_addresses(int(time.strftime("%s")), AMI.query.count())
+    new_address = API.get_new_addresses(
+        index=int(time.strftime("%s")), count=AMI.query.count()
+    )['addresses']
+    for amis in AMI.query.all():
+        amis.iota_address = str(new_address[amis.id])
+        amis.time = time
+        amis.time_stamp = time.strftime("%s")
+        AMI.update(amis)
+        # Add to history table
+        if not History.query.filter_by(ami_id=amis.uuid, time=time).first():
+            History.add(
+                History(
+                    amis.name, amis.description, amis.iota_address, amis.time, amis.uuid
                 )
-        return AMI.query.filter_by(tag=token, time=time).first()
-    return None
+            )
