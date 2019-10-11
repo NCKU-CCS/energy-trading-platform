@@ -9,11 +9,11 @@ class UserResource(Resource):
     # pylint: disable=R0201
     @auth.login_required
     def get(self):
-        user = User.query.filter_by(uuid=g.uuid).first()
         logging.info(
-            "[Get User Request]\nUser name:%s\nUUID:%s"
-            % (user.username, user.uuid)
+            "[Get User Request]\nUser Account:%s\nUUID:%s"
+            % (g.account, g.uuid)
         )
+        user = User.query.filter_by(uuid=g.uuid).first()
         response = jsonify({
             "username": user.username,
             "avatar": user.avatar,

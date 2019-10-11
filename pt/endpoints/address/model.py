@@ -18,8 +18,8 @@ class AMI(db.Model):
     # Association to History
     historys = db.relationship('History', backref='AMI', lazy='dynamic')
 
-    def __init__(self, uuid, name, description, iota_address, time, tag, user_id):
-        self.uuid = uuid
+    def __init__(self, name, description, iota_address, time, tag, user_id):
+        self.uuid = str(uuid.uuid4())
         self.name = name
         self.description = description
         self.iota_address = iota_address
@@ -87,13 +87,13 @@ def address(token, time):
     if AMI.query.filter_by(tag=token).first():
         # Update Address
         new_address = get_addresses(int(time.strftime("%s")), AMI.query.count())
-        print(new_address)
         new_address = API.get_new_addresses(
             index=int(time.strftime("%s")), count=AMI.query.count()
         )['addresses']
         for idx, ami in enumerate(AMI.query.all()):
             ami.iota_address = str(new_address[idx])
             ami.time = time
+            ami.time_stamp = time.strftime("%s")
             AMI.update(ami)
             # Add to history table
             if not History.query.filter_by(ami_id=ami.uuid, time=time).first():
