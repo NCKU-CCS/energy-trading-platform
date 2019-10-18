@@ -138,3 +138,4 @@ config/
 
 # DB
 pt/data.db
+db/

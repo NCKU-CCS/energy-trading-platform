@@ -23,5 +23,4 @@ class UserResource(Resource):
             })
         response.status_code = 200
         return response
-
     # pylint: enable=R0201
