@@ -50,6 +50,9 @@ def create_app(config_mode):
     api.add_resource(RESOURCES['user'], '/user')
     api.add_resource(RESOURCES['address'], '/address')
     api.add_resource(RESOURCES['amis'], '/amis')
+    api.add_resource(RESOURCES['news'], '/news')
+    api.add_resource(RESOURCES['datas'], '/datas')
+
     # api.add_resource(RESOURCES['version'], '/version', endpoint='/version')
     # api.add_resource(RESOURCES['echonet'], '/echonet')
     # api.add_resource(RESOURCES['smart_lock'], '/smart_lock')
