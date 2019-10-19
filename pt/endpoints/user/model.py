@@ -1,3 +1,4 @@
+from werkzeug.security import generate_password_hash
 import uuid
 from config import db
 
@@ -5,7 +6,7 @@ class User(db.Model):
     __tablename__ = 'user'
     uuid = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
     account = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(80), unique=False, nullable=False)
+    password = db.Column(db.String(120), unique=False, nullable=False)
     username = db.Column(db.String(80), unique=False, nullable=False)
     tag = db.Column(db.String(120), unique=True, nullable=False)  # Login Bearer Tag
     avatar = db.Column(db.String(120))
@@ -20,7 +21,7 @@ class User(db.Model):
     def __init__(self, account, password, username, tag, avatar, balance, address, eth_address):
         self.uuid = str(uuid.uuid4())
         self.account = account
-        self.password = password
+        self.password = generate_password_hash(password)
         self.username = username
         self.tag = tag
         self.avatar = avatar
