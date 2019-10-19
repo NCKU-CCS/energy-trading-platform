@@ -48,10 +48,13 @@ def create_app(config_mode):
     # Route Init
     api = Api(app)
     api.add_resource(RESOURCES['user'], '/user')
+    api.add_resource(RESOURCES['login'], '/login')
     api.add_resource(RESOURCES['address'], '/address')
     api.add_resource(RESOURCES['amis'], '/amis')
     api.add_resource(RESOURCES['news'], '/news')
     api.add_resource(RESOURCES['datas'], '/datas')
+    api.add_resource(RESOURCES['participant'], '/participant')
+
 
     # api.add_resource(RESOURCES['version'], '/version', endpoint='/version')
     # api.add_resource(RESOURCES['echonet'], '/echonet')

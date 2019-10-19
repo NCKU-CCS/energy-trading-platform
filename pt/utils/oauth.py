@@ -1,4 +1,4 @@
-from flask import g
+from flask import g, jsonify
 from flask_httpauth import HTTPTokenAuth
 from endpoints.user.model import User
 
@@ -15,3 +15,7 @@ def verify_token(token):
         # logging.info("User Login: %s" % g.current_user)
         return True
     return False
+
+@auth.error_handler
+def unauthorized():
+    return jsonify({'error': 'Unauthorized access'}), 401

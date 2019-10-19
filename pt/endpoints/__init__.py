@@ -1,5 +1,5 @@
 from endpoints.address.resource import AddressResource, AmiResource
-from endpoints.user.resource import UserResource
+from endpoints.user.resource import UserResource, LoginResource, ParticipantResource
 from endpoints.news.resource import NewsResource
 from endpoints.data.resource import DatasResource
 
@@ -8,5 +8,7 @@ RESOURCES = {
     'amis': AmiResource,
     'user': UserResource,
     'news': NewsResource,
-    'datas': DatasResource
+    'datas': DatasResource,
+    'login': LoginResource,
+    'participant': ParticipantResource
     }

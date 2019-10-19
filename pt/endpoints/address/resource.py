@@ -17,7 +17,6 @@ def verify_token(token):
         g.uuid = ami.uuid
         g.name = ami.name
         g.address = ami.iota_address
-        # print(g.time, date.today())
         return True
     return False
 
@@ -33,7 +32,6 @@ class AddressResource(Resource):
         response = jsonify({"address": g.address})
         response.status_code = 200
         return response
-
     # pylint: enable=R0201
 
 class AmiResource(Resource):
@@ -55,5 +53,4 @@ class AmiResource(Resource):
         response = jsonify(amis)
         response.status_code = 200
         return response
-
     # pylint: enable=R0201
