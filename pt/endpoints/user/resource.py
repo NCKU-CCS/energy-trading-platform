@@ -1,6 +1,5 @@
-from flask import jsonify, request
+from flask import jsonify, request, make_response
 from flask_restful import Resource
-from flask_httpauth import HTTPTokenAuth, HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 from utils.logging import logging
 from utils.oauth import auth, g
@@ -47,30 +46,20 @@ class UserResource(Resource):
         return response
     # pylint: enable=R0201
 
-
-# pylint: disable=C0103
-auth_login = HTTPBasicAuth()
-# pylint: enable=C0103
-@auth_login.verify_password
-def verify_password(username, password):
-    user = User.query.filter_by(account=username).first()
-    if not check_password_hash(user.password, password):
-        user = None
-    if user:
-        g.username = user.username
-        g.uuid = user.uuid
-        g.tag = user.tag
-        return True
-    return False
-
-@auth_login.error_handler
-def unauthorized():
-    return jsonify({'error': 'Unauthorized access'}), 401
-
 class LoginResource(Resource):
     # pylint: disable=R0201
-    @auth_login.login_required
     def post(self):
+        data = request.get_json()
+        if User.query.filter_by(account=data['account']).first():
+            user = User.query.filter_by(account=data['account']).first()
+            if check_password_hash(user.password, data['password']):
+                g.username = user.username
+                g.uuid = user.uuid
+                g.tag = user.tag
+            else:
+                return make_response(jsonify({'error': 'Unauthorized access'}), 401)
+        else:
+            return make_response(jsonify({'error': 'Unauthorized access'}), 401)
         logging.info(
             "[Post Login Request]\nUser Account:%s\nUUID:%s"
             % (g.username, g.uuid)

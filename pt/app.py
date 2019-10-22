@@ -1,9 +1,8 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, make_response
 from flask_restful import Api
 from werkzeug.exceptions import HTTPException
 from werkzeug.exceptions import default_exceptions
 from dotenv import load_dotenv
-
 from config import db
 from endpoints import RESOURCES
 
@@ -11,14 +10,19 @@ from endpoints import RESOURCES
 load_dotenv()
 
 
-# from config import APP as app
-# API = Api(app)
-# API.add_resource(Get_Address, "/bems/get_address")
-
-
 def create_app(config_mode):
 
     app = Flask(__name__)
+
+    # pylint: disable=W0612
+    @app.after_request
+    def af_request(resp):
+        resp = make_response(resp)
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        resp.headers['Access-Control-Allow-Methods'] = 'GET,POST'
+        resp.headers['Access-Control-Allow-Headers'] = 'x-requested-with,content-type'
+        return resp
+    # pylint: enable=W0612
 
     @app.errorhandler(Exception)
     def handle_error(error):
@@ -29,7 +33,7 @@ def create_app(config_mode):
             code = error.code
 
         # pylint: disable=E1101
-        app.logger.warning(f'{code} - {error}')
+        app.logger.warning('{%d} - {%s}' % (code, error))
         # pylint: enable=E1101
 
         return jsonify(error=str(error)), code
@@ -40,7 +44,8 @@ def create_app(config_mode):
     # flask config
     app.config.from_pyfile('./config/config.py')
     # pylint: disable=E1101
-    app.logger.info(f'APP Mode: {config_mode}')
+    app.logger.info('APP Mode: {%s}' % config_mode)
+    # app.logger.info(f'APP Mode: {config_mode}')
     # pylint: enable=E1101
 
     # DB Init
@@ -52,13 +57,10 @@ def create_app(config_mode):
     api.add_resource(RESOURCES['address'], '/address')
     api.add_resource(RESOURCES['amis'], '/amis')
     api.add_resource(RESOURCES['news'], '/news')
-    api.add_resource(RESOURCES['datas'], '/datas')
+    api.add_resource(RESOURCES['power_info'], '/power_info')
     api.add_resource(RESOURCES['participant'], '/participant')
+    api.add_resource(RESOURCES['bids'], '/bids')
 
-
-    # api.add_resource(RESOURCES['version'], '/version', endpoint='/version')
-    # api.add_resource(RESOURCES['echonet'], '/echonet')
-    # api.add_resource(RESOURCES['smart_lock'], '/smart_lock')
     return app
 
 
@@ -66,9 +68,9 @@ def main():
     app = create_app('Develop')
     app.run(
         host=app.config['HOST'],
-        port=app.config['PORT'],
-        debug='no',
-        ssl_context=app.config['SSL_CONTEXT'],
+        port=app.config['PORT']
+        # debug='no',
+        # ssl_context=app.config['SSL_CONTEXT'],
     )
 
 

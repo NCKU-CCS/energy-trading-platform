@@ -14,7 +14,7 @@
 
 ### Database
 
-+ postgres docker
++ pull postgres docker
 
     `docker pull postgres`
 

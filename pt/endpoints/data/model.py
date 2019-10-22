@@ -1,6 +1,8 @@
 import uuid
 from config import db
+# pylint: disable=W0611
 from ..address.model import History
+# pylint: enable=W0611
 
 class Data(db.Model):
     uuid = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
@@ -10,8 +12,8 @@ class Data(db.Model):
     # ForeignKey to History
     history_id = db.Column(db.String(80), db.ForeignKey('history.uuid'), nullable=False)
     history = db.relationship('History')
-    type = db.Column(db.String(50))
-    __mapper_args__ = {'polymorphic_identity': 'Data', 'polymorphic_on': type}
+    data_type = db.Column(db.String(50))
+    __mapper_args__ = {'polymorphic_identity': 'Data', 'polymorphic_on': data_type}
 
     def __init__(self, field, updated_at, history_id, address):
         self.uuid = str(uuid.uuid4())
@@ -47,10 +49,12 @@ class Homepage(Data):
     def __init__(self, grid, pv, building, ess, ev, field, updated_at, history_id, address):
         super(Homepage, self).__init__(field, updated_at, history_id, address)
         self.grid = grid
-        self.pv = pv
         self.building = building
         self.ess = ess
+        # pylint: disable=C0103
+        self.pv = pv
         self.ev = ev
+        # pylint: enable=C0103
 
     def add(self):
         db.session.add(self)
@@ -130,7 +134,9 @@ class PV(Data):
     def __init__(self, cluster, PAC, field, updated_at, history_id, address):
         super(PV, self).__init__(field, updated_at, history_id, address)
         self.cluster = cluster
+        # pylint: disable=C0103
         self.PAC = PAC
+        # pylint: enable=C0103
 
     def add(self):
         db.session.add(self)
@@ -156,7 +162,9 @@ class WT(Data):
     def __init__(self, cluster, WindGridPower, field, updated_at, history_id, address):
         super(WT, self).__init__(field, updated_at, history_id, address)
         self.cluster = cluster
+        # pylint: disable=C0103
         self.WindGridPower = WindGridPower
+        # pylint: enable=C0103
 
     def add(self):
         db.session.add(self)
