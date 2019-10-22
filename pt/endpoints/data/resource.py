@@ -6,6 +6,7 @@ from utils.oauth import auth, g
 from .model import Data
 from ..address.model import AMI, History
 
+
 class DatasResource(Resource):
     # pylint: disable=R0201
     @auth.login_required
@@ -15,16 +16,17 @@ class DatasResource(Resource):
         else:
             time = date.today()
         logging.info(
-            "[Get Datas Request]\nUser Account:%s\nUUID:%s\n"
-            % (g.account, g.uuid)
+            "[Get Datas Request]\nUser Account:%s\nUUID:%s\n" % (g.account, g.uuid)
         )
         datas = []
 
-        if not History.query.filter_by(time=time, ami_id=AMI.query.filter_by(user_id=g.uuid).first().uuid).first():
+        # pylint: disable=C0301
+        if not History.query.filter_by(time=time, ami_id=AMI.query.filter_by(user_id=g.uuid).first().uuid).first(): # NOQA
             return make_response(jsonify([]))
+        # pylint: enable=C0301
 
         # pylint: disable=C0301
-        for message in Data.query.filter_by(history_id=(History.query.filter_by(time=time, ami_id=AMI.query.filter_by(user_id=g.uuid).first().uuid).first().uuid)).all():
+        for message in Data.query.filter_by(history_id=(History.query.filter_by(time=time, ami_id=AMI.query.filter_by(user_id=g.uuid).first().uuid).first().uuid)).all(): # NOQA
             if message.data_type == 'Homepage':
                 power = message.grid
             elif message.data_type == 'ESS' or message.data_type == 'EV':
@@ -33,16 +35,19 @@ class DatasResource(Resource):
                 power = message.PAC
             elif message.data_type == 'WT':
                 power = message.WindGridPower
-            datas.append({
-                "id": message.uuid,
-                "time": message.updated_at.strftime('%Y/%m/%d %H:%M'),
-                "data_type": message.data_type,
-                "power_display": str(power),
-                "address": message.address
-            })
+            datas.append(
+                {
+                    "id": message.uuid,
+                    "time": message.updated_at.strftime('%Y/%m/%d %H:%M'),
+                    "data_type": message.data_type,
+                    "power_display": str(power),
+                    "address": message.address,
+                }
+            )
         datas = sorted(datas, key=lambda x: x['time'], reverse=True)
         response = jsonify(datas)
         response.status_code = 200
         return response
         # pylint: enable=C0301
+
     # pylint: enable=R0201

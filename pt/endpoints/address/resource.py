@@ -33,25 +33,25 @@ class AddressResource(Resource):
         response = jsonify({"address": g_ami.address})
         response.status_code = 200
         return response
+
     # pylint: enable=R0201
+
 
 class AmiResource(Resource):
     # pylint: disable=R0201
     @auth.login_required
     def get(self):
         logging.info(
-            "[Get Amis Request]\nUser Account:%s\nUUID:%s"
-            % (g.account, g.uuid)
+            "[Get Amis Request]\nUser Account:%s\nUUID:%s" % (g.account, g.uuid)
         )
         amis = []
         for ami in AMI.query.filter_by(user_id=g.uuid).all():
-            amis.append({
-                "id": ami.uuid,
-                "name": ami.name,
-                "description": ami.description
-            })
+            amis.append(
+                {"id": ami.uuid, "name": ami.name, "description": ami.description}
+            )
 
         response = jsonify(amis)
         response.status_code = 200
         return response
+
     # pylint: enable=R0201

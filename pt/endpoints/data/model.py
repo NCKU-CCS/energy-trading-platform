@@ -1,8 +1,11 @@
 import uuid
 from config import db
+
 # pylint: disable=W0611
-from ..address.model import History
+from ..address.model import History # NOQA
+
 # pylint: enable=W0611
+
 
 class Data(db.Model):
     uuid = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
@@ -26,8 +29,10 @@ class Data(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    # pylint: disable=R0201
     def update(self):
         db.session.commit()
+    # pylint: enable=R0201
 
     def delete(self):
         db.session.delete(self)
@@ -35,6 +40,7 @@ class Data(db.Model):
 
     def __repr__(self):
         return self.uuid
+
 
 class Homepage(Data):
     __tablename__ = 'homepage'
@@ -46,6 +52,7 @@ class Homepage(Data):
     ev = db.Column(db.Float)
     __mapper_args__ = {'polymorphic_identity': 'Homepage'}
 
+    # fmt: off
     def __init__(self, grid, pv, building, ess, ev, field, updated_at, history_id, address):
         super(Homepage, self).__init__(field, updated_at, history_id, address)
         self.grid = grid
@@ -55,20 +62,7 @@ class Homepage(Data):
         self.pv = pv
         self.ev = ev
         # pylint: enable=C0103
-
-    def add(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def update(self):
-        db.session.commit()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    def __repr__(self):
-        return self.uuid
+    # fmt: on
 
 
 class ESS(Data):
@@ -84,20 +78,6 @@ class ESS(Data):
         self.power_display = power_display
 
 
-    def add(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def update(self):
-        db.session.commit()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    def __repr__(self):
-        return self.uuid
-
 class EV(Data):
     __tablename__ = 'ev'
     uuid = db.Column(db.String(40), db.ForeignKey('data.uuid'), primary_key=True)
@@ -110,19 +90,6 @@ class EV(Data):
         self.cluster = cluster
         self.power_display = power_display
 
-    def add(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def update(self):
-        db.session.commit()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    def __repr__(self):
-        return self.uuid
 
 class PV(Data):
     __tablename__ = 'pv'
@@ -138,19 +105,6 @@ class PV(Data):
         self.PAC = PAC
         # pylint: enable=C0103
 
-    def add(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def update(self):
-        db.session.commit()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    def __repr__(self):
-        return self.uuid
 
 class WT(Data):
     __tablename__ = 'wt'
@@ -165,17 +119,3 @@ class WT(Data):
         # pylint: disable=C0103
         self.WindGridPower = WindGridPower
         # pylint: enable=C0103
-
-    def add(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def update(self):
-        db.session.commit()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    def __repr__(self):
-        return self.uuid

@@ -2,6 +2,7 @@ import uuid
 from werkzeug.security import generate_password_hash
 from config import db
 
+
 class User(db.Model):
     __tablename__ = 'user'
     uuid = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
@@ -14,6 +15,7 @@ class User(db.Model):
     address = db.Column(db.String(120))
     eth_address = db.Column(db.String(80))
 
+    # fmt: off
     def __init__(self, account, password, username, tag, avatar, balance, address, eth_address):
         self.uuid = str(uuid.uuid4())
         self.account = account
@@ -24,13 +26,16 @@ class User(db.Model):
         self.balance = balance
         self.address = address
         self.eth_address = eth_address
+    # fmt: on
 
     def add(self):
         db.session.add(self)
         db.session.commit()
 
+    # pylint: disable=R0201
     def update(self):
         db.session.commit()
+    # pylint: enable=R0201
 
     def delete(self):
         db.session.delete(self)

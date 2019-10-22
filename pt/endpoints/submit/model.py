@@ -1,9 +1,12 @@
 import uuid
 from datetime import datetime
 from config import db
+
 # pylint: disable=W0611
 from ..bid.model import Bid
+
 # pylint: disable=W0611
+
 
 class Submit(db.Model):
     __tablename__ = 'submit'
@@ -30,8 +33,10 @@ class Submit(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    # pylint: disable=R0201
     def update(self):
         db.session.commit()
+    # pylint: enable=R0201
 
     def delete(self):
         db.session.delete(self)

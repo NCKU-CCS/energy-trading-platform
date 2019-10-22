@@ -1,8 +1,10 @@
 import uuid
 from config import db, API
 from generate_address import get_addresses
+
 # pylint: disable=W0611
-from ..user.model import User
+from ..user.model import User # NOQA
+
 # pylint: enable=W0611
 
 
@@ -37,8 +39,10 @@ class AMI(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    # pylint: disable=R0201
     def update(self):
         db.session.commit()
+    # pylint: enable=R0201
 
     def delete(self):
         db.session.delete(self)
@@ -73,8 +77,10 @@ class History(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    # pylint: disable=R0201
     def update(self):
         db.session.commit()
+    # pylint: enable=R0201
 
     def delete(self):
         db.session.delete(self)
@@ -90,6 +96,7 @@ def address(token, time):
         return ami
     renew(time)
     return AMI.query.filter_by(tag=token, time=time).first()
+
 
 def renew(time):
     # Update Address

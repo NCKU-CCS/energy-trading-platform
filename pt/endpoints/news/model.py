@@ -17,8 +17,10 @@ class News(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    # pylint: disable=R0201
     def update(self):
         db.session.commit()
+    # pylint: enable=R0201
 
     def delete(self):
         db.session.delete(self)
