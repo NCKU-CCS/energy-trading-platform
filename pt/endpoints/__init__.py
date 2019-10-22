@@ -12,5 +12,5 @@ RESOURCES = {
     'power_info': DatasResource,
     'login': LoginResource,
     'participant': ParticipantResource,
-    'bids': BidsResource
-    }
+    'bids': BidsResource,
+}

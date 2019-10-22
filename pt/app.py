@@ -22,6 +22,7 @@ def create_app(config_mode):
         resp.headers['Access-Control-Allow-Methods'] = 'GET,POST'
         resp.headers['Access-Control-Allow-Headers'] = 'x-requested-with,content-type'
         return resp
+
     # pylint: enable=W0612
 
     @app.errorhandler(Exception)

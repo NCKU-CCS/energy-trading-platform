@@ -1,8 +1,11 @@
 import uuid
 from config import db
+
 # pylint: disable=W0611
-from ..user.model import User
+from ..user.model import User # NOQA
+
 # pylint: enable=W0611
+
 
 class Bid(db.Model):
     __tablename__ = 'bid'
@@ -26,7 +29,7 @@ class Bid(db.Model):
     user = db.relationship('User')
 
     # pylint: disable=R0914,C0301
-    def __init__(self, bid_type, time, win, status, counterpart_name, counterpart_address, bid_value, bid_price, win_value, win_price, achievement, settlement, transaction_hash, upload, user_id):
+    def __init__(self, bid_type, time, win, status, counterpart_name, counterpart_address, bid_value, bid_price, win_value, win_price, achievement, settlement, transaction_hash, upload, user_id): # NOQA
         self.uuid = str(uuid.uuid4())
         self.type = bid_type
         self.time = time
@@ -43,14 +46,17 @@ class Bid(db.Model):
         self.transaction_hash = transaction_hash
         self.upload = upload
         self.user_id = user_id
+
     # pylint: enable=R0914,C0301
 
     def add(self):
         db.session.add(self)
         db.session.commit()
 
+    # pylint: disable=R0201
     def update(self):
         db.session.commit()
+    # pylint: enable=R0201
 
     def delete(self):
         db.session.delete(self)
