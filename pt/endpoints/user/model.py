@@ -1,5 +1,5 @@
-from werkzeug.security import generate_password_hash
 import uuid
+from werkzeug.security import generate_password_hash
 from config import db
 
 class User(db.Model):
@@ -13,10 +13,6 @@ class User(db.Model):
     balance = db.Column(db.Integer)
     address = db.Column(db.String(120))
     eth_address = db.Column(db.String(80))
-    # Association to AMI
-    # amis = db.relationship('AMI', backref='user', lazy='dynamic')
-    # Association to Bid
-    # bids = db.relationship('Bid', backref='user', lazy='dynamic')
 
     def __init__(self, account, password, username, tag, avatar, balance, address, eth_address):
         self.uuid = str(uuid.uuid4())

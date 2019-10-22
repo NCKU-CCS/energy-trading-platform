@@ -2,13 +2,15 @@ from endpoints.address.resource import AddressResource, AmiResource
 from endpoints.user.resource import UserResource, LoginResource, ParticipantResource
 from endpoints.news.resource import NewsResource
 from endpoints.data.resource import DatasResource
+from endpoints.bid.resource import BidsResource
 
 RESOURCES = {
     'address': AddressResource,
     'amis': AmiResource,
     'user': UserResource,
     'news': NewsResource,
-    'datas': DatasResource,
+    'power_info': DatasResource,
     'login': LoginResource,
-    'participant': ParticipantResource
+    'participant': ParticipantResource,
+    'bids': BidsResource
     }

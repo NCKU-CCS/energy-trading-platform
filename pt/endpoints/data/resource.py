@@ -1,11 +1,9 @@
 from datetime import date
-from flask import jsonify, request
+from flask import jsonify, request, make_response
 from flask_restful import Resource
 from utils.logging import logging
 from utils.oauth import auth, g
 from .model import Data
-# UUID -> data(history(ami).today)
-from ..user.model import User
 from ..address.model import AMI, History
 
 class DatasResource(Resource):
@@ -21,27 +19,30 @@ class DatasResource(Resource):
             % (g.account, g.uuid)
         )
         datas = []
-        # print(Data.query.filter_by(history_id=(History.query.filter_by(time=time, ami_id=AMI.query.filter_by(user_id=g.uuid).first().uuid).first().uuid)).all())
-        # print(AMI.query.filter_by(user_id=g.uuid).first().uuid)
-        # print(History.query.filter_by(time=time, ami_id='045eecee-4135-4f4b-bad4-4397d7217d3f').first())
 
+        if not History.query.filter_by(time=time, ami_id=AMI.query.filter_by(user_id=g.uuid).first().uuid).first():
+            return make_response(jsonify([]))
+
+        # pylint: disable=C0301
         for message in Data.query.filter_by(history_id=(History.query.filter_by(time=time, ami_id=AMI.query.filter_by(user_id=g.uuid).first().uuid).first().uuid)).all():
-            if message.type == 'Homepage':
+            if message.data_type == 'Homepage':
                 power = message.grid
-            elif message.type == 'ESS' or message.type == 'EV':
+            elif message.data_type == 'ESS' or message.data_type == 'EV':
                 power = message.power_display
-            elif message.type == 'PV':
+            elif message.data_type == 'PV':
                 power = message.PAC
-            elif message.type == 'WT':
+            elif message.data_type == 'WT':
                 power = message.WindGridPower
             datas.append({
                 "id": message.uuid,
                 "time": message.updated_at.strftime('%Y/%m/%d %H:%M'),
-                "type": message.type,
-                "power_display": power
+                "data_type": message.data_type,
+                "power_display": str(power),
+                "address": message.address
             })
         datas = sorted(datas, key=lambda x: x['time'], reverse=True)
         response = jsonify(datas)
         response.status_code = 200
         return response
+        # pylint: enable=C0301
     # pylint: enable=R0201

@@ -1,14 +1,14 @@
 import uuid
 from config import db, API
 from generate_address import get_addresses
-from sqlalchemy.ext.declarative import declared_attr
+# pylint: disable=W0611
 from ..user.model import User
-# from ..data.model import Data
+# pylint: enable=W0611
 
 
 class AMI(db.Model):
     __tablename__ = 'ami'
-    id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
+    sn = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
     uuid = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
     name = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.String(120))
@@ -19,11 +19,11 @@ class AMI(db.Model):
     # ForeignKey to User
     user_id = db.Column(db.String(40), db.ForeignKey('user.uuid'), nullable=False)
     user = db.relationship('User')
-    # Association to History
-    # historys = db.relationship('History', backref='AMI', lazy='dynamic')
 
     def __init__(self, name, description, iota_address, time, tag, user_id):
-        self.id = AMI.query.count()
+        # pylint: disable=C0103
+        self.sn = AMI.query.count()
+        # pylint: enable=C0103
         self.uuid = str(uuid.uuid4())
         self.name = name
         self.description = description
@@ -59,8 +59,6 @@ class History(db.Model):
     # ForeignKey to AMI
     ami_id = db.Column(db.String(40), db.ForeignKey('ami.uuid'), nullable=False)
     ami = db.relationship("AMI")
-    # Association to Data
-    # datas = db.relationship('Data', backref='history', lazy='dynamic')
 
     def __init__(self, name, description, iota_address, time, ami_id):
         self.uuid = str(uuid.uuid4())
@@ -100,7 +98,7 @@ def renew(time):
         index=int(time.strftime("%s")), count=AMI.query.count()
     )['addresses']
     for amis in AMI.query.all():
-        amis.iota_address = str(new_address[amis.id])
+        amis.iota_address = str(new_address[amis.sn])
         amis.time = time
         amis.time_stamp = time.strftime("%s")
         AMI.update(amis)

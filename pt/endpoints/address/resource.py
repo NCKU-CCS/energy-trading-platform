@@ -1,5 +1,6 @@
 from datetime import date
-from flask import g, jsonify
+from flask import jsonify
+from flask import g as g_ami
 from flask_restful import Resource
 from flask_httpauth import HTTPTokenAuth
 from utils.logging import logging
@@ -14,9 +15,9 @@ def verify_token(token):
     # get username and uuid from database
     ami = address(token, date.today())
     if ami:
-        g.uuid = ami.uuid
-        g.name = ami.name
-        g.address = ami.iota_address
+        g_ami.uuid = ami.uuid
+        g_ami.name = ami.name
+        g_ami.address = ami.iota_address
         return True
     return False
 
@@ -27,9 +28,9 @@ class AddressResource(Resource):
     def get(self):
         logging.info(
             "[Get Address Request]\nUser name:%s\nUUID:%s\nIOTA Address:%s"
-            % (g.name, g.uuid, g.address)
+            % (g_ami.name, g_ami.uuid, g_ami.address)
         )
-        response = jsonify({"address": g.address})
+        response = jsonify({"address": g_ami.address})
         response.status_code = 200
         return response
     # pylint: enable=R0201

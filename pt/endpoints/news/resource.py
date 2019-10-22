@@ -14,14 +14,14 @@ class NewsResource(Resource):
             % (g.account, g.uuid)
         )
         news = []
-        for message in News.query.limit(10).all():
+        for message in News.query.all():
             news.append({
                 "id": message.uuid,
                 "time": message.publish_time.strftime('%Y/%m/%d %H:%M'),
                 "content": message.content
             })
         news = sorted(news, key=lambda x: x['time'], reverse=True)
-        response = jsonify(news)
+        response = jsonify(news[:10])
         response.status_code = 200
         return response
     # pylint: enable=R0201

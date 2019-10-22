@@ -1,11 +1,13 @@
 import uuid
 from config import db
+# pylint: disable=W0611
 from ..user.model import User
+# pylint: enable=W0611
 
 class Bid(db.Model):
     __tablename__ = 'bid'
     uuid = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
-    type = db.Column(db.String(40))  # sell or buy
+    bid_type = db.Column(db.String(40))  # sell or buy
     time = db.Column(db.DateTime, unique=False, nullable=False)
     win = db.Column(db.Integer, nullable=False)
     status = db.Column(db.String(40))
@@ -22,12 +24,11 @@ class Bid(db.Model):
     # ForeignKey to User
     user_id = db.Column(db.String(80), db.ForeignKey('user.uuid'), nullable=False)
     user = db.relationship('User')
-    # Association to Submit
-    # submits = db.relationship('Submit', backref='Bid', lazy='dynamic')
 
-    def __init__(self, type, time, win, status, counterpart_name, counterpart_address, bid_value, bid_price, win_value, win_price, achievement, settlement, transaction_hash, upload, user_id):
+    # pylint: disable=R0914,C0301
+    def __init__(self, bid_type, time, win, status, counterpart_name, counterpart_address, bid_value, bid_price, win_value, win_price, achievement, settlement, transaction_hash, upload, user_id):
         self.uuid = str(uuid.uuid4())
-        self.type = type
+        self.type = bid_type
         self.time = time
         self.win = win
         self.status = status
@@ -42,6 +43,7 @@ class Bid(db.Model):
         self.transaction_hash = transaction_hash
         self.upload = upload
         self.user_id = user_id
+    # pylint: enable=R0914,C0301
 
     def add(self):
         db.session.add(self)
