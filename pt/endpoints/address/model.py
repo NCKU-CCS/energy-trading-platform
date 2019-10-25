@@ -1,6 +1,5 @@
 import uuid
 from config import db, API
-from generate_address import get_addresses
 
 # pylint: disable=W0611
 from utils.base_models import ETBaseMixin
@@ -69,7 +68,6 @@ def get_address(token, time):
 
 def renew(time):
     # Update Address
-    new_address = get_addresses(int(time.strftime("%s")), AMI.query.count())
     new_address = API.get_new_addresses(
         index=int(time.strftime("%s")), count=AMI.query.count()
     )['addresses']
