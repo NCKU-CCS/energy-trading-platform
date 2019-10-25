@@ -41,7 +41,7 @@ class DatasResource(Resource):
                     "time": message.updated_at.strftime('%Y/%m/%d %H:%M'),
                     "data_type": message.data_type,
                     "power_display": str(power),
-                    "address": message.address,
+                    "address": 'https://thetangle.org/transaction/' + message.address,
                 }
             )
         datas = sorted(datas, key=lambda x: x['time'], reverse=True)
