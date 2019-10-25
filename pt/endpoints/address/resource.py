@@ -5,7 +5,7 @@ from flask_restful import Resource
 from flask_httpauth import HTTPTokenAuth
 from utils.logging import logging
 from utils.oauth import auth, g
-from .model import address, AMI
+from .model import get_address, AMI
 
 # pylint: disable=C0103
 auth_ami = HTTPTokenAuth(scheme='Bearer')
@@ -13,7 +13,7 @@ auth_ami = HTTPTokenAuth(scheme='Bearer')
 @auth_ami.verify_token
 def verify_token(token):
     # get username and uuid from database
-    ami = address(token, date.today())
+    ami = get_address(token, date.today())
     if ami:
         g_ami.uuid = ami.uuid
         g_ami.name = ami.name

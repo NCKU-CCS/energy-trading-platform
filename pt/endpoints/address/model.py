@@ -59,7 +59,7 @@ class History(db.Model, ETBaseMixin):
         self.ami_id = ami_id
 
 
-def address(token, time):
+def get_address(token, time):
     ami = AMI.query.filter_by(tag=token, time=time).first()
     if ami:
         return ami
