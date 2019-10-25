@@ -23,7 +23,6 @@ class UserResource(Resource):
                 "eth_address": user.eth_address,
             }
         )
-        response.status_code = 200
         return response
 
     # pylint: enable=R0201
@@ -36,11 +35,10 @@ class UserResource(Resource):
         )
         user = User.query.filter_by(uuid=g.uuid).first()
         data = request.get_json()
-        if check_password_hash(user.password, data['original_passwd']):
-            user.password = generate_password_hash(data['new_passwd'])
+        if check_password_hash(user.password, data["original_passwd"]):
+            user.password = generate_password_hash(data["new_passwd"])
             User.update(user)
             response = jsonify({"message": "Accept."})
-            response.status_code = 200
         else:
             response = jsonify({"message": "Reject."})
             response.status_code = 400
@@ -53,21 +51,20 @@ class LoginResource(Resource):
     # pylint: disable=R0201
     def post(self):
         data = request.get_json()
-        if User.query.filter_by(account=data['account']).first():
-            user = User.query.filter_by(account=data['account']).first()
-            if check_password_hash(user.password, data['password']):
+        if User.query.filter_by(account=data["account"]).first():
+            user = User.query.filter_by(account=data["account"]).first()
+            if check_password_hash(user.password, data["password"]):
                 g.username = user.username
                 g.uuid = user.uuid
                 g.tag = user.tag
             else:
-                return make_response(jsonify({'error': 'Unauthorized access'}), 401)
+                return make_response(jsonify({"error": "Unauthorized access"}), 401)
         else:
-            return make_response(jsonify({'error': 'Unauthorized access'}), 401)
+            return make_response(jsonify({"error": "Unauthorized access"}), 401)
         logging.info(
             "[Post Login Request]\nUser Account:%s\nUUID:%s" % (g.username, g.uuid)
         )
         response = jsonify({"id": g.uuid, "bearer": g.tag})
-        response.status_code = 200
         return response
 
     # pylint: enable=R0201
@@ -80,11 +77,8 @@ class ParticipantResource(Resource):
         logging.info(
             "[Get Participant Request]\nUser Account:%s\nUUID:%s" % (g.account, g.uuid)
         )
-        bems = []
-        for user in User.query.all():
-            bems.append({"id": user.uuid, "name": user.username})
+        bems = [{"id": user.uuid, "name": user.username} for user in User.query.all()]
         response = jsonify(bems)
-        response.status_code = 200
         return response
 
     # pylint: enable=R0201

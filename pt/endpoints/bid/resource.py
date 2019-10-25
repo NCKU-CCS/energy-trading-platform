@@ -12,30 +12,28 @@ class BidsResource(Resource):
         logging.info(
             "[Get Bids Request]\nUser Account:%s\nUUID:%s\n" % (g.account, g.uuid)
         )
-        bids = []
-        for message in Bid.query.all():
-            bids.append(
-                {
-                    "id": message.uuid,
-                    "time": message.time.strftime('%Y/%m/%d %H:%M'),
-                    "bid_type": message.bid_type,
-                    "win": message.win,
-                    "status": message.status,
-                    "transaction_hash": message.transaction_hash,
-                    "upload": message.upload,
-                    "counterpart": {
-                        "name": message.counterpart_name,
-                        "address": message.counterpart_address,
-                    },
-                    "bids": {"price": message.bid_price, "value": message.win_value},
-                    "wins": {"price": message.bid_price, "value": message.win_value},
-                    "achievement": message.achievement,
-                    "settlement": message.settlement,
-                }
-            )
-        bids = sorted(bids, key=lambda x: x['upload'], reverse=True)
+        bids = [
+            {
+                "id": message.uuid,
+                "time": message.time.strftime("%Y/%m/%d %H:%M"),
+                "bid_type": message.bid_type,
+                "win": message.win,
+                "status": message.status,
+                "transaction_hash": message.transaction_hash,
+                "upload": message.upload,
+                "counterpart": {
+                    "name": message.counterpart_name,
+                    "address": message.counterpart_address,
+                },
+                "bids": {"price": message.bid_price, "value": message.win_value},
+                "wins": {"price": message.bid_price, "value": message.win_value},
+                "achievement": message.achievement,
+                "settlement": message.settlement,
+            }
+            for message in Bid.query.all()
+        ]
+        bids = sorted(bids, key=lambda x: x["upload"], reverse=True)
         response = jsonify(bids)
-        response.status_code = 200
         return response
 
     # pylint: enable=R0201
