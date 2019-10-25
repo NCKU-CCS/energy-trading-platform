@@ -48,9 +48,7 @@ class AmiResource(Resource):
             {"id": ami.uuid, "name": ami.name, "description": ami.description}
             for ami in AMI.query.filter_by(user_id=g.uuid).all()
         ]
-
         response = jsonify(amis)
-        response.status_code = 200
         return response
 
     # pylint: enable=R0201
