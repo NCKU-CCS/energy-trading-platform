@@ -1,6 +1,7 @@
 from datetime import date
 from flask import jsonify, request, make_response
 from flask_restful import Resource
+
 from utils.logging import logging
 from utils.oauth import auth, g
 from .model import Data

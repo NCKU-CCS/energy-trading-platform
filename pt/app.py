@@ -3,6 +3,7 @@ from flask_restful import Api
 from werkzeug.exceptions import HTTPException
 from werkzeug.exceptions import default_exceptions
 from dotenv import load_dotenv
+
 from config import db
 from endpoints import RESOURCES
 

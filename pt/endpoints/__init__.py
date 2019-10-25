@@ -4,6 +4,7 @@ from endpoints.news.resource import NewsResource
 from endpoints.data.resource import DatasResource
 from endpoints.bid.resource import BidsResource
 
+
 RESOURCES = {
     'address': AddressResource,
     'amis': AmiResource,
