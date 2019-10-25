@@ -3,6 +3,7 @@ from flask import jsonify
 from flask import g as g_ami
 from flask_restful import Resource
 from flask_httpauth import HTTPTokenAuth
+
 from utils.logging import logging
 from utils.oauth import auth, g
 from .model import get_address, AMI

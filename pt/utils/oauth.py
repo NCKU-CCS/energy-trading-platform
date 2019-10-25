@@ -1,5 +1,6 @@
 from flask import g, jsonify
 from flask_httpauth import HTTPTokenAuth
+
 from endpoints.user.model import User
 
 # pylint: disable=C0103

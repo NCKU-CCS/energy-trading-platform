@@ -1,6 +1,7 @@
 from flask import jsonify, request, make_response
 from flask_restful import Resource
 from werkzeug.security import generate_password_hash, check_password_hash
+
 from utils.logging import logging
 from utils.oauth import auth, g
 from .model import User
