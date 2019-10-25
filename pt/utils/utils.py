@@ -8,6 +8,7 @@ def get_tx_hash(addresses, tags):
     transaction_hash = API.find_transactions(addresses=addresses, tags=tags)['hashes']
     return transaction_hash
 
+
 def get_data(transaction_hash):
     # from transactions get trytes
     trytes = API.get_trytes(hashes=transaction_hash)['trytes']
