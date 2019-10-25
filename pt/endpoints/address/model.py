@@ -3,14 +3,15 @@ from config import db, API
 from generate_address import get_addresses
 
 # pylint: disable=W0611
+from utils.base_models import ETBaseMixin
 from ..user.model import User # NOQA
 
 # pylint: enable=W0611
 
 
-class AMI(db.Model):
+class AMI(db.Model, ETBaseMixin):
     __tablename__ = 'ami'
-    sn = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
+    id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
     uuid = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
     name = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.String(120))
@@ -24,7 +25,7 @@ class AMI(db.Model):
 
     def __init__(self, name, description, iota_address, time, tag, user_id):
         # pylint: disable=C0103
-        self.sn = AMI.query.count()
+        self.id = AMI.query.count()
         # pylint: enable=C0103
         self.uuid = str(uuid.uuid4())
         self.name = name
@@ -35,24 +36,8 @@ class AMI(db.Model):
         self.tag = tag
         self.user_id = user_id
 
-    def add(self):
-        db.session.add(self)
-        db.session.commit()
 
-    # pylint: disable=R0201
-    def update(self):
-        db.session.commit()
-    # pylint: enable=R0201
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    def __repr__(self):
-        return self.uuid
-
-
-class History(db.Model):
+class History(db.Model, ETBaseMixin):
     __tablename__ = 'history'
     uuid = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
     name = db.Column(db.String(80), unique=False, nullable=False)
@@ -73,22 +58,6 @@ class History(db.Model):
         self.time_stamp = time.strftime("%s")
         self.ami_id = ami_id
 
-    def add(self):
-        db.session.add(self)
-        db.session.commit()
-
-    # pylint: disable=R0201
-    def update(self):
-        db.session.commit()
-    # pylint: enable=R0201
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    def __repr__(self):
-        return self.uuid
-
 
 def address(token, time):
     ami = AMI.query.filter_by(tag=token, time=time).first()
@@ -105,7 +74,7 @@ def renew(time):
         index=int(time.strftime("%s")), count=AMI.query.count()
     )['addresses']
     for amis in AMI.query.all():
-        amis.iota_address = str(new_address[amis.sn])
+        amis.iota_address = str(new_address[amis.id])
         amis.time = time
         amis.time_stamp = time.strftime("%s")
         AMI.update(amis)

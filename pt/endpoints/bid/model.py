@@ -2,12 +2,13 @@ import uuid
 from config import db
 
 # pylint: disable=W0611
+from utils.base_models import ETBaseMixin
 from ..user.model import User # NOQA
 
 # pylint: enable=W0611
 
 
-class Bid(db.Model):
+class Bid(db.Model, ETBaseMixin):
     __tablename__ = 'bid'
     uuid = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
     bid_type = db.Column(db.String(40))  # sell or buy
@@ -46,21 +47,4 @@ class Bid(db.Model):
         self.transaction_hash = transaction_hash
         self.upload = upload
         self.user_id = user_id
-
     # pylint: enable=R0914,C0301
-
-    def add(self):
-        db.session.add(self)
-        db.session.commit()
-
-    # pylint: disable=R0201
-    def update(self):
-        db.session.commit()
-    # pylint: enable=R0201
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    def __repr__(self):
-        return self.uuid

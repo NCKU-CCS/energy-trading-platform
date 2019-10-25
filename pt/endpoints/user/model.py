@@ -1,9 +1,11 @@
 import uuid
 from werkzeug.security import generate_password_hash
+
 from config import db
+from utils.base_models import ETBaseMixin
 
 
-class User(db.Model):
+class User(db.Model, ETBaseMixin):
     __tablename__ = 'user'
     uuid = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
     account = db.Column(db.String(80), unique=True, nullable=False)
@@ -27,19 +29,3 @@ class User(db.Model):
         self.address = address
         self.eth_address = eth_address
     # fmt: on
-
-    def add(self):
-        db.session.add(self)
-        db.session.commit()
-
-    # pylint: disable=R0201
-    def update(self):
-        db.session.commit()
-    # pylint: enable=R0201
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    def __repr__(self):
-        return self.uuid
