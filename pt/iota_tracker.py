@@ -6,7 +6,7 @@ from Cryptodome.Hash import SHA256
 from config import PLAT_CIPHER, PLAT_SIGNER, RANDOM_GENERATOR, TAG_TEMPLATE
 from utils.utils import get_tx_hash, get_data
 from endpoints.address.model import AMI, History
-from endpoints.powerdata.model import PowerData, Homepage, ESS, EV, PV, WT
+from endpoints.powerdata.model import PowerData, Summary, ESS, EV, PV, WT
 
 
 def process_data():
@@ -42,8 +42,8 @@ def process_data():
                     print(decrypt_data)
                     # insert into db
                     if tag[:-1] == 'BEMS9HOMEPAGE9INFORMATION9':
-                        Homepage.add(
-                            Homepage(
+                        Summary.add(
+                            Summary(
                                 json.loads(decrypt_data.decode()),
                                 History.query.filter_by(iota_address=address, time=date.today()).first().uuid,
                                 str(receive_address),

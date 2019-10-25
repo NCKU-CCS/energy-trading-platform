@@ -27,15 +27,15 @@ class PowerData(db.Model, ETBaseMixin):
         self.address = data_struct['address']
 
 
-class Homepage(PowerData):
-    __tablename__ = 'homepage'
+class Summary(PowerData):
+    __tablename__ = 'summary'
     uuid = db.Column(db.String(40), db.ForeignKey('powerdata.uuid'), primary_key=True)
     grid = db.Column(db.Float)
     pv = db.Column(db.Float)
     building = db.Column(db.Float)
     ess = db.Column(db.Float)
     ev = db.Column(db.Float)
-    __mapper_args__ = {'polymorphic_identity': 'Homepage'}
+    __mapper_args__ = {'polymorphic_identity': 'Summary'}
 
     # fmt: off
     def __init__(self, data_struct, history_id, address):
@@ -46,7 +46,7 @@ class Homepage(PowerData):
             'history_id': history_id,
             'address': address,
         }
-        super(Homepage, self).__init__(mother)
+        super(Summary, self).__init__(mother)
         self.grid = data_struct['grid']
         self.building = data_struct['building']
         self.ess = data_struct['ess']
