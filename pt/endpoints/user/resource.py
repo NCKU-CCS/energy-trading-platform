@@ -51,8 +51,8 @@ class LoginResource(Resource):
     # pylint: disable=R0201
     def post(self):
         data = request.get_json()
-        if User.query.filter_by(account=data["account"]).first():
-            user = User.query.filter_by(account=data["account"]).first()
+        user = User.query.filter_by(account=data["account"]).first()
+        if user:
             if check_password_hash(user.password, data["password"]):
                 g.username = user.username
                 g.uuid = user.uuid
