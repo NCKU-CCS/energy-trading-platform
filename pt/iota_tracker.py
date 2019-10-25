@@ -27,13 +27,15 @@ def process_data():
             if not transactions:
                 continue
             messages = get_data(transactions)
-            for message in messages:
+            for receive_address in messages:
                 # decrypt
-                decrypt_data = PLAT_CIPHER.decrypt(base64.b64decode(messages[message]['data']), RANDOM_GENERATOR)
+                decrypt_data = PLAT_CIPHER.decrypt(
+                    base64.b64decode(messages[receive_address]['data']), RANDOM_GENERATOR
+                )
                 # signature
                 # pylint: disable=E1102
                 is_verify = PLAT_SIGNER.verify(
-                    SHA256.new(decrypt_data), base64.b64decode(messages[message]['signature'])
+                    SHA256.new(decrypt_data), base64.b64decode(messages[receive_address]['signature'])
                 )
                 # pylint: enable=E1102
                 if is_verify:
@@ -44,7 +46,7 @@ def process_data():
                             Homepage(
                                 json.loads(decrypt_data.decode()),
                                 History.query.filter_by(iota_address=address, time=date.today()).first().uuid,
-                                str(message), # tx address
+                                str(receive_address),
                             )
                         )
                     elif tag[:-1] == 'BEMS9ESS9DISPLAY9':
@@ -52,7 +54,7 @@ def process_data():
                             ESS(
                                 json.loads(decrypt_data.decode()),
                                 History.query.filter_by(iota_address=address, time=date.today()).first().uuid,
-                                str(message), # tx address
+                                str(receive_address),
                             )
                         )
                     elif tag[:-1] == 'BEMS9EV9DISPLAY9':
@@ -60,7 +62,7 @@ def process_data():
                             EV(
                                 json.loads(decrypt_data.decode()),
                                 History.query.filter_by(iota_address=address, time=date.today()).first().uuid,
-                                str(message), # tx address
+                                str(receive_address),
                             )
                         )
                     elif tag[:-1] == 'BEMS9PV9DISPLAY9':
@@ -68,7 +70,7 @@ def process_data():
                             PV(
                                 json.loads(decrypt_data.decode()),
                                 History.query.filter_by(iota_address=address, time=date.today()).first().uuid,
-                                str(message), # tx address
+                                str(receive_address),
                             )
                         )
                     elif tag[:-1] == 'BEMS9WT9DISPLAY9':
@@ -76,8 +78,9 @@ def process_data():
                             WT(
                                 json.loads(decrypt_data.decode()),
                                 History.query.filter_by(iota_address=address, time=date.today()).first().uuid,
-                                str(message), # tx address
+                                str(receive_address),
                             )
                         )
+
 
 process_data()
