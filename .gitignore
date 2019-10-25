@@ -121,9 +121,6 @@ tmp/
 # pressure test
 pressure_test/
 
-# testing folder
-tests/
-
 # certificate
 pt/certificate/*
 
