@@ -8,7 +8,7 @@ from utils.oauth import auth, g
 from .model import get_address, AMI
 
 # pylint: disable=C0103
-auth_ami = HTTPTokenAuth(scheme='Bearer')
+auth_ami = HTTPTokenAuth(scheme="Bearer")
 # pylint: enable=C0103
 @auth_ami.verify_token
 def verify_token(token):
@@ -44,11 +44,10 @@ class AmiResource(Resource):
         logging.info(
             "[Get Amis Request]\nUser Account:%s\nUUID:%s" % (g.account, g.uuid)
         )
-        amis = []
-        for ami in AMI.query.filter_by(user_id=g.uuid).all():
-            amis.append(
-                {"id": ami.uuid, "name": ami.name, "description": ami.description}
-            )
+        amis = [
+            {"id": ami.uuid, "name": ami.name, "description": ami.description}
+            for ami in AMI.query.filter_by(user_id=g.uuid).all()
+        ]
 
         response = jsonify(amis)
         response.status_code = 200
