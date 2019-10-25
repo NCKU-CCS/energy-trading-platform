@@ -1,22 +1,24 @@
 import json
 import iota
 
-# from config import API_URI
-
-API_URI = 'http://node10.puyuma.org:14265'
-
-API = iota.Iota(API_URI)
+from config import API_TRACK as API
 
 
-def get_data(transaction_hashs):
-    data = API.get_trytes(hashes=transaction_hashs)
-    messages = []
-    for message in data['trytes']:
+def get_tx_hash(addresses, tags):
+    transaction_hash = API.find_transactions(addresses=addresses, tags=tags)['hashes']
+    return transaction_hash
+
+def get_data(transaction_hash):
+    # from transactions get trytes
+    trytes = API.get_trytes(hashes=transaction_hash)['trytes']
+    # trytes to string(json type)
+    messages = {}
+    for tx_hash, message in zip(transaction_hash, trytes):
         try:
             transaction = iota.Transaction.from_tryte_string(message)
-            messages.append(json.loads(transaction.signature_message_fragment.decode()))
+            messages[tx_hash] = json.loads(transaction.signature_message_fragment.decode())
         except json.decoder.JSONDecodeError:
-            messages.append('error')
+            messages[tx_hash] = 'error'
     return messages
 
 
