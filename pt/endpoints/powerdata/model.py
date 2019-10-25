@@ -7,7 +7,8 @@ from ..address.model import History # NOQA
 # pylint: enable=W0611
 
 
-class Data(db.Model, ETBaseMixin):
+class PowerData(db.Model, ETBaseMixin):
+    __tablename__ = 'powerdata'
     uuid = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
     field = db.Column(db.String(120), unique=False, nullable=False)
     updated_at = db.Column(db.DateTime, unique=False, nullable=False)
@@ -26,9 +27,9 @@ class Data(db.Model, ETBaseMixin):
         self.address = data_struct['address']
 
 
-class Homepage(Data):
+class Homepage(PowerData):
     __tablename__ = 'homepage'
-    uuid = db.Column(db.String(40), db.ForeignKey('data.uuid'), primary_key=True)
+    uuid = db.Column(db.String(40), db.ForeignKey('powerdata.uuid'), primary_key=True)
     grid = db.Column(db.Float)
     pv = db.Column(db.Float)
     building = db.Column(db.Float)
@@ -56,9 +57,9 @@ class Homepage(Data):
     # fmt: on
 
 
-class ESS(Data):
+class ESS(PowerData):
     __tablename__ = 'ess'
-    uuid = db.Column(db.String(40), db.ForeignKey('data.uuid'), primary_key=True)
+    uuid = db.Column(db.String(40), db.ForeignKey('powerdata.uuid'), primary_key=True)
     cluster = db.Column(db.Integer)
     power_display = db.Column(db.Float)
     __mapper_args__ = {'polymorphic_identity': 'ESS'}
@@ -76,9 +77,9 @@ class ESS(Data):
         self.power_display = data_struct['power_display']
 
 
-class EV(Data):
+class EV(PowerData):
     __tablename__ = 'ev'
-    uuid = db.Column(db.String(40), db.ForeignKey('data.uuid'), primary_key=True)
+    uuid = db.Column(db.String(40), db.ForeignKey('powerdata.uuid'), primary_key=True)
     cluster = db.Column(db.Integer)
     power_display = db.Column(db.Float)
     __mapper_args__ = {'polymorphic_identity': 'EV'}
@@ -96,11 +97,11 @@ class EV(Data):
         self.power_display = data_struct['power']
 
 
-class PV(Data):
+class PV(PowerData):
     __tablename__ = 'pv'
-    uuid = db.Column(db.String(40), db.ForeignKey('data.uuid'), primary_key=True)
+    uuid = db.Column(db.String(40), db.ForeignKey('powerdata.uuid'), primary_key=True)
     cluster = db.Column(db.Integer)
-    PAC = db.Column(db.Float)
+    pac = db.Column(db.Float)
     __mapper_args__ = {'polymorphic_identity': 'PV'}
 
     def __init__(self, data_struct, history_id, address):
@@ -114,15 +115,15 @@ class PV(Data):
         super(PV, self).__init__(mother)
         self.cluster = data_struct['cluster']
         # pylint: disable=C0103
-        self.PAC = data_struct['PAC']
+        self.pac = data_struct['PAC']
         # pylint: enable=C0103
 
 
-class WT(Data):
+class WT(PowerData):
     __tablename__ = 'wt'
-    uuid = db.Column(db.String(40), db.ForeignKey('data.uuid'), primary_key=True)
+    uuid = db.Column(db.String(40), db.ForeignKey('powerdata.uuid'), primary_key=True)
     cluster = db.Column(db.Integer)
-    WindGridPower = db.Column(db.Float)
+    windgridpower = db.Column(db.Float)
     __mapper_args__ = {'polymorphic_identity': 'WT'}
 
     def __init__(self, data_struct, history_id, address):

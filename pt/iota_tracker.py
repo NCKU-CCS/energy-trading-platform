@@ -6,7 +6,7 @@ from Cryptodome.Hash import SHA256
 from config import PLAT_CIPHER, PLAT_SIGNER, RANDOM_GENERATOR, TAG_TEMPLATE
 from utils.utils import get_tx_hash, get_data
 from endpoints.address.model import AMI, History
-from endpoints.data.model import Data, Homepage, ESS, EV, PV, WT
+from endpoints.powerdata.model import PowerData, Homepage, ESS, EV, PV, WT
 
 
 def process_data():
@@ -21,7 +21,7 @@ def process_data():
             if not transaction_hash:
                 continue
             # filt transaction hash by db
-            db_hash = [data.address for data in Data.query.all()]
+            db_hash = [data.address for data in PowerData.query.all()]
             transactions = [tx for tx in transaction_hash if tx not in db_hash]
             # Tx Hash -> message
             if not transactions:
