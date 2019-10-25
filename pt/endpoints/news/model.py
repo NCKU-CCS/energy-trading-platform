@@ -1,8 +1,10 @@
 import uuid
 from config import db
 
+from utils.base_models import ETBaseMixin
 
-class News(db.Model):
+
+class News(db.Model, ETBaseMixin):
     __tablename__ = 'news'
     uuid = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
     publish_time = db.Column(db.DateTime, unique=False, nullable=False)
@@ -12,19 +14,3 @@ class News(db.Model):
         self.uuid = str(uuid.uuid4())
         self.publish_time = publish_time
         self.content = content
-
-    def add(self):
-        db.session.add(self)
-        db.session.commit()
-
-    # pylint: disable=R0201
-    def update(self):
-        db.session.commit()
-    # pylint: enable=R0201
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    def __repr__(self):
-        return self.uuid

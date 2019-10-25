@@ -3,12 +3,13 @@ from datetime import datetime
 from config import db
 
 # pylint: disable=W0611
+from utils.base_models import ETBaseMixin
 from ..bid.model import Bid
 
 # pylint: disable=W0611
 
 
-class Submit(db.Model):
+class Submit(db.Model, ETBaseMixin):
     __tablename__ = 'submit'
     uuid = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
     bid_type = db.Column(db.String(40))  # sell or buy
@@ -28,19 +29,3 @@ class Submit(db.Model):
         self.price = price
         self.upload_time = datetime.today()
         self.bid_id = bid_id
-
-    def add(self):
-        db.session.add(self)
-        db.session.commit()
-
-    # pylint: disable=R0201
-    def update(self):
-        db.session.commit()
-    # pylint: enable=R0201
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    def __repr__(self):
-        return self.uuid

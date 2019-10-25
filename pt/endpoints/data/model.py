@@ -1,13 +1,13 @@
-import uuid
 from config import db
 
 # pylint: disable=W0611
+from utils.base_models import ETBaseMixin
 from ..address.model import History # NOQA
 
 # pylint: enable=W0611
 
 
-class Data(db.Model):
+class Data(db.Model, ETBaseMixin):
     uuid = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
     field = db.Column(db.String(120), unique=False, nullable=False)
     updated_at = db.Column(db.DateTime, unique=False, nullable=False)
@@ -18,28 +18,12 @@ class Data(db.Model):
     data_type = db.Column(db.String(50))
     __mapper_args__ = {'polymorphic_identity': 'Data', 'polymorphic_on': data_type}
 
-    def __init__(self, field, updated_at, history_id, address):
-        self.uuid = str(uuid.uuid4())
-        self.field = field
-        self.updated_at = updated_at
-        self.history_id = history_id
-        self.address = address
-
-    def add(self):
-        db.session.add(self)
-        db.session.commit()
-
-    # pylint: disable=R0201
-    def update(self):
-        db.session.commit()
-    # pylint: enable=R0201
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    def __repr__(self):
-        return self.uuid
+    def __init__(self, data_struct):
+        self.uuid = data_struct['uuid']
+        self.field = data_struct['field']
+        self.updated_at = data_struct['updated_at']
+        self.history_id = data_struct['history_id']
+        self.address = data_struct['address']
 
 
 class Homepage(Data):
@@ -53,14 +37,21 @@ class Homepage(Data):
     __mapper_args__ = {'polymorphic_identity': 'Homepage'}
 
     # fmt: off
-    def __init__(self, grid, pv, building, ess, ev, field, updated_at, history_id, address):
-        super(Homepage, self).__init__(field, updated_at, history_id, address)
-        self.grid = grid
-        self.building = building
-        self.ess = ess
+    def __init__(self, data_struct, history_id, address):
+        mother = {
+            'uuid': data_struct['id'],
+            'field': data_struct['field'],
+            'updated_at': data_struct['updated_at'],
+            'history_id': history_id,
+            'address': address,
+        }
+        super(Homepage, self).__init__(mother)
+        self.grid = data_struct['grid']
+        self.building = data_struct['building']
+        self.ess = data_struct['ess']
         # pylint: disable=C0103
-        self.pv = pv
-        self.ev = ev
+        self.pv = data_struct['pv']
+        self.ev = data_struct['ev']
         # pylint: enable=C0103
     # fmt: on
 
@@ -72,10 +63,17 @@ class ESS(Data):
     power_display = db.Column(db.Float)
     __mapper_args__ = {'polymorphic_identity': 'ESS'}
 
-    def __init__(self, cluster, power_display, field, updated_at, history_id, address):
-        super(ESS, self).__init__(field, updated_at, history_id, address)
-        self.cluster = cluster
-        self.power_display = power_display
+    def __init__(self, data_struct, history_id, address):
+        mother = {
+            'uuid': data_struct['id'],
+            'field': data_struct['field'],
+            'updated_at': data_struct['updated_at'],
+            'history_id': history_id,
+            'address': address,
+        }
+        super(ESS, self).__init__(mother)
+        self.cluster = data_struct['cluster']
+        self.power_display = data_struct['power_display']
 
 
 class EV(Data):
@@ -85,10 +83,17 @@ class EV(Data):
     power_display = db.Column(db.Float)
     __mapper_args__ = {'polymorphic_identity': 'EV'}
 
-    def __init__(self, cluster, power_display, field, updated_at, history_id, address):
-        super(EV, self).__init__(field, updated_at, history_id, address)
-        self.cluster = cluster
-        self.power_display = power_display
+    def __init__(self, data_struct, history_id, address):
+        mother = {
+            'uuid': data_struct['id'],
+            'field': data_struct['field'],
+            'updated_at': data_struct['updated_at'],
+            'history_id': history_id,
+            'address': address,
+        }
+        super(EV, self).__init__(mother)
+        self.cluster = data_struct['cluster']
+        self.power_display = data_struct['power']
 
 
 class PV(Data):
@@ -98,11 +103,18 @@ class PV(Data):
     PAC = db.Column(db.Float)
     __mapper_args__ = {'polymorphic_identity': 'PV'}
 
-    def __init__(self, cluster, PAC, field, updated_at, history_id, address):
-        super(PV, self).__init__(field, updated_at, history_id, address)
-        self.cluster = cluster
+    def __init__(self, data_struct, history_id, address):
+        mother = {
+            'uuid': data_struct['id'],
+            'field': data_struct['field'],
+            'updated_at': data_struct['updated_at'],
+            'history_id': history_id,
+            'address': address,
+        }
+        super(PV, self).__init__(mother)
+        self.cluster = data_struct['cluster']
         # pylint: disable=C0103
-        self.PAC = PAC
+        self.PAC = data_struct['PAC']
         # pylint: enable=C0103
 
 
@@ -113,9 +125,16 @@ class WT(Data):
     WindGridPower = db.Column(db.Float)
     __mapper_args__ = {'polymorphic_identity': 'WT'}
 
-    def __init__(self, cluster, WindGridPower, field, updated_at, history_id, address):
-        super(WT, self).__init__(field, updated_at, history_id, address)
-        self.cluster = cluster
+    def __init__(self, data_struct, history_id, address):
+        mother = {
+            'uuid': data_struct['id'],
+            'field': data_struct['field'],
+            'updated_at': data_struct['updated_at'],
+            'history_id': history_id,
+            'address': address,
+        }
+        super(WT, self).__init__(mother)
+        self.cluster = data_struct['cluster']
         # pylint: disable=C0103
-        self.WindGridPower = WindGridPower
+        self.WindGridPower = data_struct['WindGridPower']
         # pylint: enable=C0103
