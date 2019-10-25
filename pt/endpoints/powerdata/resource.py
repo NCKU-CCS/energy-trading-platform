@@ -4,11 +4,11 @@ from flask_restful import Resource
 
 from utils.logging import logging
 from utils.oauth import auth, g
-from .model import Data
+from .model import PowerData
 from ..address.model import AMI, History
 
 
-class DatasResource(Resource):
+class PowerDatasResource(Resource):
     # pylint: disable=R0201
     @auth.login_required
     def get(self):
@@ -27,7 +27,7 @@ class DatasResource(Resource):
         # pylint: enable=C0301
 
         # pylint: disable=C0301
-        for message in Data.query.filter_by(history_id=(History.query.filter_by(time=time, ami_id=AMI.query.filter_by(user_id=g.uuid).first().uuid).first().uuid)).all(): # NOQA
+        for message in PowerData.query.filter_by(history_id=(History.query.filter_by(time=time, ami_id=AMI.query.filter_by(user_id=g.uuid).first().uuid).first().uuid)).all(): # NOQA
             if message.data_type == 'Homepage':
                 power = message.grid
             elif message.data_type == 'ESS' or message.data_type == 'EV':
