@@ -13,7 +13,7 @@ load_dotenv()
 
 # pylint: disable=C0103
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dev_user:dev191026@localhost:5432/dev_db'
+SQLALCHEMY_DATABASE_URI = os.environ.get('DB_URL', 'postgresql://dev_user:dev191026@localhost:5432/dev_db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 # pylint: enable=C0103
