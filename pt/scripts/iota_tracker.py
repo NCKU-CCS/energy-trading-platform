@@ -1,12 +1,17 @@
 import base64
 import json
+import sys
 from datetime import datetime, date
 from Cryptodome.Hash import SHA256
 
-from config import PLAT_CIPHER, PLAT_SIGNER, RANDOM_GENERATOR, TAG_TEMPLATE
-from utils.utils import get_tx_hash, get_data
-from endpoints.address.model import AMI, History
-from endpoints.powerdata.model import PowerData, Demand, ESS, EV, PV, WT
+sys.path.insert(0, '../energy-trading-platform/pt')
+
+# pylint: disable=C0413
+from config import PLAT_CIPHER, PLAT_SIGNER, RANDOM_GENERATOR, TAG_TEMPLATE  # noqa: E402
+from utils.utils import get_tx_hash, get_data  # noqa: E402
+from endpoints.address.model import AMI, History  # noqa: E402
+from endpoints.powerdata.model import PowerData, Demand, ESS, EV, PV, WT  # noqa: E402
+# pylint: enable=C0413
 
 
 def process_data():
@@ -63,5 +68,5 @@ def process_data():
                         pass
 
 
-if __name__ == "__main__":
-    process_data()
+# if __name__ == "__main__":
+process_data()
