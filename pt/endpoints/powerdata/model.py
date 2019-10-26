@@ -137,5 +137,5 @@ class WT(PowerData):
         super(WT, self).__init__(mother)
         self.cluster = data_struct['cluster']
         # pylint: disable=C0103
-        self.WindGridPower = data_struct['WindGridPower']
+        self.windgridpower = data_struct['WindGridPower']
         # pylint: enable=C0103
