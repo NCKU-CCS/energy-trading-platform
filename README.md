@@ -2,28 +2,34 @@
 
 [![Build Status](https://travis-ci.org/NCKU-CCS/energy-trading-platform.svg?branch=cswang%2Fet_platform)](https://travis-ci.org/NCKU-CCS/energy-trading-platform)
 
+主要功能為綠能交易平台的 API，詳細資訊：[API Document](https://et01.docs.apiary.io/#)
+
 ## [GET] address
 
-+ 提供 AMI Data Uploader 來詢問上傳的 IOTA Address
++ 提供 AMI Data Uploader 詢問上傳的 IOTA Address
+
++ Authorization: Bearer Token
 
 + Address 規則：
-    + 每個 field 對應到一個 Address
-    + 每小時更新一次 Address
-
-+ token 作為 Uploader 的認證
+    + 每個上傳 AMI 對應到一個 Address
+    + 每天更新一次 Address
 
 ### Database
 
-+ pull postgres docker
++ Running database at background
 
-    `docker pull postgres`
+    `docker-compose up -d`
 
-+ run with db data
+### IOTA Tracker
 
-    `docker run --name mypostgres -e POSTGRES_PASSWORD=password -v "$PWD/db":/var/lib/postgresql/data -p 5432:5432 -d postgres`
++ Get Datas from IOTA and decrypt, based on address from database and tags from configs.
 
-### 連接方式
+    `pipenv run python pt/iota_tracker.py`
 
-+ 參數
-    + token : 認證用
-    + field : 每個 field 會有不同對應的 Adderss
+### Notice
+
++ `.travis.yml` 中的 `secure` key 已經過加密
+
++ `config/config` 中的 `API_URI` 未來會用於完善 IOTA Tracker，提供動態選擇 URI 的清單。
+
++ `config/__init__.py` 中的 `app` 參數是用於 IOTA Tracker 直接寫入資料庫用，和主程式的 `app` 無關。
