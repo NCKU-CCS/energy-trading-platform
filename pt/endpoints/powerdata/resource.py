@@ -28,7 +28,7 @@ class PowerDatasResource(Resource):
 
         # pylint: disable=C0301
         for message in PowerData.query.filter_by(history_id=(History.query.filter_by(time=time, ami_id=AMI.query.filter_by(user_id=g.uuid).first().uuid).first().uuid)).all(): # NOQA
-            if message.data_type == 'Summary':
+            if message.data_type == 'Demand':
                 power = message.grid
             elif message.data_type == 'ESS' or message.data_type == 'EV':
                 power = message.power_display
