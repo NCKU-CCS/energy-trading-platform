@@ -33,9 +33,9 @@ class PowerDatasResource(Resource):
             elif message.data_type == 'ESS' or message.data_type == 'EV':
                 power = message.power_display
             elif message.data_type == 'PV':
-                power = message.PAC
+                power = message.pac
             elif message.data_type == 'WT':
-                power = message.WindGridPower
+                power = message.windgridpower
             datas.append(
                 {
                     "id": message.uuid,
