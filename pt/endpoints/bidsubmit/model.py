@@ -9,8 +9,8 @@ from ..bid.model import Bid
 # pylint: disable=W0611
 
 
-class Submit(db.Model, ETBaseMixin):
-    __tablename__ = 'submit'
+class BidSubmit(db.Model, ETBaseMixin):
+    __tablename__ = 'bidsubmit'
     uuid = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
     bid_type = db.Column(db.String(40))  # sell or buy
     time = db.Column(db.DateTime, unique=False, nullable=False)

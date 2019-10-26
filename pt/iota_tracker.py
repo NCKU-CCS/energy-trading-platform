@@ -9,6 +9,18 @@ from endpoints.address.model import AMI, History
 from endpoints.powerdata.model import PowerData, Demand, ESS, EV, PV, WT
 
 
+# Convert IOTA's tag to relate database model.
+# tag format: {BEMS}9{IOTA data type}9
+# In IOTA, tag must be A-Z and 9, so using '9' to replace Space.
+IOTA_DATA_TYPE = {
+    'BEMS9HOMEPAGE9INFORMATION9': Demand,
+    'BEMS9ESS9DISPLAY9': ESS,
+    'BEMS9EV9DISPLAY9': EV,
+    'BEMS9PV9DISPLAY9': PV,
+    'BEMS9WT9DISPLAY9': WT,
+}
+
+
 def process_data():
     # get address from db
     addresses = [str(ami.iota_address) for ami in AMI.query.all()]
@@ -41,46 +53,16 @@ def process_data():
                 if is_verify:
                     print(decrypt_data)
                     # insert into db
-                    if tag[:-1] == 'BEMS9HOMEPAGE9INFORMATION9':
-                        Demand.add(
-                            Demand(
+                    try:
+                        IOTA_DATA_TYPE[tag[:-1]].add(
+                            IOTA_DATA_TYPE[tag[:-1]](
                                 json.loads(decrypt_data.decode()),
                                 History.query.filter_by(iota_address=address, time=date.today()).first().uuid,
                                 str(receive_address),
                             )
                         )
-                    elif tag[:-1] == 'BEMS9ESS9DISPLAY9':
-                        ESS.add(
-                            ESS(
-                                json.loads(decrypt_data.decode()),
-                                History.query.filter_by(iota_address=address, time=date.today()).first().uuid,
-                                str(receive_address),
-                            )
-                        )
-                    elif tag[:-1] == 'BEMS9EV9DISPLAY9':
-                        EV.add(
-                            EV(
-                                json.loads(decrypt_data.decode()),
-                                History.query.filter_by(iota_address=address, time=date.today()).first().uuid,
-                                str(receive_address),
-                            )
-                        )
-                    elif tag[:-1] == 'BEMS9PV9DISPLAY9':
-                        PV.add(
-                            PV(
-                                json.loads(decrypt_data.decode()),
-                                History.query.filter_by(iota_address=address, time=date.today()).first().uuid,
-                                str(receive_address),
-                            )
-                        )
-                    elif tag[:-1] == 'BEMS9WT9DISPLAY9':
-                        WT.add(
-                            WT(
-                                json.loads(decrypt_data.decode()),
-                                History.query.filter_by(iota_address=address, time=date.today()).first().uuid,
-                                str(receive_address),
-                            )
-                        )
+                    except KeyError:
+                        pass
 
 
 process_data()
