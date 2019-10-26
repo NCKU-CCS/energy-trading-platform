@@ -1,3 +1,4 @@
+import os
 from flask import Flask, jsonify, make_response
 from flask_restful import Api
 from werkzeug.exceptions import HTTPException
@@ -67,11 +68,11 @@ def create_app(config_mode):
 
 
 def main():
-    app = create_app('Develop')
+    config_name = os.environ.get('APP_SETTINGS', 'development')
+    app = create_app(config_name)
     app.run(
-        host=app.config['HOST'],
-        port=app.config['PORT']
-        # debug='no',
+        host='0.0.0.0',
+        port=os.environ.get('PORT', 5000)
         # ssl_context=app.config['SSL_CONTEXT'],
     )
 

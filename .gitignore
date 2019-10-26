@@ -106,9 +106,6 @@ venv.bak/
 # Mac file
 .DS_Store
 
-# config file
-config.py
-
 # learning file
 learn/
 
@@ -130,8 +127,6 @@ pt/rsa/
 # db_init
 pt/db_init.py
 
-# config file
-config/
 
 # DB
 pt/data.db
