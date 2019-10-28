@@ -20,6 +20,13 @@ class Tenders(db.Model, ETBaseMixin):
     user_id = db.Column(db.String(80), db.ForeignKey('user.uuid'), nullable=False)
     user = db.relationship('User')
 
+    def __init__(self, tenders_data): # NOQA
+        self.uuid = str(uuid.uuid4())
+        self.bid_type = tenders_data['bid_type']
+        self.start_time = tenders_data['start_time']
+        self.end_time = tenders_data['end_time']
+        self.user_id = tenders_data['user_id']
+
 
 class MatchResult(db.Model, ETBaseMixin):
     __tablename__ = 'matchresult'
@@ -44,24 +51,24 @@ class MatchResult(db.Model, ETBaseMixin):
     tenders = db.relationship('Tenders')
 
     # pylint: disable=R0914,C0301
-    def __init__(self, bid_type, start_time, end_time, win, status, counterpart_name, counterpart_address, bid_value, bid_price, win_value, win_price, achievement, settlement, transaction_hash, upload, user_id): # NOQA
+    def __init__(self, match_data): # NOQA
         self.uuid = str(uuid.uuid4())
-        self.type = bid_type
-        self.start_time = start_time
-        self.end_time = end_time
-        self.win = win
-        self.status = status
-        self.counterpart_name = counterpart_name
-        self.counterpart_address = counterpart_address
-        self.bid_value = bid_value
-        self.bid_price = bid_price
-        self.win_value = win_value
-        self.win_price = win_price
-        self.achievement = achievement
-        self.settlement = settlement
-        self.transaction_hash = transaction_hash
-        self.upload = upload
-        self.user_id = user_id
+        self.bid_type = match_data['bid_type']
+        self.start_time = match_data['start_time']
+        self.end_time = match_data['end_time']
+        self.win = match_data['win']
+        self.status = match_data['status']
+        self.counterpart_name = match_data['counterpart_name']
+        self.counterpart_address = match_data['counterpart_address']
+        self.bid_value = match_data['bid_value']
+        self.bid_price = match_data['bid_price']
+        self.win_value = match_data['win_value']
+        self.win_price = match_data['win_price']
+        self.achievement = match_data['achievement']
+        self.settlement = match_data['settlement']
+        self.transaction_hash = match_data['transaction_hash']
+        self.upload = match_data['upload']
+        self.tenders_id = match_data['tenders_id']
     # pylint: enable=R0914,C0301
 
 
@@ -78,12 +85,12 @@ class BidSubmit(db.Model, ETBaseMixin):
     tenders_id = db.Column(db.String(80), db.ForeignKey('tenders.uuid'), nullable=False)
     tenders = db.relationship('Tenders')
 
-    def __init__(self, bid_type, start_time, end_time, value, price, bid_id):
+    def __init__(self, bid_data):
         self.uuid = str(uuid.uuid4())
-        self.bid_type = bid_type
-        self.start_time = start_time
-        self.end_time = end_time
-        self.value = value
-        self.price = price
+        self.bid_type = bid_data['bid_type']
+        self.start_time = bid_data['start_time']
+        self.end_time = bid_data['end_time']
+        self.value = bid_data['value']
+        self.price = bid_data['price']
         self.upload_time = datetime.today()
-        self.bid_id = bid_id
+        self.tenders_id = bid_data['tenders_id']

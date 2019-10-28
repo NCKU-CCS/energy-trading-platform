@@ -19,10 +19,9 @@ class NewsResource(Resource):
                 "time": message.publish_time.strftime("%Y/%m/%d %H:%M"),
                 "content": message.content,
             }
-            for message in News.query.all()
+            for message in News.query.order_by(News.time.desc()).limit(10).all()
         ]
-        news = sorted(news, key=lambda x: x["time"], reverse=True)
-        response = jsonify(news[:10])
+        response = jsonify(news)
         return response
 
     # pylint: enable=R0201

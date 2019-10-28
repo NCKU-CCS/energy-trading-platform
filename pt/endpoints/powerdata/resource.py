@@ -27,7 +27,7 @@ class PowerDatasResource(Resource):
         # pylint: enable=C0301
 
         # pylint: disable=C0301
-        for message in PowerData.query.filter_by(history_id=(History.query.filter_by(time=time, ami_id=AMI.query.filter_by(user_id=g.uuid).first().uuid).first().uuid)).all(): # NOQA
+        for message in PowerData.query.filter_by(history_id=(History.query.filter_by(time=time, ami_id=AMI.query.filter_by(user_id=g.uuid).first().uuid).first().uuid)).order_by(PowerData.updated_at.desc()).all(): # NOQA
             if message.data_type == 'Demand':
                 power = message.grid
             elif message.data_type == 'ESS' or message.data_type == 'EV':
@@ -45,7 +45,7 @@ class PowerDatasResource(Resource):
                     "address": 'https://thetangle.org/transaction/' + message.address,
                 }
             )
-        datas = sorted(datas, key=lambda x: x['time'], reverse=True)
+        # datas = sorted(datas, key=lambda x: x['time'], reverse=True)
         response = jsonify(datas)
         response.status_code = 200
         return response
