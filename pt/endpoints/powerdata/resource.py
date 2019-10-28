@@ -12,9 +12,8 @@ class PowerDatasResource(Resource):
     # pylint: disable=R0201
     @auth.login_required
     def get(self):
-        if request.args.get('time'):
-            time = request.args.get('time')
-        else:
+        time = request.args.get('time')
+        if not time:
             time = date.today()
         logging.info(
             "[Get Datas Request]\nUser Account:%s\nUUID:%s\n" % (g.account, g.uuid)
@@ -45,9 +44,7 @@ class PowerDatasResource(Resource):
                     "address": 'https://thetangle.org/transaction/' + message.address,
                 }
             )
-        # datas = sorted(datas, key=lambda x: x['time'], reverse=True)
         response = jsonify(datas)
-        response.status_code = 200
         return response
         # pylint: enable=C0301
 

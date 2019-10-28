@@ -32,7 +32,6 @@ class AddressResource(Resource):
             % (g_ami.name, g_ami.uuid, g_ami.address)
         )
         response = jsonify({"address": g_ami.address})
-        response.status_code = 200
         return response
 
     # pylint: enable=R0201

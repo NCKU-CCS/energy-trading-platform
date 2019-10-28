@@ -2,7 +2,7 @@ from endpoints.address.resource import AddressResource, AmiResource
 from endpoints.user.resource import UserResource, LoginResource, ParticipantResource
 from endpoints.news.resource import NewsResource
 from endpoints.powerdata.resource import PowerDatasResource
-from endpoints.bid.resource import MatchResultsResource
+from endpoints.bid.resource import MatchResultsResource, BidSubmitResource
 
 
 RESOURCES = {
@@ -13,5 +13,6 @@ RESOURCES = {
     'power_info': PowerDatasResource,
     'login': LoginResource,
     'participant': ParticipantResource,
-    'bids': MatchResultsResource,
+    'matchresult': MatchResultsResource,
+    'bidsubmit': BidSubmitResource,
 }
