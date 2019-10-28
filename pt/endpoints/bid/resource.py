@@ -108,7 +108,7 @@ class BidSubmitResource(Resource):
 
     def _set_put_parser(self):
         self.put_parser = self.common_parser.copy()
-        self.common_parser.add_argument(
+        self.put_parser.add_argument(
             "id",
             type=str,
             required=True,
@@ -180,9 +180,10 @@ class BidSubmitResource(Resource):
     @auth.login_required
     def post(self):
         args = self.post_parser.parse_args()
-        # insert into db
-        if add_bidsubmit(args):
-            return make_response(jsonify({"message": "Accept"}))
+        if args['start_time'] >= datetime.today():
+            # insert into db
+            if add_bidsubmit(args, g.uuid):
+                return make_response(jsonify({"message": "Accept"}))
         return make_response(jsonify({"message": "Reject"}))
 
     @auth.login_required
