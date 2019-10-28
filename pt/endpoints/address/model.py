@@ -1,4 +1,5 @@
 import uuid
+
 from config import db, API
 
 # pylint: disable=W0611

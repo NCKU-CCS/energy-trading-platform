@@ -1,6 +1,6 @@
 import uuid
-from config import db
 
+from config import db
 from utils.base_models import ETBaseMixin
 
 

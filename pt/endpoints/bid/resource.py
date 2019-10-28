@@ -3,7 +3,7 @@ from flask_restful import Resource
 
 from utils.logging import logging
 from utils.oauth import auth, g
-from .model import Bid
+from .model import MatchResult
 
 
 class BidsResource(Resource):
@@ -31,7 +31,7 @@ class BidsResource(Resource):
                 "achievement": message.achievement,
                 "settlement": message.settlement,
             }
-            for message in Bid.query.all()
+            for message in MatchResult.query.all()
         ]
         bids = sorted(bids, key=lambda x: x["upload"], reverse=True)
         response = jsonify(bids)
