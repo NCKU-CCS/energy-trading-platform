@@ -1,5 +1,5 @@
-from flask import jsonify, request, make_response
-from flask_restful import Resource
+from flask import jsonify, make_response
+from flask_restful import Resource, reqparse
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from utils.logging import logging
@@ -8,6 +8,27 @@ from .model import User
 
 
 class UserResource(Resource):
+    def __init__(self):
+        # User Change Password
+        self._set_put_parser()
+
+    def _set_put_parser(self):
+        self.put_parser = reqparse.RequestParser()
+        self.put_parser.add_argument(
+            "original_passwd",
+            type=str,
+            required=True,
+            location="json",
+            help="Reset password: original_passwd is required",
+        )
+        self.put_parser.add_argument(
+            "new_passwd",
+            type=str,
+            required=True,
+            location="json",
+            help="Reset password: new_passwd is required",
+        )
+
     # pylint: disable=R0201
     @auth.login_required
     def get(self):
@@ -35,9 +56,9 @@ class UserResource(Resource):
             "[Put User Request]\nUser Account:%s\nUUID:%s" % (g.account, g.uuid)
         )
         user = User.query.filter_by(uuid=g.uuid).first()
-        data = request.get_json()
-        if check_password_hash(user.password, data["original_passwd"]):
-            user.password = generate_password_hash(data["new_passwd"])
+        args = self.put_parser.parse_args()
+        if check_password_hash(user.password, args["original_passwd"]):
+            user.password = generate_password_hash(args["new_passwd"])
             User.update(user)
             response = jsonify({"message": "Accept."})
         else:
@@ -49,12 +70,33 @@ class UserResource(Resource):
 
 
 class LoginResource(Resource):
+    def __init__(self):
+        # User Login
+        self._set_post_parser()
+
+    def _set_post_parser(self):
+        self.post_parser = reqparse.RequestParser()
+        self.post_parser.add_argument(
+            "account",
+            type=str,
+            required=True,
+            location="json",
+            help="Post Login: account is required",
+        )
+        self.post_parser.add_argument(
+            "password",
+            type=str,
+            required=True,
+            location="json",
+            help="Post Login: password is required",
+        )
+
     # pylint: disable=R0201
     def post(self):
-        data = request.get_json()
-        user = User.query.filter_by(account=data["account"]).first()
+        args = self.post_parser.parse_args()
+        user = User.query.filter_by(account=args["account"]).first()
         if user:
-            if check_password_hash(user.password, data["password"]):
+            if check_password_hash(user.password, args["password"]):
                 g.username = user.username
                 g.uuid = user.uuid
                 g.tag = user.tag
