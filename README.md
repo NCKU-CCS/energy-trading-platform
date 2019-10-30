@@ -2,6 +2,13 @@
 
 [![Build Status](https://travis-ci.org/NCKU-CCS/energy-trading-platform.svg?branch=cswang%2Fet_platform)](https://travis-ci.org/NCKU-CCS/energy-trading-platform)
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/71f39cd72ca8e5eac1ec/maintainability)](https://codeclimate.com/github/NCKU-CCS/energy-trading-platform/maintainability)
+
+[![Coverage Status](https://coveralls.io/repos/github/NCKU-CCS/energy-trading-platform/badge.svg?branch=develop)](https://coveralls.io/github/NCKU-CCS/energy-trading-platform?branch=develop)
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FNCKU-CCS%2Fenergy-trading-platform.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FNCKU-CCS%2Fenergy-trading-platform?ref=badge_shield)
+
+
 主要功能為綠能交易平台的 API，詳細資訊：[API Document](https://et01.docs.apiary.io/#)
 
 ## [GET] address
