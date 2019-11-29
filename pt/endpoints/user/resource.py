@@ -3,7 +3,7 @@ from flask_restful import Resource
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from utils.logging import logging
-from utils.oauth import auth, g
+from utils.oauth import auth, g, serializer
 from .model import User
 
 
@@ -65,7 +65,9 @@ class LoginResource(Resource):
         logging.info(
             "[Post Login Request]\nUser Account:%s\nUUID:%s" % (g.username, g.uuid)
         )
-        response = jsonify({"id": g.uuid, "bearer": g.tag})
+        short_lived_token = serializer.dumps(g.tag).decode('utf-8')
+        print(short_lived_token)
+        response = jsonify({"id": g.uuid, "bearer": short_lived_token})
         return response
 
     # pylint: enable=R0201

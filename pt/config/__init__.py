@@ -41,7 +41,7 @@ TAG_TEMPLATE = [
 # random
 RANDOM_GENERATOR = Random.new().read
 
-PEM_PATH = os.environ.get("PEM_PATH", "/home/energy-trading-platform/pt/rsa")
+PEM_PATH = os.environ.get("PEM_PATH", "/home/changchaishi/Desktop/energy-trading-platform/pt/rsa")
 # decrypt
 PLAT_RSA_PRI_KEY = RSA.importKey(
     open(os.path.join(PEM_PATH, "plat_rsa_private.pem")).read()
@@ -53,3 +53,5 @@ AMI_RSA_PUB_KEY = RSA.importKey(
     open(os.path.join(PEM_PATH, "ami_rsa_public.pem")).read()
 )
 PLAT_SIGNER = Signature_pkcs1_v1_5.new(AMI_RSA_PUB_KEY)
+
+APP_SECRET_KEY = os.environ.get('APP_SECRET_KEY', 'VCn>ZaI],B/K-rPtq|2eB^gps~H>45')
