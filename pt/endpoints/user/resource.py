@@ -66,7 +66,6 @@ class LoginResource(Resource):
             "[Post Login Request]\nUser Account:%s\nUUID:%s" % (g.username, g.uuid)
         )
         short_lived_token = serializer.dumps(g.tag).decode('utf-8')
-        print(short_lived_token)
         response = jsonify({"id": g.uuid, "bearer": short_lived_token})
         return response
 
