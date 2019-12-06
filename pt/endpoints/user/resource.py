@@ -6,6 +6,7 @@ from utils.logging import logging
 from utils.oauth import auth, g, serializer
 from .model import User
 
+import secrets
 
 class UserResource(Resource):
     # pylint: disable=R0201
@@ -38,12 +39,36 @@ class UserResource(Resource):
         data = request.get_json()
         if check_password_hash(user.password, data["original_passwd"]):
             user.password = generate_password_hash(data["new_passwd"])
+            user.tag = secrets.token_hex()
             User.update(user)
             response = jsonify({"message": "Accept."})
         else:
             response = jsonify({"message": "Reject."})
             response.status_code = 400
         return response
+
+    # pylint: enable=R0201
+
+    # pylint: disable=R0201
+    def post(self):
+        data = request.get_json()
+        user = User.query.filter_by(account=data["account"]).first()
+        if user:
+            return make_response(jsonify({"error": "Account already exists"}), 409)
+        else:
+            User.add(
+                User(
+                    data["account"],
+                    data["password"],
+                    data["username"],
+                    secrets.token_hex(),
+                    data["avatar"],
+                    data["balance"],
+                    data["address"],
+                    data["eth_address"],
+                )
+            )
+            return  make_response(jsonify({"message": "Account created"}), 201)
 
     # pylint: enable=R0201
 

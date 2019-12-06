@@ -7,7 +7,8 @@ from endpoints.user.model import User
 from config import APP_SECRET_KEY
 
 # pylint: disable=C0103
-serializer = Serializer(APP_SECRET_KEY, expires_in=600)
+# one day for 86400 seconds
+serializer = Serializer(APP_SECRET_KEY, expires_in=86400)
 # pylint: enable=C0103
 
 # pylint: disable=C0103
