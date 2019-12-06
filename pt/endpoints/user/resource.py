@@ -1,3 +1,4 @@
+import secrets
 from flask import jsonify, request, make_response
 from flask_restful import Resource
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -6,7 +7,6 @@ from utils.logging import logging
 from utils.oauth import auth, g, serializer
 from .model import User
 
-import secrets
 
 class UserResource(Resource):
     # pylint: disable=R0201
@@ -55,20 +55,19 @@ class UserResource(Resource):
         user = User.query.filter_by(account=data["account"]).first()
         if user:
             return make_response(jsonify({"error": "Account already exists"}), 409)
-        else:
-            User.add(
-                User(
-                    data["account"],
-                    data["password"],
-                    data["username"],
-                    secrets.token_hex(),
-                    data["avatar"],
-                    data["balance"],
-                    data["address"],
-                    data["eth_address"],
-                )
+        User.add(
+            User(
+                data["account"],
+                data["password"],
+                data["username"],
+                secrets.token_hex(),
+                data["avatar"],
+                data["balance"],
+                data["address"],
+                data["eth_address"],
             )
-            return  make_response(jsonify({"message": "Account created"}), 201)
+        )
+        return make_response(jsonify({"message": "Account created"}), 201)
 
     # pylint: enable=R0201
 
