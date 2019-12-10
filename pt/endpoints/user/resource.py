@@ -51,7 +51,7 @@ class UserResource(Resource):
     # pylint: disable=R0201
     @auth.login_required
     def put(self):
-        logging.info("[Put User Request]\nUser Account:{g.account}\nUUID:{g.uuid}")
+        logging.info(f"[Put User Request]\nUser Account:{g.account}\nUUID:{g.uuid}")
         user = User.query.filter_by(uuid=g.uuid).first()
         args = self.put_parser.parse_args()
         if check_password_hash(user.password, args["original_passwd"]):
@@ -125,7 +125,6 @@ class LoginResource(Resource):
         else:
             return make_response(jsonify({"error": "Unauthorized access"}), 401)
         logging.info(f"[Post Login Request]\nUser Account:{g.username}\nUUID:{g.uuid}")
-        response = jsonify({"id": g.uuid, "bearer": g.tag})
         short_lived_token = serializer.dumps(g.tag).decode('utf-8')
         response = jsonify({"id": g.uuid, "bearer": short_lived_token})
         return response
