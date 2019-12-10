@@ -120,8 +120,9 @@ class PowerDatasResource(Resource):
             }
             for message in messages
         ]
-        response = jsonify({"data": datas, "page": offset, "totalCount": total_count})
-        return response
+        return make_response(
+            jsonify({"data": datas, "page": offset, "totalCount": total_count})
+        )
 
     # pylint: enable=R0201
 
