@@ -1,0 +1,458 @@
+FORMAT: 1A
+HOST:http://140.116.247.120:5000
+
+# Energy Trading (ET) API Document
+
+ET's back-end API<p>
+API-version: 0.1
+
+# Group Restful
+
+## Login [/login]
+
+Used to login platform.
+
+### Login [POST]
+<pre>
+curl http://140.116.247.120:5000/login -X POST -H "Content-Type: application/json" -d '{"account": "TestA1", "password": "TestA1"}'
+</pre>
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+
+    + Attributes
+
+        + account: TestA1 - Login Account
+        + password: TestA1 - Account's Password
+
++ Response 200 (application/json)
+
+    + Attributes
+
+        + id: `03f87a5a-a4e6-4536-ba6c-265c03ebd317` - User's UUID
+        + bearer: OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR - Authentication Bearer Token
+
++ Response 401 (application/json)
+
+    + Attributes
+
+        + error: Unauthorized access - Authentication failed
+
+## User [/user]
+
+User's information.
+
+### User Info [GET]
+<pre>
+curl http://140.116.247.120:5000/user -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+</pre>
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR - Authentication Bearer Token
+
++ Response 200 (application/json)
+
+    + Attributes
+        + username: TestA1
+        + avatar: https://imgur.com/0JMAdHM - Profile Picture's URL
+        + balance: 100 (number)- User's Token balance
+        + address: 台南市大學路一號 - User's Building Address
+        + ETH_address: 0xB346ef4EEFc02FdAa7b4756Db4F30E0cdA9704Ae - User's ETH Address
+
+### Change Password [PUT]
+<pre>
+curl http://140.116.247.120:5000/user -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR" -d '{"original_passwd": "TestA1","new_passwd": "new_password"}'
+</pre>
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR - Authentication Bearer Token
+
+    + Attributes
+
+        + original_passwd: User1pwd - User input original password
+        + new_passwd: User1new - User input new password
+
++ Response 200 (application/json)
+
+    + Attributes
+
+        + message: Accept.
+
+
++ Response 400 (application/json)
+
+    + Attributes
+
+        + message: Fail. - Error Message
+
+## AMI [/amis]
+
+Get User's AMIs.
+
+### AMIs [GET]
+<pre>
+curl http://140.116.247.120:5000/amis -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+</pre>
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR - Authentication Bearer Token
+
++ Response 200 (application/json)
+
+    + Attributes (array, fixed-type)
+        + (object)
+            + id: `a6d2a4cd-fc78-4636-9c42-c0006976244b` - UUID
+            + name: AMI1
+            + Description: 太陽能
+
+## News [/news]
+
+Get latest ten system news.
+
+### News [GET]
+<pre>
+curl http://140.116.247.120:5000/news -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+</pre>
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR - Authentication Bearer Token
+
++ Response 200 (application/json)
+
+    + Attributes (array, fixed-type)
+        + (object)
+            + id: `5f3276c2-ec53-4dd3-ada3-081ca3f9d4f9` - The news' UUID
+            + time: 2019/08/25 10:00 - The Message Upload Date
+            + content: Website Upload to Version 0.2 - The Message Content
+
+## Bid Submit [/bidsubmit]
+
+Related to bidding.
+
+### Bidding Project [GET]
+<pre>
+curl http://140.116.247.120:5000/bidsubmit -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
+</pre>
+
+Return the bid content.
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR - Authentication Bearer Token
+
++ Response 200 (application/json)
+
+    + Attributes (array, fixed-type)
+        + (object)
+            + id: `b345273d-ffc9-4916-bf7e-5615f0ee8a39`
+            + start_time: 2019/09/01 13- Bidding Datetime Start
+            + end_time: 2019/09/01 14 - Bidding Datetime End
+            + value: 10
+            + price: 4.5
+            + bid_type: sell - sell or buy
+
+### Order [POST]
+<pre>
+curl http://140.116.247.120:5000/bidsubmit -X POST -H 'Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc' -H 'Content-Type: application/json' \
+  -d '{
+    "bid_type": buy,
+    "start_time": "2019/10/29 18",
+    "end_time": "2019/10/29 19",
+    "value": 10,
+    "price": 6.8
+}'
+</pre>
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR - Authentication Bearer Token
+
+    + Attributes
+
+        + bid_type: buy - Bidding type: sell or buy
+        + start_time: 2019/09/01 13- Bidding Datetime Start
+        + end_time: 2019/09/01 14 - Bidding Datetime End
+        + value: 10 (number)- kWh
+        + price: 4.3 (number)- NT Dollars
+
++ Response 200 (application/json)
+
+    + Attributes
+
+        + message: Accept
+
++ Response 400 (application/json)
+
+    + Attributes
+
+        + message: Reject
+        + description: The bid has been closed - Error message
+
+### Edit [PUT]
+<pre>
+curl http://140.116.247.120:5000/bidsubmit -X PUT -H 'Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc' -H 'Content-Type: application/json' \
+  -d '{
+    "id": "2048b3c9-0125-41fc-bef6-9b1e52bd825f",
+    "bid_type": buy,
+    "start_time": "2019/10/29 18",
+    "end_time": "2019/10/29 19",
+    "value": 10,
+    "price": 6.8
+}'
+</pre>
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR - Authentication Bearer Token
+
+    + Attributes
+
+        + id: `104fa450-c688-4f7f-8cca-fae7a18f2eb8` - Item's UUID
+        + bid_type: buy - Bidding type: sell or buy
+        + start_time: 2019/09/01 13- Bidding Datetime Start
+        + end_time: 2019/09/01 14 - Bidding Datetime End
+        + value: 10 (number)- kWh
+        + price: 4.3 (number)- NT Dollars
+
++ Response 200 (application/json)
+
+    + Attributes
+
+        + message: Accept
+
++ Response 400 (application/json)
+
+    + Attributes
+
+        + message: Reject
+        + description: The bid has been closed - Error message
+
+### Remove [DELETE /Bidding]
+<pre>
+curl http://140.116.247.120:5000/bidsubmit -X DELETE -H 'Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc' -H 'Content-Type: application/json' -d '{"id": "104fa450-c688-4f7f-8cca-fae7a18f2eb8"}'
+</pre>
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR - Authentication Bearer Token
+
+    + Attributes
+
+        + id: `104fa450-c688-4f7f-8cca-fae7a18f2eb8` - Remove item's UUID
+
++ Response 200 (application/json)
+
+    + Attributes
+
+        + message: Accept
+
++ Response 400 (application/json)
+
+    + Attributes
+
+        + message: Reject
+        + description: The bid has been closed - Error message
+
+## Match Result [/matchresult]
+
+Return match results.
+
+### Match Result [GET]
+<pre>
+curl http://140.116.247.120:5000/matchresult -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
+</pre>
+
+Return details information sets of the user's bids.
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR - Authentication Bearer Token
+
++ Response 200 (application/json)
+
+    + Attributes (array, fixed-type)
+        + (BID)
+        + (BID)
+            + id: xxxo
+            + bit_type: buy
+
+
+## Schematic Diagram [/participant]
+
+Return participants in the transaction to paint schematic diagram.
+
+### Participants [GET]
+<pre>
+curl http://140.116.247.120:5000/participant -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+</pre>
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR - Authentication Bearer Token
+
++ Response 200 (application/json)
+
+    + Attributes (array, fixed-type)
+        + (object)
+            + id: `7e54877b-3743-4d20-bbfc-5b4deb131116` - User's UUID
+            + name: BEMS1
+
+## Electricity History Usage [/power_info]
+
+Retuen Electricity History Usage.
+
+### Electricity History Usage [GET /power_info{?time}]
+<pre>
+curl http://140.116.247.120:5000/power_info -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+curl http://140.116.247.120:5000/power_info?time=2019-10-19 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+</pre>
+
++ Parameters
+    + time: `2019-10-19` (optional) - Query date. Format: `YYYY-mm-DD`
+        + Default: System date
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR - Authentication Bearer Token
+
++ Response 200 (application/json)
+
+    + Attributes (array, fixed-type)
+        + (HOMEPAGE) - 總用電
+        + (ESS) - 儲能系統
+        + (EV) - 充電樁
+        + (PV) - 太陽光電
+        + (WT) - 中小型風力機
+
+# Group Web Socket
+## Association Diagram [/s1]
+
+Return transaction status.
+
+### Association [OPTIONS /socket/association]
+<pre>
+NOT YET !!!!!!
+</pre>
+
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR - Authentication Bearer Token
+
+    + Attributes
+
+        + event: association - Socket Event Name
+
++ Response 200 (application/json)
+
+    + Attributes (array, fixed-type)
+        + (object)
+            + seller: `e900b7b0-c097-4ce8-9426-7399d6412b26` - Seller's UUID
+            + buyer: `9eef88ba-abf3-4cdc-a2cc-c63e331c4c47` - Buyer's UUID
+            + value: 10 - win value
+            + achievement: 4
+
+## Data Structures
+### BID (object)
++ id: `b345273d-ffc9-4916-bf7e-5615f0ee8a39` - Message's UUID
++ start_time: 2019/09/01 13- Bidding Datetime Start
++ end_time: 2019/09/01 14 - Bidding Datetime End
++ bid_type: sell - sell or buy
++ status: 結算完成 - Bidding Status
++ transaction_hash: 0xdb13d6c572a482f2a9578bfb3cc41a2f0e349852138e788db795ee51ce40b439 - Transaction Hash
++ upload: 2019/09/01 12:55 - Upload Time
++ counterpart
+    + name: 國立成功大學
+    + address: 701台南市東區大學路1號
++ average_price: 5 (number)- average unit price
++ bid_value: 20 (number)- Bidding Value
++ win
+    + value: 10 (number)- Winning Value
+    + total_price: 50 (number)- Winning Total Price
++ achievement: 100% - 0~100%
++ settlement: 50 (number)- Settlement Transaction Price
+
+### HOMEPAGE
++ table: homepage
++ id: `b6953af5-0803-4559-af5c-115613627624` - Data's UUID
++ field: NCKU (string)- 場域
++ grid: 2.516 (number)- 電網即時功率
++ pv: 0.000 (number)- 太陽能即時功率
++ building: 2.466 (number)- 大樓即時用電
++ ess: 0.000 (number)- 儲能即時功率
++ ev: 0.000(number)- 充電樁即時功率
++ updated_at: `2019-09-04T12:00:00` - 資料上傳時間
+
+### ESS
++ table: ess
++ id: `486fbca4-9bc1-42bd-af93-92ceb77d89ec` - Data's UUID
++ field: NCKU (string)- 場域
++ cluster: 1 - ESS編號
++ power_display: `-0.035` (number)- 讀取實功輸出(kW)
++ updated_at: `2019-09-04T12:00:00` - 資料上傳時間
+
+### EV
++ table: ev
++ id: `c363a32e-3dbe-42c5-bfe2-398436192c6f` - Data's UUID
++ field: NCKU (string)- 場域
++ cluster: 1 - 充電柱編號
++ power_display: 0.000 (number)- 充電功率(kW)
++ updated_at: `2019-09-04T12:00:00` - 資料上傳時間
+
+### PV
++ table: pv
++ id: `e257ccca-409a-4297-a6c2-c6d91b6dd334` - Data's UUID
++ field: NCKU (string)- 場域
++ cluster: 1 - 太陽能編號
++ PAC: 0.000 (number)- 市電功率
++ updated_at: `2019-09-04T12:00:00` - 資料上傳時間
+
+### WT
++ table: wt
++ id: `c15107ab-afed-4d9c-a123-ca6d0626d868` - Data's UUID
++ field: NCKU (string)- 場域
++ cluster: 1 - 風機編號
++ WindGridPower: 0.000 (number)- 風機功率
++ updated_at: `2019-09-04T12:00:00` - 資料上傳時間

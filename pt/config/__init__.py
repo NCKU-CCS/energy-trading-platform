@@ -53,3 +53,6 @@ AMI_RSA_PUB_KEY = RSA.importKey(
     open(os.path.join(PEM_PATH, "ami_rsa_public.pem")).read()
 )
 PLAT_SIGNER = Signature_pkcs1_v1_5.new(AMI_RSA_PUB_KEY)
+
+# the unique secret to form oauth serializer for short-lived token
+APP_SECRET_KEY = os.environ.get('APP_SECRET_KEY', 'VCn>ZaI],B/K-rPtq|2eB^gps~H>45')
