@@ -2,15 +2,22 @@ import base64
 import json
 import sys
 from datetime import datetime, date
+from sqlalchemy import extract
 from Cryptodome.Hash import SHA256
 
 sys.path.insert(0, '../energy-trading-platform/pt')
 
 # pylint: disable=C0413
-from config import PLAT_CIPHER, PLAT_SIGNER, RANDOM_GENERATOR, TAG_TEMPLATE  # noqa: E402
+from config import (
+    PLAT_CIPHER,
+    PLAT_SIGNER,
+    RANDOM_GENERATOR,
+    TAG_TEMPLATE,
+)  # noqa: E402
 from utils.utils import get_tx_hash, get_data  # noqa: E402
 from endpoints.address.model import AMI, History  # noqa: E402
 from endpoints.powerdata.model import PowerData, Demand, ESS, EV, PV, WT  # noqa: E402
+
 # pylint: enable=C0413
 
 
@@ -36,7 +43,14 @@ def process_data():
             if not transaction_hash:
                 continue
             # filt transaction hash by db
-            db_hash = [data.address for data in PowerData.query.all()]
+            db_hash = [
+                data.address
+                for data in PowerData.query.filter(
+                    extract('year', PowerData.updated_at) == date.today().year,
+                    extract('month', PowerData.updated_at) == date.today().month,
+                    extract('day', PowerData.updated_at) == date.today().day,
+                ).all()
+            ]
             transactions = [tx for tx in transaction_hash if tx not in db_hash]
             # Tx Hash -> message
             if not transactions:
@@ -45,22 +59,27 @@ def process_data():
             for receive_address in messages:
                 # decrypt
                 decrypt_data = PLAT_CIPHER.decrypt(
-                    base64.b64decode(messages[receive_address]['data']), RANDOM_GENERATOR
+                    base64.b64decode(messages[receive_address]['data']),
+                    RANDOM_GENERATOR,
                 )
                 # signature
                 # pylint: disable=E1102
                 is_verify = PLAT_SIGNER.verify(
-                    SHA256.new(decrypt_data), base64.b64decode(messages[receive_address]['signature'])
+                    SHA256.new(decrypt_data),
+                    base64.b64decode(messages[receive_address]['signature']),
                 )
                 # pylint: enable=E1102
                 if is_verify:
-                    print(decrypt_data)
                     # insert into db
                     try:
                         iota_data_type[tag[:-1]].add(
                             iota_data_type[tag[:-1]](
                                 json.loads(decrypt_data.decode()),
-                                History.query.filter_by(iota_address=address, time=date.today()).first().uuid,
+                                History.query.filter_by(
+                                    iota_address=address, time=date.today()
+                                )
+                                .first()
+                                .uuid,
                                 str(receive_address),
                             )
                         )

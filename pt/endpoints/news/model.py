@@ -5,7 +5,7 @@ from utils.base_models import ETBaseMixin
 
 
 class News(db.Model, ETBaseMixin):
-    __tablename__ = 'news'
+    __tablename__ = "news"
     uuid = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
     publish_time = db.Column(db.DateTime, unique=False, nullable=False)
     content = db.Column(db.String(120))

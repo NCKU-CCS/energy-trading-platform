@@ -6,7 +6,7 @@ from utils.base_models import ETBaseMixin
 
 
 class User(db.Model, ETBaseMixin):
-    __tablename__ = 'user'
+    __tablename__ = "user"
     uuid = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
     account = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(120), unique=False, nullable=False)

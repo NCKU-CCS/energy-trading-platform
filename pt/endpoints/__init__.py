@@ -6,13 +6,13 @@ from endpoints.bid.resource import MatchResultsResource, BidSubmitResource
 
 
 RESOURCES = {
-    'address': AddressResource,
-    'amis': AmiResource,
-    'user': UserResource,
-    'news': NewsResource,
-    'power_info': PowerDatasResource,
-    'login': LoginResource,
-    'participant': ParticipantResource,
-    'matchresult': MatchResultsResource,
-    'bidsubmit': BidSubmitResource,
+    "address": AddressResource,
+    "amis": AmiResource,
+    "user": UserResource,
+    "news": NewsResource,
+    "power_info": PowerDatasResource,
+    "login": LoginResource,
+    "participant": ParticipantResource,
+    "matchresult": MatchResultsResource,
+    "bidsubmit": BidSubmitResource,
 }

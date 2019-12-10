@@ -12,15 +12,14 @@ class MatchResultsResource(Resource):
     @auth.login_required
     def get(self):
         logging.info(
-            "[Get MatchResults Request]\nUser Account:%s\nUUID:%s\n"
-            % (g.account, g.uuid)
+            f"[Get MatchResults Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n"
         )
         if g.uuid in [tender.user_id for tender in Tenders.query.all()]:
             bids = [
                 {
                     "id": message.uuid,
-                    "start_time": message.start_time.strftime("%Y/%m/%d %H"),
-                    "end_time": message.end_time.strftime("%Y/%m/%d %H"),
+                    "date": message.start_time.strftime("%Y/%m/%d"),
+                    "time": f'{message.start_time.strftime("%H")}:00-{message.end_time.strftime("%H")}:00',
                     "bid_type": message.bid_type,
                     "win": message.win,
                     "status": message.status,
@@ -58,6 +57,8 @@ class BidSubmitResource(Resource):
     def __init__(self):
         # common parser for post and put method
         self._set_common_parser()
+        # get bidsubmit
+        self._set_get_parser()
         # add bidsubmit
         self._set_post_parser()
         # edit bidsubmit
@@ -103,6 +104,30 @@ class BidSubmitResource(Resource):
             help="price is required",
         )
 
+    def _set_get_parser(self):
+        self.get_parser = reqparse.RequestParser()
+        self.get_parser.add_argument(
+            "per_page",
+            type=int,
+            required=True,
+            location="args",
+            help="Get bidsubmit: limit is required",
+        )
+        self.get_parser.add_argument(
+            "page",
+            type=int,
+            required=True,
+            location="args",
+            help="Get bidsubmit: offset is required",
+        )
+        self.get_parser.add_argument(
+            "bid_type",
+            type=str,
+            required=True,
+            location="args",
+            help="Get bidsubmit: bid_type is required",
+        )
+
     def _set_post_parser(self):
         self.post_parser = self.common_parser.copy()
 
@@ -146,9 +171,12 @@ class BidSubmitResource(Resource):
     # pylint: disable=R0201
     @auth.login_required
     def get(self):
+        args = self.get_parser.parse_args()
+        limit = args["per_page"]
+        offset = args["page"]
+
         logging.info(
-            "[Get MatchResults Request]\nUser Account:%s\nUUID:%s\n"
-            % (g.account, g.uuid)
+            f"[Get BidSubmit Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n"
         )
         bids = [
             {
@@ -156,9 +184,12 @@ class BidSubmitResource(Resource):
                 "bid_type": message.bid_type,
                 "start_time": message.start_time.strftime("%Y/%m/%d %H"),
                 "end_time": message.end_time.strftime("%Y/%m/%d %H"),
-                "value": message.value,
+                "volume": message.value,
                 "price": message.price,
                 "upload_time": message.upload_time,
+                "date": message.start_time.strftime("%Y/%m/%d"),
+                "time": int(message.start_time.strftime("%H")),
+                "total_price": message.value * message.price,
             }
             for message in BidSubmit.query.filter(
                 BidSubmit.tenders_id.in_(
@@ -167,20 +198,28 @@ class BidSubmitResource(Resource):
                         for tender in Tenders.query.filter(
                             Tenders.user_id == g.uuid,
                             Tenders.start_time >= datetime.today(),
+                            Tenders.bid_type == args["bid_type"],
                         ).all()
                     ]
                 )
             )
-            .order_by(BidSubmit.start_time, BidSubmit.value)
+            .order_by(BidSubmit.start_time, BidSubmit.price.desc())
             .all()
         ]
-        response = jsonify(bids)
+        response = jsonify(
+            {
+                "data": bids[(offset - 1) * limit : offset * limit],  # noqa: E203
+                "page": offset,
+                "totalCount": len(bids),
+            }
+        )
+
         return response
 
     @auth.login_required
     def post(self):
         args = self.post_parser.parse_args()
-        if args['start_time'] >= datetime.today():
+        if args["start_time"] >= datetime.today():
             # insert into db
             if add_bidsubmit(args, g.uuid):
                 return make_response(jsonify({"message": "Accept"}))
@@ -189,7 +228,7 @@ class BidSubmitResource(Resource):
     @auth.login_required
     def put(self):
         args = self.put_parser.parse_args()
-        if args['start_time'] >= datetime.today():
+        if args["start_time"] >= datetime.today():
             bid_ids = self._get_user_bid_ids(g.uuid)
             if args["id"] in bid_ids:
                 # insert into db

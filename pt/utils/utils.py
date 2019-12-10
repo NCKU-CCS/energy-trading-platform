@@ -17,7 +17,9 @@ def get_data(transaction_hash):
     for tx_hash, message in zip(transaction_hash, trytes):
         try:
             transaction = iota.Transaction.from_tryte_string(message)
-            messages[tx_hash] = json.loads(transaction.signature_message_fragment.decode())
+            messages[tx_hash] = json.loads(
+                transaction.signature_message_fragment.decode()
+            )
         except json.decoder.JSONDecodeError:
             messages[tx_hash] = 'error'
     return messages

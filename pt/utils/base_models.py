@@ -9,6 +9,7 @@ class ETBaseMixin:
     # pylint: disable=R0201
     def update(self):
         db.session.commit()
+
     # pylint: enable=R0201
 
     def delete(self):

@@ -104,7 +104,7 @@ def add_bidsubmit(bid_data, user_id):
         "end_time": bid_data["end_time"],
         "user_id": user_id,
     }
-    bid_data['tenders_id'] = get_tender_id(tender_data)
+    bid_data["tenders_id"] = get_tender_id(tender_data)
     BidSubmit.add(BidSubmit(bid_data))
     return True
 
@@ -130,6 +130,7 @@ def edit_bidsubmit(bid_data, user_id):
 
 def get_tender(tender_data):
     tender = Tenders.query.filter_by(
+        bid_type=tender_data["bid_type"],
         start_time=tender_data["start_time"],
         end_time=tender_data["end_time"],
         user_id=tender_data["user_id"],

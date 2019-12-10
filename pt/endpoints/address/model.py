@@ -4,13 +4,13 @@ from config import db, API
 
 # pylint: disable=W0611
 from utils.base_models import ETBaseMixin
-from ..user.model import User # NOQA
+from ..user.model import User  # NOQA
 
 # pylint: enable=W0611
 
 
 class AMI(db.Model, ETBaseMixin):
-    __tablename__ = 'ami'
+    __tablename__ = "ami"
     id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
     uuid = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
     name = db.Column(db.String(80), unique=True, nullable=False)
@@ -20,8 +20,8 @@ class AMI(db.Model, ETBaseMixin):
     time_stamp = db.Column(db.Integer, unique=False, nullable=False)
     tag = db.Column(db.String(120), unique=True, nullable=False)
     # ForeignKey to User
-    user_id = db.Column(db.String(40), db.ForeignKey('user.uuid'), nullable=False)
-    user = db.relationship('User')
+    user_id = db.Column(db.String(40), db.ForeignKey("user.uuid"), nullable=False)
+    user = db.relationship("User")
 
     def __init__(self, name, description, iota_address, time, tag, user_id):
         # pylint: disable=C0103
@@ -38,7 +38,7 @@ class AMI(db.Model, ETBaseMixin):
 
 
 class History(db.Model, ETBaseMixin):
-    __tablename__ = 'history'
+    __tablename__ = "history"
     uuid = db.Column(db.String(40), primary_key=True, unique=True, nullable=False)
     name = db.Column(db.String(80), unique=False, nullable=False)
     description = db.Column(db.String(120))
@@ -46,7 +46,7 @@ class History(db.Model, ETBaseMixin):
     time = db.Column(db.Date, unique=False, nullable=False)
     time_stamp = db.Column(db.Integer, unique=False, nullable=False)
     # ForeignKey to AMI
-    ami_id = db.Column(db.String(40), db.ForeignKey('ami.uuid'), nullable=False)
+    ami_id = db.Column(db.String(40), db.ForeignKey("ami.uuid"), nullable=False)
     ami = db.relationship("AMI")
 
     def __init__(self, name, description, iota_address, time, ami_id):
@@ -71,7 +71,7 @@ def renew(time):
     # Update Address
     new_address = API.get_new_addresses(
         index=int(time.strftime("%s")), count=AMI.query.count()
-    )['addresses']
+    )["addresses"]
     for amis in AMI.query.all():
         amis.iota_address = str(new_address[amis.id])
         amis.time = time
