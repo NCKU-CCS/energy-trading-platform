@@ -1,6 +1,6 @@
 from flask import request
 # pylint: disable=W0622
-from flask_socketio import SocketIO, emit, ConnectionRefusedError
+from flask_socketio import SocketIO, ConnectionRefusedError
 # pylint: enable=W0622
 from itsdangerous import BadSignature
 
