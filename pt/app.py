@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from config import db
 from endpoints import RESOURCES
 
-from utils.socket_events import socketio
+from utils.socketio import socketio
 
 load_dotenv()
 
