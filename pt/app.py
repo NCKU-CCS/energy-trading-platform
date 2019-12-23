@@ -64,6 +64,7 @@ def create_app(config_mode):
     api.add_resource(RESOURCES['power_info'], '/power_info')
     api.add_resource(RESOURCES['participant'], '/participant')
     api.add_resource(RESOURCES['bids'], '/bids')
+    api.add_resource(RESOURCES['socketio'], '/socket_settlement')
 
     return app
 
