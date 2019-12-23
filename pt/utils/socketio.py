@@ -44,11 +44,3 @@ def connected():
 
     if verified is False:
         raise ConnectionRefusedError("Unauthorized access")
-
-
-@socketio.on('greeting')
-def on_my_event(json):
-    logging.info(
-        "[SocketIO]\n%s" % json
-    )
-    emit("notification", "Hi everyone", broadcast=True)
