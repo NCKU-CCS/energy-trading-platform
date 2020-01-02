@@ -4,7 +4,7 @@ from flask_restful import Resource
 
 from utils.logging import logging
 from utils.socketio import socketio
-from scripts.settlement import get_settlement
+from scripts.test_settlement import get_settlement
 
 
 class SocketResource(Resource):
