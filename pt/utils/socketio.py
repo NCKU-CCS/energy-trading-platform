@@ -25,7 +25,7 @@ socketio = SocketIO()
 
 
 @socketio.on('connect')
-def connected():
+def is_verified():
     verified = False
     # Verify token
     token = request.args.get('token')

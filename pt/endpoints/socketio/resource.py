@@ -1,4 +1,3 @@
-# from datetime import date
 from flask import jsonify
 from flask_restful import Resource
 
