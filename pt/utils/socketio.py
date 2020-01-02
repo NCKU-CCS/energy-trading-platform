@@ -1,3 +1,13 @@
+"""
+This file is to generate socketio instance for the app
+and define any socket events that will be used.
+
+At this point, only 'connect' event is required.
+It does the connection verification which the authentication
+implementation is exactly same as the one API verification uses,
+but need to implement indivisually.
+"""
+
 from flask import request
 # pylint: disable=W0622
 from flask_socketio import SocketIO, ConnectionRefusedError
