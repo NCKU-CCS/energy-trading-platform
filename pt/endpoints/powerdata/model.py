@@ -20,13 +20,6 @@ class PowerData(db.Model, ETBaseMixin):
     data_type = db.Column(db.String(50))
     __mapper_args__ = {"polymorphic_identity": "Data", "polymorphic_on": data_type}
 
-    # def __init__(self, data_struct):
-    #     self.uuid = data_struct["uuid"]
-    #     self.field = data_struct["field"]
-    #     self.updated_at = data_struct["updated_at"]
-    #     self.history_id = data_struct["history_id"]
-    #     self.address = data_struct["address"]
-
 
 class Demand(PowerData):
     __tablename__ = "demand"
@@ -46,18 +39,6 @@ class ESS(PowerData):
     power_display = db.Column(db.Float)
     __mapper_args__ = {"polymorphic_identity": "ESS"}
 
-    # def __init__(self, data_struct, history_id, address):
-    #     mother = {
-    #         "uuid": data_struct["id"],
-    #         "field": data_struct["field"],
-    #         "updated_at": data_struct["updated_at"],
-    #         "history_id": history_id,
-    #         "address": address,
-    #     }
-    #     super(ESS, self).__init__(mother)
-    #     self.cluster = data_struct["cluster"]
-    #     self.power_display = data_struct["power_display"]
-
 
 class EV(PowerData):
     __tablename__ = "ev"
@@ -65,18 +46,6 @@ class EV(PowerData):
     cluster = db.Column(db.Integer)
     power_display = db.Column(db.Float)
     __mapper_args__ = {"polymorphic_identity": "EV"}
-
-    # def __init__(self, data_struct, history_id, address):
-    #     mother = {
-    #         "uuid": data_struct["id"],
-    #         "field": data_struct["field"],
-    #         "updated_at": data_struct["updated_at"],
-    #         "history_id": history_id,
-    #         "address": address,
-    #     }
-    #     super(EV, self).__init__(mother)
-    #     self.cluster = data_struct["cluster"]
-    #     self.power_display = data_struct["power"]
 
 
 class PV(PowerData):
@@ -86,20 +55,6 @@ class PV(PowerData):
     pac = db.Column(db.Float)
     __mapper_args__ = {"polymorphic_identity": "PV"}
 
-    # def __init__(self, data_struct, history_id, address):
-    #     mother = {
-    #         "uuid": data_struct["id"],
-    #         "field": data_struct["field"],
-    #         "updated_at": data_struct["updated_at"],
-    #         "history_id": history_id,
-    #         "address": address,
-    #     }
-    #     super(PV, self).__init__(mother)
-    #     self.cluster = data_struct["cluster"]
-    #     # pylint: disable=C0103
-    #     self.pac = data_struct["PAC"]
-    #     # pylint: enable=C0103
-
 
 class WT(PowerData):
     __tablename__ = "wt"
@@ -107,17 +62,3 @@ class WT(PowerData):
     cluster = db.Column(db.Integer)
     windgridpower = db.Column(db.Float)
     __mapper_args__ = {"polymorphic_identity": "WT"}
-
-    # def __init__(self, data_struct, history_id, address):
-    #     mother = {
-    #         "uuid": data_struct["id"],
-    #         "field": data_struct["field"],
-    #         "updated_at": data_struct["updated_at"],
-    #         "history_id": history_id,
-    #         "address": address,
-    #     }
-    #     super(WT, self).__init__(mother)
-    #     self.cluster = data_struct["cluster"]
-    #     # pylint: disable=C0103
-    #     self.windgridpower = data_struct["WindGridPower"]
-    #     # pylint: enable=C0103
