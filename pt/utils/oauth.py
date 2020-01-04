@@ -29,7 +29,7 @@ def verify_token(token):
     # get username and uuid from database
     user = User.query.filter_by(tag=long_lived_token).first()
     if user:
-        g.uuid = user.uuid
+        g.uuid = str(user.uuid)
         g.account = user.account
         return True
     g.error_message = 'Access denied'

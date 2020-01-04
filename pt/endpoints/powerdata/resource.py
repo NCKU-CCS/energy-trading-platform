@@ -95,19 +95,21 @@ class PowerDatasResource(Resource):
     def data_table(self, limit, offset, time):
         filter_history = History.query.filter(
             History.time == time,
-            History.ami_id == AMI.query.filter_by(user_id=g.uuid).first().uuid,
+            History.ami_id == str(AMI.query.filter_by(user_id=g.uuid).first().uuid),
         )
         messages = (
             PowerData.query.filter(
-                PowerData.history_id.in_([data.uuid for data in filter_history])
+                PowerData.history_id.in_([str(data.uuid) for data in filter_history])
             )
             .order_by(PowerData.updated_at.desc())
             .offset((offset - 1) * limit)
             .limit(limit)
             .all()
         )
+        for message in list(messages):
+            message.uuid = str(message.uuid)
         total_count = PowerData.query.filter(
-            PowerData.history_id.in_([data.uuid for data in filter_history])
+            PowerData.history_id.in_([str(data.uuid) for data in filter_history])
         ).count()
         datas = [
             {
@@ -131,11 +133,11 @@ class PowerDatasResource(Resource):
         filter_history = History.query.filter(
             History.time >= start_time,
             History.time <= end_time,
-            History.ami_id == AMI.query.filter_by(user_id=g.uuid).first().uuid,
+            History.ami_id == str(AMI.query.filter_by(user_id=g.uuid).first().uuid),
         )
         messages = (
             PowerData.query.filter(
-                PowerData.history_id.in_([data.uuid for data in filter_history]),
+                PowerData.history_id.in_([str(data.uuid) for data in filter_history]),
                 # Hourly data every two hours
                 extract("minute", PowerData.updated_at) == "00",
                 extract("hour", PowerData.updated_at).in_(
