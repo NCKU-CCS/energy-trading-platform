@@ -72,18 +72,9 @@ class UserResource(Resource):
         user = User.query.filter_by(account=data["account"]).first()
         if user:
             return make_response(jsonify({"error": "Account already exists"}), 409)
-        User.add(
-            User(
-                data["account"],
-                data["password"],
-                data["username"],
-                secrets.token_hex(),
-                data["avatar"],
-                data["balance"],
-                data["address"],
-                data["eth_address"],
-            )
-        )
+        data['password'] = generate_password_hash(data['password'])
+        data['tag'] = secrets.token_hex()
+        User.add(data)
         return make_response(jsonify({"message": "Account created"}), 201)
 
     # pylint: enable=R0201
@@ -125,7 +116,7 @@ class LoginResource(Resource):
         else:
             return make_response(jsonify({"error": "Unauthorized access"}), 401)
         logging.info(f"[Post Login Request]\nUser Account:{g.username}\nUUID:{g.uuid}")
-        short_lived_token = serializer.dumps(g.tag).decode('utf-8')
+        short_lived_token = serializer.dumps(g.tag).decode("utf-8")
         response = jsonify({"id": g.uuid, "bearer": short_lived_token})
         return response
 
