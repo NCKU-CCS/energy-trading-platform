@@ -70,8 +70,6 @@ def add_bidsubmit(bid_data, user_id):
 
 
 def edit_bidsubmit(bid_data, user_id):
-    print('*'*100)
-
     target = BidSubmit.query.filter_by(uuid=bid_data["id"]).first()
     target.bid_type = bid_data["bid_type"]
     target.start_time = bid_data["start_time"]
