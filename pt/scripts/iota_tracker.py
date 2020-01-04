@@ -5,7 +5,7 @@ from datetime import datetime, date
 from sqlalchemy import extract
 from Cryptodome.Hash import SHA256
 
-sys.path.insert(0, '../energy-trading-platform/pt')
+sys.path.insert(0, "../energy-trading-platform/pt")
 
 # pylint: disable=C0413
 from config import (
@@ -26,16 +26,16 @@ def process_data():
     # tag format: {BEMS}9{IOTA data type}9
     # In IOTA, tag must be A-Z and 9, so using '9' to replace Space.
     iota_data_type = {
-        'BEMS9HOMEPAGE9INFORMATION9': Demand,
-        'BEMS9ESS9DISPLAY9': ESS,
-        'BEMS9EV9DISPLAY9': EV,
-        'BEMS9PV9DISPLAY9': PV,
-        'BEMS9WT9DISPLAY9': WT,
+        "BEMS9HOMEPAGE9INFORMATION9": Demand,
+        "BEMS9ESS9DISPLAY9": ESS,
+        "BEMS9EV9DISPLAY9": EV,
+        "BEMS9PV9DISPLAY9": PV,
+        "BEMS9WT9DISPLAY9": WT,
     }
     # get address from db
     addresses = [str(ami.iota_address) for ami in AMI.query.all()]
     # generate tags by time
-    tags = [tag + chr(ord('A') + datetime.now().hour) for tag in TAG_TEMPLATE]
+    tags = [tag + chr(ord("A") + datetime.now().hour) for tag in TAG_TEMPLATE]
     for address in addresses:
         for tag in tags:
             # addresses -> Transaction Hash
@@ -46,9 +46,9 @@ def process_data():
             db_hash = [
                 data.address
                 for data in PowerData.query.filter(
-                    extract('year', PowerData.updated_at) == date.today().year,
-                    extract('month', PowerData.updated_at) == date.today().month,
-                    extract('day', PowerData.updated_at) == date.today().day,
+                    extract("year", PowerData.updated_at) == date.today().year,
+                    extract("month", PowerData.updated_at) == date.today().month,
+                    extract("day", PowerData.updated_at) == date.today().day,
                 ).all()
             ]
             transactions = [tx for tx in transaction_hash if tx not in db_hash]
@@ -59,32 +59,39 @@ def process_data():
             for receive_address in messages:
                 # decrypt
                 decrypt_data = PLAT_CIPHER.decrypt(
-                    base64.b64decode(messages[receive_address]['data']),
+                    base64.b64decode(messages[receive_address]["data"]),
                     RANDOM_GENERATOR,
                 )
                 # signature
                 # pylint: disable=E1102
                 is_verify = PLAT_SIGNER.verify(
                     SHA256.new(decrypt_data),
-                    base64.b64decode(messages[receive_address]['signature']),
+                    base64.b64decode(messages[receive_address]["signature"]),
                 )
                 # pylint: enable=E1102
                 if is_verify:
                     # insert into db
-                    try:
-                        iota_data_type[tag[:-1]].add(
-                            iota_data_type[tag[:-1]](
-                                json.loads(decrypt_data.decode()),
-                                History.query.filter_by(
-                                    iota_address=address, time=date.today()
-                                )
-                                .first()
-                                .uuid,
-                                str(receive_address),
-                            )
+                    data_type = iota_data_type[tag[:-1]]
+                    insert_data = json.loads(decrypt_data.decode())
+                    insert_data["history_id"] = str(
+                        History.query.filter_by(
+                            iota_address=address, time=date.today()
                         )
-                    except KeyError:
-                        pass
+                        .first()
+                        .uuid
+                    )
+                    insert_data["address"] = str(receive_address)
+
+                    # Handling different names
+                    insert_data["uuid"] = insert_data.pop("id")
+                    if data_type == EV:
+                        insert_data["power_display"] = insert_data.pop("power")
+                    elif data_type == PV:
+                        insert_data["pac"] = insert_data.pop("PAC")
+                    elif data_type == WT:
+                        insert_data["windgridpower"] = insert_data.pop("WindGridPower")
+
+                    data_type.add(data_type(**insert_data))
 
 
 # if __name__ == "__main__":
