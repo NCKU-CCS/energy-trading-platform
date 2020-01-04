@@ -37,7 +37,7 @@ class MatchResultsResource(Resource):
                 for message in MatchResult.query.filter(
                     MatchResult.tenders_id.in_(
                         [
-                            tender.uuid
+                            str(tender.uuid)
                             for tender in Tenders.query.filter_by(user_id=g.uuid).all()
                         ]
                     )
@@ -154,11 +154,11 @@ class BidSubmitResource(Resource):
     # pylint: disable=R0201
     def _get_user_bid_ids(self, uuid):
         bid_ids = [
-            bid.uuid
+            str(bid.uuid)
             for bid in BidSubmit.query.filter(
                 BidSubmit.tenders_id.in_(
                     [
-                        tender.uuid
+                        str(tender.uuid)
                         for tender in Tenders.query.filter_by(user_id=uuid).all()
                     ]
                 )
@@ -194,7 +194,7 @@ class BidSubmitResource(Resource):
             for message in BidSubmit.query.filter(
                 BidSubmit.tenders_id.in_(
                     [
-                        tender.uuid
+                        str(tender.uuid)
                         for tender in Tenders.query.filter(
                             Tenders.user_id == g.uuid,
                             Tenders.start_time >= datetime.today(),

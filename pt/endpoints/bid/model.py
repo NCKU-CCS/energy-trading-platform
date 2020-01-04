@@ -64,11 +64,14 @@ def add_bidsubmit(bid_data, user_id):
         "user_id": user_id,
     }
     bid_data["tenders_id"] = get_tender_id(tender_data)
-    BidSubmit.add(BidSubmit(bid_data))
+    bid_data["upload_time"] = datetime.today()
+    BidSubmit.add(BidSubmit(**bid_data))
     return True
 
 
 def edit_bidsubmit(bid_data, user_id):
+    print('*'*100)
+
     target = BidSubmit.query.filter_by(uuid=bid_data["id"]).first()
     target.bid_type = bid_data["bid_type"]
     target.start_time = bid_data["start_time"]
@@ -100,6 +103,6 @@ def get_tender(tender_data):
 def get_tender_id(tender_data):
     tender = get_tender(tender_data)
     if tender:
-        return tender.uuid
-    Tenders.add(Tenders(tender_data))
-    return get_tender(tender_data).uuid
+        return str(tender.uuid)
+    Tenders.add(Tenders(**tender_data))
+    return str(get_tender(tender_data).uuid)
