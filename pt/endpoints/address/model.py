@@ -56,13 +56,13 @@ def renew(time):
         amis.time_stamp = time.strftime("%s")
         AMI.update(amis)
         # Add to history table
-        if not History.query.filter_by(ami_id=str(amis.uuid), time=time).first():
+        if not History.query.filter_by(ami_id=amis.uuid, time=time).first():
             history = {
                 "name": amis.name,
                 "description": amis.description,
                 "iota_address": amis.iota_address,
                 "time": amis.time,
                 "time_stamp": amis.time_stamp,
-                "ami_id": str(amis.uuid),
+                "ami_id": amis.uuid,
             }
             History.add(History(**history))

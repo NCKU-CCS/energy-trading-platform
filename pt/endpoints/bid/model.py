@@ -101,6 +101,6 @@ def get_tender(tender_data):
 def get_tender_id(tender_data):
     tender = get_tender(tender_data)
     if tender:
-        return str(tender.uuid)
+        return tender.uuid
     Tenders.add(Tenders(**tender_data))
-    return str(get_tender(tender_data).uuid)
+    return get_tender(tender_data).uuid

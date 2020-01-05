@@ -73,10 +73,8 @@ def process_data():
                     # insert into db
                     data_type = iota_data_type[tag[:-1]]
                     insert_data = json.loads(decrypt_data.decode())
-                    insert_data["history_id"] = str(
-                        History.query.filter_by(
-                            iota_address=address, time=date.today()
-                        )
+                    insert_data["history_id"] = (
+                        History.query.filter_by(iota_address=address, time=date.today())
                         .first()
                         .uuid
                     )

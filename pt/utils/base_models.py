@@ -1,13 +1,24 @@
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import text as sa_text
-
+import sqlalchemy.types as types
 
 from config import db
 
 
+# pylint: disable=W0223
+class UUID2STR(types.TypeDecorator):
+    impl = UUID(as_uuid=True)
+
+    def process_result_value(self, value, dialect):
+        return str(value)
+
+# pylint: enable=W0223
+
+
 class ETBaseMixin:
     uuid = db.Column(
-        UUID(as_uuid=True),
+        # UUID(as_uuid=True),
+        UUID2STR,
         primary_key=True,
         unique=True,
         nullable=False,
