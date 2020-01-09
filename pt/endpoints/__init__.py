@@ -3,7 +3,7 @@ from endpoints.user.resource import UserResource, LoginResource, ParticipantReso
 from endpoints.news.resource import NewsResource
 from endpoints.powerdata.resource import PowerDatasResource
 from endpoints.bid.resource import MatchResultsResource, BidSubmitResource
-
+from endpoints.socketio.resource import SocketResource
 
 RESOURCES = {
     "address": AddressResource,
@@ -15,4 +15,5 @@ RESOURCES = {
     "participant": ParticipantResource,
     "matchresult": MatchResultsResource,
     "bidsubmit": BidSubmitResource,
+    "socketio": SocketResource,
 }
