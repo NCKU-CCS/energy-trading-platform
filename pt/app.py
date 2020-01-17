@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from config import db
 from endpoints import RESOURCES
 
+from utils.socketio import socketio
 
 load_dotenv()
 
@@ -63,6 +64,7 @@ def create_app(config_mode):
     api.add_resource(RESOURCES['participant'], '/participant')
     api.add_resource(RESOURCES['matchresult'], '/matchresult')
     api.add_resource(RESOURCES['bidsubmit'], '/bidsubmit')
+    api.add_resource(RESOURCES['socketio'], '/socket_settlement')
 
     return app
 
@@ -70,10 +72,12 @@ def create_app(config_mode):
 def main():
     config_name = os.environ.get('APP_SETTINGS', 'development')
     app = create_app(config_name)
-    app.run(
+
+    socketio.init_app(app, cors_allowed_origins="*")
+    socketio.run(
+        app,
         host='0.0.0.0',
         port=os.environ.get('PORT', 5000)
-        # ssl_context=app.config['SSL_CONTEXT'],
     )
 
 
