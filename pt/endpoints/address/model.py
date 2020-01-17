@@ -1,5 +1,3 @@
-# import uuid
-
 from sqlalchemy.dialects.postgresql import UUID
 
 from config import db, API
@@ -51,6 +49,7 @@ def renew(time):
         index=int(time.strftime("%s")), count=AMI.query.count()
     )["addresses"]
     for amis in AMI.query.all():
+        # new_address is start from index 0, but ami's id in db is start from 1
         amis.iota_address = str(new_address[amis.id - 1])
         amis.time = time
         amis.time_stamp = time.strftime("%s")
