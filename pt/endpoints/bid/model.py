@@ -6,7 +6,7 @@ from config import db
 
 # pylint: disable=W0611
 from utils.base_models import ETBaseMixin
-from ..user.model import User  # NOQA
+from ..user.model import User # NOQA
 
 # pylint: enable=W0611
 
