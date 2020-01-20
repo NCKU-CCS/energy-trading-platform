@@ -28,11 +28,9 @@ class AddressResource(Resource):
     @auth_ami.login_required
     def get(self):
         logging.info(
-            "[Get Address Request]\nUser name:%s\nUUID:%s\nIOTA Address:%s"
-            % (g_ami.name, g_ami.uuid, g_ami.address)
+            f"[Get Address Request]\nUser name:{g_ami.name}\nUUID:{g_ami.uuid}\nIOTA Address:{g_ami.address}"
         )
         response = jsonify({"address": g_ami.address})
-        response.status_code = 200
         return response
 
     # pylint: enable=R0201
@@ -42,9 +40,7 @@ class AmiResource(Resource):
     # pylint: disable=R0201
     @auth.login_required
     def get(self):
-        logging.info(
-            "[Get Amis Request]\nUser Account:%s\nUUID:%s" % (g.account, g.uuid)
-        )
+        logging.info(f"[Get Amis Request]\nUser Account:{g.account}\nUUID:{g.uuid}")
         amis = [
             {"id": ami.uuid, "name": ami.name, "description": ami.description}
             for ami in AMI.query.filter_by(user_id=g.uuid).all()

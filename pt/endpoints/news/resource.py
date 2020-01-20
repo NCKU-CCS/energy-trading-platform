@@ -10,19 +10,16 @@ class NewsResource(Resource):
     # pylint: disable=R0201
     @auth.login_required
     def get(self):
-        logging.info(
-            "[Get News Request]\nUser Account:%s\nUUID:%s\n" % (g.account, g.uuid)
-        )
+        logging.info(f"[Get News Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n")
         news = [
             {
                 "id": message.uuid,
                 "time": message.publish_time.strftime("%Y/%m/%d %H:%M"),
                 "content": message.content,
             }
-            for message in News.query.all()
+            for message in News.query.order_by(News.time.desc()).limit(10).all()
         ]
-        news = sorted(news, key=lambda x: x["time"], reverse=True)
-        response = jsonify(news[:10])
+        response = jsonify(news)
         return response
 
     # pylint: enable=R0201

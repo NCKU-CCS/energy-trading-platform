@@ -38,7 +38,7 @@
 
 + `.travis.yml` 中的 `secure` key 已經過加密
 
-+ `config/config` 中的 `API_URI` 未來會用於完善 IOTA Tracker，提供動態選擇 URI 的清單。
++ `config/config` 中的 `API_URI` 未來會用於完善 IOTA Tracker，提供動態選擇 URI 的清單。
 
 + `config/__init__.py` 中的 `app` 參數是用於 IOTA Tracker 直接寫入資料庫用，和主程式的 `app` 無關。
 

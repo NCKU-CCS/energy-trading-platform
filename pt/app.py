@@ -22,8 +22,8 @@ def create_app(config_mode):
     def af_request(resp):
         resp = make_response(resp)
         resp.headers['Access-Control-Allow-Origin'] = '*'
-        resp.headers['Access-Control-Allow-Methods'] = 'GET,POST,PUT,DELETE'
-        resp.headers['Access-Control-Allow-Headers'] = 'x-requested-with,content-type'
+        resp.headers['Access-Control-Allow-Methods'] = 'GET,POST,PUT,DELETE,OPTIONS'
+        resp.headers['Access-Control-Allow-Headers'] = 'X-Requested-With, Content-Type, Authorization'
         return resp
 
     # pylint: enable=W0612
@@ -37,7 +37,7 @@ def create_app(config_mode):
             code = error.code
 
         # pylint: disable=E1101
-        app.logger.warning('{%d} - {%s}' % (code, error))
+        app.logger.warning(f'{code} - {error}')
         # pylint: enable=E1101
 
         return jsonify(error=str(error)), code
@@ -48,8 +48,7 @@ def create_app(config_mode):
     # flask config
     app.config.from_pyfile('./config/config.py')
     # pylint: disable=E1101
-    app.logger.info('APP Mode: {%s}' % config_mode)
-    # app.logger.info(f'APP Mode: {config_mode}')
+    app.logger.info(f'APP Mode: {config_mode}')
     # pylint: enable=E1101
 
     # DB Init
@@ -63,7 +62,8 @@ def create_app(config_mode):
     api.add_resource(RESOURCES['news'], '/news')
     api.add_resource(RESOURCES['power_info'], '/power_info')
     api.add_resource(RESOURCES['participant'], '/participant')
-    api.add_resource(RESOURCES['bids'], '/bids')
+    api.add_resource(RESOURCES['matchresult'], '/matchresult')
+    api.add_resource(RESOURCES['bidsubmit'], '/bidsubmit')
     api.add_resource(RESOURCES['socketio'], '/socket_settlement')
 
     return app

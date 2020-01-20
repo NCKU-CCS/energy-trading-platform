@@ -131,3 +131,7 @@ pt/db_init.py
 # DB
 pt/data.db
 db/
+
+# short key generator
+pt/shortkey.py
+
