@@ -21,9 +21,7 @@ def verify_token(token):
     try:
         long_lived_token = serializer.loads(token.encode('utf-8'))
     except BadSignature:
-        g.error_message = BadSignature.message
-        if g.error_message.find('Signature') >= 0 and g.error_message.find('does not match') >= 0:
-            g.error_message = 'Unauthorized access'
+        g.error_message = 'Unauthorized access'
         return False
 
     # get username and uuid from database
