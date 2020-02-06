@@ -190,10 +190,12 @@ class BidSubmitResource(Resource):
                 ]
             )
         )
+        # buy prices is in high to low order
         if args["bid_type"] == "buy":
             bid_queryset = bid_query.order_by(BidSubmit.start_time, BidSubmit.price.desc()).all()
+        # sell prices is in low to high order
         elif args["bid_type"] == "sell":
-            bid_queryset = bid_query.order_by(BidSubmit.start_time, BidSubmit.price.asc())
+            bid_queryset = bid_query.order_by(BidSubmit.start_time, BidSubmit.price.asc()).all()
         bids = [
             {
                 "id": message.uuid,
