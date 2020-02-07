@@ -178,6 +178,24 @@ class BidSubmitResource(Resource):
         logging.info(
             f"[Get BidSubmit Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n"
         )
+        bid_query = BidSubmit.query.filter(
+            BidSubmit.tenders_id.in_(
+                [
+                    tender.uuid
+                    for tender in Tenders.query.filter(
+                        Tenders.user_id == g.uuid,
+                        Tenders.start_time >= datetime.today(),
+                        Tenders.bid_type == args["bid_type"],
+                    ).all()
+                ]
+            )
+        )
+        # buy prices is in high to low order
+        if args["bid_type"] == "buy":
+            bid_queryset = bid_query.order_by(BidSubmit.start_time, BidSubmit.price.desc()).all()
+        # sell prices is in low to high order
+        elif args["bid_type"] == "sell":
+            bid_queryset = bid_query.order_by(BidSubmit.start_time, BidSubmit.price.asc()).all()
         bids = [
             {
                 "id": message.uuid,
@@ -191,20 +209,7 @@ class BidSubmitResource(Resource):
                 "time": int(message.start_time.strftime("%H")),
                 "total_price": message.value * message.price,
             }
-            for message in BidSubmit.query.filter(
-                BidSubmit.tenders_id.in_(
-                    [
-                        tender.uuid
-                        for tender in Tenders.query.filter(
-                            Tenders.user_id == g.uuid,
-                            Tenders.start_time >= datetime.today(),
-                            Tenders.bid_type == args["bid_type"],
-                        ).all()
-                    ]
-                )
-            )
-            .order_by(BidSubmit.start_time, BidSubmit.price.desc())
-            .all()
+            for message in bid_queryset
         ]
         response = jsonify(
             {
@@ -213,7 +218,6 @@ class BidSubmitResource(Resource):
                 "totalCount": len(bids),
             }
         )
-
         return response
 
     @auth.login_required
