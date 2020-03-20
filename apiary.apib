@@ -334,19 +334,20 @@ curl http://140.116.247.120:5000/participant -X GET -H "Content-Type: applicatio
             + id: `7e54877b-3743-4d20-bbfc-5b4deb131116` - User's UUID
             + name: BEMS1
 
-## Electricity History Usage [/power_info]
+## Power Info [/power_info]
 
-Retuen Electricity History Usage.
+Return Electricity History Usage.
 
-### Electricity History Usage [GET /power_info{?time}]
+### PowerData (Data Table Mode) [GET /power_info{?per_page}{?page}{?time}]
 <pre>
 curl http://140.116.247.120:5000/power_info -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 curl http://140.116.247.120:5000/power_info?time=2019-10-19 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 </pre>
 
 + Parameters
-    + time: `2019-10-19` (optional) - Query date. Format: `YYYY-mm-DD`
-        + Default: System date
+    + per_page: `10` (number, optional) - Power data per page.
+    + page: `5` (number, optional) - Power data at page.
+    + time: 1 `2020/01/14` (string, optional) - Date for the data, default is now, format YYYY/MM/DD.
 
 + Request (application/json)
 
@@ -357,12 +358,35 @@ curl http://140.116.247.120:5000/power_info?time=2019-10-19 -X GET -H "Content-T
 
 + Response 200 (application/json)
 
+    + Attributes
+        + data (array) - 頁面所顯示的電力資訊
+            + (PowerEntry1) - 第一筆資料
+            + (PowerEntry2) - 第二筆資料
+        + page: 1 - 所在頁數
+        + totalCount: 785 (number) - Query 時間內資料總數
+
+### PowerData (Data Chart Mode) [GET /power_info{?start_time}{?end_time}]
+<pre>
+curl http://140.116.247.120:5000/power_info -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+curl http://140.116.247.120:5000/power_info?time=2019-10-19 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+</pre>
+
++ Parameters
+    + start_time: `2020/01/14` (string, optional) - Date for the data, format YYYY/MM/DD.
+    + end_time: `2020/01/14` (string, optional) - Date for the data, format YYYY/MM/DD.
+    
++ Request (application/json)
+
+    + Headers
+
+            API-version: 0.1
+            Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR - Authentication Bearer Token
+
++ Response 200 (application/json)
+
     + Attributes (array, fixed-type)
-        + (HOMEPAGE) - 總用電
-        + (ESS) - 儲能系統
-        + (EV) - 充電樁
-        + (PV) - 太陽光電
-        + (WT) - 中小型風力機
+        + (ChartData1) - 產用電資訊 1
+        + (ChartData2) - 產用電資訊 2
 
 # Group Web Socket
 ## Association Diagram [/s1]
@@ -456,3 +480,35 @@ NOT YET !!!!!!
 + cluster: 1 - 風機編號
 + WindGridPower: 0.000 (number)- 風機功率
 + updated_at: `2019-09-04T12:00:00` - 資料上傳時間
+
+### PowerEntry1
++ address: https://thetangle.org/transaction/WGQEE9ZNHHNPZ9AILVK9NAUXTRQZWJVEMIXWPBMWFQZTRXLIURDKLVUKACJAQIJOCKDWAZTLTLZY99999 - IOTA address
++ data_type: ESS - 產能設備
++ date: 2020/01/14 - 日期
++ id：049a9c28-c0cc-418e-9f35-23f6bc43df7e - PowerData UUID
++ power_display: 4.771 (number) - 電力資訊
++ time: 23:50 - 時間
+
+### PowerEntry2
++ address: https://thetangle.org/transaction/QAYPUZOKFXCDXGL9ZUZNVMKRNYGPSYRDQNJDQBGL9HYZRHBZ9FPJFWXRIGTXJSKMADGPODWYMCQYZ9999 - IOTA address
++ data_type: WT - 產能設備
++ date: 2020/01/14 - 日期
++ id：049a9c28-c0cc-418e-9f35-23f6bc43df7e - PowerData UUID
++ power_display: 2.471 (number) - 電力資訊
++ time: 23:51 - 時間
+
+### ChartData1
++ Demand: `-7.486` (number)- 淨負載
++ ESS: `-3.211` (number) - ESS
++ EV: `-3.592` (number) - EV
++ PV: `-4.121` (number)
++ WT: `-2.267` (number)
++ name: `2020/01/14 00:00` (string)- 資料時間
+
+### ChartData2
++ Demand: `-1.171` (number)- 淨負載
++ ESS: 2.076 (number) - ESS 資訊
++ EV: `-3.277` (number) - EV
++ PV: 0.055 (number) - PV
++ WT: `-2.146` (number) - WT
++ name: `2020/01/14 01:00` (string)- 資料時間
