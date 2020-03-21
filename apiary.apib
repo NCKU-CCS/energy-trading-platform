@@ -148,36 +148,40 @@ curl http://140.116.247.120:5000/news -X GET -H "Content-Type: application/json"
 
 Related to bidding.
 
-### Bidding Project [GET]
+### Bidding Project [GET /power_info{?per_page}{?page}{?bid_type}]
 <pre>
-curl http://140.116.247.120:5000/bidsubmit -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
+curl http://140.116.247.120:5000/power_info?per_page=10?page=5?bid_type=buy -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
 </pre>
 
-Return the bid content.
+Return the bid content valid from the day (Today, current time).
+
++ Parameters
+    + per_page: `10` (number) - 一頁的標案數量.
+    + page: `5` (number) - 頁面書.
+    + bid_type: `buy` (string) - 取得買或賣的標案資料
 
 + Request (application/json)
 
     + Headers
-
+    
             API-version: 0.1
             Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR - Authentication Bearer Token
 
 + Response 200 (application/json)
 
-    + Attributes (array, fixed-type)
-        + (object)
-            + id: `b345273d-ffc9-4916-bf7e-5615f0ee8a39`
-            + start_time: 2019/09/01 13- Bidding Datetime Start
-            + end_time: 2019/09/01 14 - Bidding Datetime End
-            + value: 10
-            + price: 4.5
-            + bid_type: sell - sell or buy
+    + Attributes
+
+        + data (array) - 頁面所顯示的標案資訊
+            + (BidSubmit1) - 第一筆資料
+            + (BidSubmit2) - 第二筆資料
+        + page: `1` (number) - 所在頁數
+        + totalCount: 20 (number) - 在當時間總共有效的標案
 
 ### Order [POST]
 <pre>
 curl http://140.116.247.120:5000/bidsubmit -X POST -H 'Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc' -H 'Content-Type: application/json' \
   -d '{
-    "bid_type": buy,
+    "bid_type": "buy",
     "start_time": "2019/10/29 18",
     "end_time": "2019/10/29 19",
     "value": 10,
@@ -211,7 +215,6 @@ curl http://140.116.247.120:5000/bidsubmit -X POST -H 'Authorization: Bearer 3Ma
     + Attributes
 
         + message: Reject
-        + description: The bid has been closed - Error message
 
 ### Edit [PUT]
 <pre>
@@ -253,9 +256,8 @@ curl http://140.116.247.120:5000/bidsubmit -X PUT -H 'Authorization: Bearer 3MaT
     + Attributes
 
         + message: Reject
-        + description: The bid has been closed - Error message
 
-### Remove [DELETE /Bidding]
+### Remove [DELETE]
 <pre>
 curl http://140.116.247.120:5000/bidsubmit -X DELETE -H 'Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc' -H 'Content-Type: application/json' -d '{"id": "104fa450-c688-4f7f-8cca-fae7a18f2eb8"}'
 </pre>
@@ -282,7 +284,7 @@ curl http://140.116.247.120:5000/bidsubmit -X DELETE -H 'Authorization: Bearer 3
     + Attributes
 
         + message: Reject
-        + description: The bid has been closed - Error message
+        + description: The bid has been closed - Or "Invalid ID" - Error message
 
 ## Match Result [/matchresult]
 
@@ -306,9 +308,6 @@ Return details information sets of the user's bids.
 
     + Attributes (array, fixed-type)
         + (BID)
-        + (BID)
-            + id: xxxo
-            + bit_type: buy
 
 
 ## Schematic Diagram [/participant]
@@ -340,8 +339,7 @@ Return Electricity History Usage.
 
 ### PowerData (Data Table Mode) [GET /power_info{?per_page}{?page}{?time}]
 <pre>
-curl http://140.116.247.120:5000/power_info -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
-curl http://140.116.247.120:5000/power_info?time=2019-10-19 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+curl http://140.116.247.120:5000/power_info?per_page=10?page=5?time=1 `2020/01/14` -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 </pre>
 
 + Parameters
@@ -367,8 +365,7 @@ curl http://140.116.247.120:5000/power_info?time=2019-10-19 -X GET -H "Content-T
 
 ### PowerData (Data Chart Mode) [GET /power_info{?start_time}{?end_time}]
 <pre>
-curl http://140.116.247.120:5000/power_info -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
-curl http://140.116.247.120:5000/power_info?time=2019-10-19 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+curl http://140.116.247.120:5000/power_info?start_time=2020/01/14?end_time=2020/01/14 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 </pre>
 
 + Parameters
@@ -387,6 +384,7 @@ curl http://140.116.247.120:5000/power_info?time=2019-10-19 -X GET -H "Content-T
     + Attributes (array, fixed-type)
         + (ChartData1) - 產用電資訊 1
         + (ChartData2) - 產用電資訊 2
+
 
 # Group Web Socket
 ## Association Diagram [/s1]
@@ -421,22 +419,48 @@ NOT YET !!!!!!
 ## Data Structures
 ### BID (object)
 + id: `b345273d-ffc9-4916-bf7e-5615f0ee8a39` - Message's UUID
-+ start_time: 2019/09/01 13- Bidding Datetime Start
-+ end_time: 2019/09/01 14 - Bidding Datetime End
++ date: 2019/09/01 13- Trade Target Date
++ time: 2019/09/01 14 - Trade Period
 + bid_type: sell - sell or buy
-+ status: 結算完成 - Bidding Status
++ bids
+    + price: 5.0 (number)- Bidding Price
+    + value: 20.0 (number)- Bidding Value
++ status: 已結算 - Bidding Status
 + transaction_hash: 0xdb13d6c572a482f2a9578bfb3cc41a2f0e349852138e788db795ee51ce40b439 - Transaction Hash
-+ upload: 2019/09/01 12:55 - Upload Time
 + counterpart
-    + name: 國立成功大學
-    + address: 701台南市東區大學路1號
-+ average_price: 5 (number)- average unit price
-+ bid_value: 20 (number)- Bidding Value
-+ win
+    + name: 沙崙綠能科學城C區BEMS - 
+    + address: 台南市歸仁區高發二路360號C區
++ win: 1 (number) - Deal or No Deal - 0 or 1
++ wins
     + value: 10 (number)- Winning Value
-    + total_price: 50 (number)- Winning Total Price
+    + price: 50 (number)- Winning Total Price
++ upload: `Thu, 12 Mar 2020 14:15:00 GMT` - Upload Time
 + achievement: 100% - 0~100%
 + settlement: 50 (number)- Settlement Transaction Price
+
+### BidSubmit1
++ bid_type: buy (string) - 投標類型
++ date: 2020/10/29 (string) - 目標執行日期 YYYY/MM/DD 
++ end_time: `2020/10/29 18` (string) - 執行結束時間
++ id：`049a9c28-c0cc-418e-9f35-23f6bc43df7e` - 投標 UUID
++ price: 6.8 (number) - 投標單價
++ start_time: `2020/10/29 19` (string) - 執行開始時間
++ time: 18 (number) - 執行時間 - Number
++ total_price: 68.0 (number) - 總交易價格
++ upload_time: `Sat, 21 Mar 2020 14:28:59 GMT` (string) - 投標上傳時間
++ volume: 10 (number) - 投標電量
+
+### BidSubmit2
++ bid_type: buy (string) - 投標類型
++ date: 2020/10/230 (string) - 目標執行日期 YYYY/MM/DD 
++ end_time: `2020/10/30 6` (string) - 執行結束時間
++ id：`b6953af5-0803-4559-af5c-115613627624` - 投標 UUID
++ price: 4.771 (number) - 投標單價
++ start_time: `2020/10/30 7` (string) - 執行開始時間
++ time: 6 (number) - 執行時間 - Number
++ total_price: 47.71 (number) - 總交易價格
++ upload_time: `Sat, 21 Mar 2020 14:28:59 GMT` (string) - 投標上傳時間
++ volume: 10 (number) - 投標電量
 
 ### HOMEPAGE
 + table: homepage
