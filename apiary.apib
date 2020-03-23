@@ -117,8 +117,8 @@ curl http://140.116.247.120:5000/amis -X GET -H "Content-Type: application/json"
     + Attributes (array, fixed-type)
         + (object)
             + id: `a6d2a4cd-fc78-4636-9c42-c0006976244b` - UUID
-            + name: AMI1
-            + Description: 太陽能
+            + name: 智駕車BEMS
+            + description: 智駕車總表AMI - AMI 名稱 
 
 ## News [/news]
 
@@ -150,7 +150,7 @@ Related to bidding.
 
 ### Bidding Project [GET /power_info{?per_page}{?page}{?bid_type}]
 <pre>
-curl http://140.116.247.120:5000/power_info?per_page=10?page=5?bid_type=buy -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
+curl http://140.116.247.120:5000/bidsubmit?per_page=10&page=5&bid_type=buy -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
 </pre>
 
 Return the bid content valid from the day (Today, current time).
@@ -339,13 +339,13 @@ Return Electricity History Usage.
 
 ### PowerData (Data Table Mode) [GET /power_info{?per_page}{?page}{?time}]
 <pre>
-curl http://140.116.247.120:5000/power_info?per_page=10?page=5?time=1 `2020/01/14` -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+curl http://140.116.247.120:5000/power_info?per_page=10&page=1&time=2020/02/14 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 </pre>
 
 + Parameters
     + per_page: `10` (number, optional) - Power data per page.
-    + page: `5` (number, optional) - Power data at page.
-    + time: 1 `2020/01/14` (string, optional) - Date for the data, default is now, format YYYY/MM/DD.
+    + page: `1` (number, optional) - Power data at page.
+    + time: `2020/02/14` (string, optional) - Date for the data, default is now, format YYYY/MM/DD.
 
 + Request (application/json)
 
@@ -365,12 +365,12 @@ curl http://140.116.247.120:5000/power_info?per_page=10?page=5?time=1 `2020/01/1
 
 ### PowerData (Data Chart Mode) [GET /power_info{?start_time}{?end_time}]
 <pre>
-curl http://140.116.247.120:5000/power_info?start_time=2020/01/14?end_time=2020/01/14 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+curl http://140.116.247.120:5000/power_info?start_time=2020/02/14?end_time=2020/02/15 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 </pre>
 
 + Parameters
-    + start_time: `2020/01/14` (string, optional) - Date for the data, format YYYY/MM/DD.
-    + end_time: `2020/01/14` (string, optional) - Date for the data, format YYYY/MM/DD.
+    + start_time: `2020/02/14` (string, optional) - Date for the data, format YYYY/MM/DD.
+    + end_time: `2020/02/15` (string, optional) - Date for the data, format YYYY/MM/DD.
     
 + Request (application/json)
 
@@ -384,7 +384,6 @@ curl http://140.116.247.120:5000/power_info?start_time=2020/01/14?end_time=2020/
     + Attributes (array, fixed-type)
         + (ChartData1) - 產用電資訊 1
         + (ChartData2) - 產用電資訊 2
-
 
 # Group Web Socket
 ## Association Diagram [/s1]
@@ -419,8 +418,8 @@ NOT YET !!!!!!
 ## Data Structures
 ### BID (object)
 + id: `b345273d-ffc9-4916-bf7e-5615f0ee8a39` - Message's UUID
-+ date: 2019/09/01 13- Trade Target Date
-+ time: 2019/09/01 14 - Trade Period
++ date: `2019/09/01` - Trade Target Date
++ time: `13:00-14:00` - Trade Period
 + bid_type: sell - sell or buy
 + bids
     + price: 5.0 (number)- Bidding Price
@@ -508,7 +507,7 @@ NOT YET !!!!!!
 ### PowerEntry1
 + address: https://thetangle.org/transaction/WGQEE9ZNHHNPZ9AILVK9NAUXTRQZWJVEMIXWPBMWFQZTRXLIURDKLVUKACJAQIJOCKDWAZTLTLZY99999 - IOTA address
 + data_type: ESS - 產能設備
-+ date: 2020/01/14 - 日期
++ date: 2020/02/14 - 日期
 + id：049a9c28-c0cc-418e-9f35-23f6bc43df7e - PowerData UUID
 + power_display: 4.771 (number) - 電力資訊
 + time: 23:50 - 時間
@@ -516,7 +515,7 @@ NOT YET !!!!!!
 ### PowerEntry2
 + address: https://thetangle.org/transaction/QAYPUZOKFXCDXGL9ZUZNVMKRNYGPSYRDQNJDQBGL9HYZRHBZ9FPJFWXRIGTXJSKMADGPODWYMCQYZ9999 - IOTA address
 + data_type: WT - 產能設備
-+ date: 2020/01/14 - 日期
++ date: 2020/02/14 - 日期
 + id：049a9c28-c0cc-418e-9f35-23f6bc43df7e - PowerData UUID
 + power_display: 2.471 (number) - 電力資訊
 + time: 23:51 - 時間
@@ -527,7 +526,7 @@ NOT YET !!!!!!
 + EV: `-3.592` (number) - EV
 + PV: `-4.121` (number)
 + WT: `-2.267` (number)
-+ name: `2020/01/14 00:00` (string)- 資料時間
++ name: `2020/02/14 00:00` (string)- 資料時間
 
 ### ChartData2
 + Demand: `-1.171` (number)- 淨負載
