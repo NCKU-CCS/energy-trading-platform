@@ -29,6 +29,7 @@ def verify_token(token):
     if user:
         g.uuid = user.uuid
         g.account = user.account
+        g.is_aggregator = user.is_aggregator
         return True
     g.error_message = 'Access denied'
     return False

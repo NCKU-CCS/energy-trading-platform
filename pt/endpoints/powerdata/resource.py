@@ -58,14 +58,23 @@ class PowerDatasResource(Resource):
             location="args",
             help="Get PowerDatas: time is required",
         )
+        self.get_parser.add_argument(
+            "participant_id",
+            type=str,
+            required=False,
+            location="args",
+            help="Get PowerDatas: pariticipant ID is required",
+        )
 
     # pylint: disable=R0201
     @auth.login_required
     def get(self):
         args = self.get_parser.parse_args()
-
-        logging.info(f"[Get Datas Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n")
-
+        logging.info(f"[Get Datas Request]\nUser Account:{g.account}\nUUID:{g.uuid}\nIs_Aggregator:{g.is_aggregator}\n")
+        if g.is_aggregator is True and args["participant_id"]:
+            user_id = args["participant_id"]
+        else:
+            user_id = g.uuid
         # Data Table Mode
         if args["per_page"] and args["page"]:
             logging.info("[Get Datas Request]:Data Table Mode")
@@ -73,8 +82,7 @@ class PowerDatasResource(Resource):
                 time = args["time"]
             else:
                 time = date.today()
-            return self.data_table(args["per_page"], args["page"], time)
-
+            return self.data_table(args["per_page"], args["page"], time, user_id)
         # Data Charts Mode
         if args["start_time"] and args["end_time"]:
             logging.info("[Get Datas Request]:Data Charts Mode")
@@ -85,17 +93,16 @@ class PowerDatasResource(Resource):
                 start_time = str(
                     datetime.strptime(start_time, "%Y/%m/%d").date() - timedelta(days=2)
                 )
-            return self.chart_mode(start_time, end_time)
-
+            return self.chart_mode(start_time, end_time, user_id)
         return make_response(jsonify([]))
 
     # pylint: enable=R0201
 
     # pylint: disable=R0201
-    def data_table(self, limit, offset, time):
+    def data_table(self, limit, offset, time, user_id):
         filter_history = History.query.filter(
             History.time == time,
-            History.ami_id == AMI.query.filter_by(user_id=g.uuid).first().uuid,
+            History.ami_id == AMI.query.filter_by(user_id=user_id).first().uuid,
         )
         messages = (
             PowerData.query.filter(
@@ -127,11 +134,11 @@ class PowerDatasResource(Resource):
     # pylint: enable=R0201
 
     # pylint: disable=R0201
-    def chart_mode(self, start_time, end_time):
+    def chart_mode(self, start_time, end_time, user_id):
         filter_history = History.query.filter(
             History.time >= start_time,
             History.time <= end_time,
-            History.ami_id == AMI.query.filter_by(user_id=g.uuid).first().uuid,
+            History.ami_id == AMI.query.filter_by(user_id=user_id).first().uuid,
         )
         messages = (
             PowerData.query.filter(

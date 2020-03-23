@@ -111,13 +111,16 @@ class LoginResource(Resource):
                 g.username = user.username
                 g.uuid = user.uuid
                 g.tag = user.tag
+                g.is_aggregator = user.is_aggregator
             else:
                 return make_response(jsonify({"error": "Unauthorized access"}), 401)
         else:
             return make_response(jsonify({"error": "Unauthorized access"}), 401)
-        logging.info(f"[Post Login Request]\nUser Account:{g.username}\nUUID:{g.uuid}")
+        logging.info(
+            f"[Post Login Request]\nUser Account:{g.username}\nUUID:{g.uuid}\nIs_Aggregator:{g.is_aggregator}\n"
+        )
         short_lived_token = serializer.dumps(g.tag).decode("utf-8")
-        response = jsonify({"id": g.uuid, "bearer": short_lived_token})
+        response = jsonify({"id": g.uuid, "bearer": short_lived_token, "is_aggregator": g.is_aggregator})
         return response
 
     # pylint: enable=R0201
