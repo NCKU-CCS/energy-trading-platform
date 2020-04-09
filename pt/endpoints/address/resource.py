@@ -1,10 +1,11 @@
 from datetime import date
+
 from flask import jsonify
 from flask import g as g_ami
 from flask_restful import Resource
 from flask_httpauth import HTTPTokenAuth
+from loguru import logger
 
-from utils.logging import logging
 from utils.oauth import auth, g
 from .model import get_address, AMI
 
@@ -27,7 +28,7 @@ class AddressResource(Resource):
     # pylint: disable=R0201
     @auth_ami.login_required
     def get(self):
-        logging.info(
+        logger.info(
             f"[Get Address Request]\nUser name:{g_ami.name}\nUUID:{g_ami.uuid}\nIOTA Address:{g_ami.address}"
         )
         response = jsonify({"address": g_ami.address})
@@ -40,7 +41,7 @@ class AmiResource(Resource):
     # pylint: disable=R0201
     @auth.login_required
     def get(self):
-        logging.info(f"[Get Amis Request]\nUser Account:{g.account}\nUUID:{g.uuid}")
+        logger.info(f"[Get Amis Request]\nUser Account:{g.account}\nUUID:{g.uuid}")
         amis = [
             {"id": ami.uuid, "name": ami.name, "description": ami.description}
             for ami in AMI.query.filter_by(user_id=g.uuid).all()

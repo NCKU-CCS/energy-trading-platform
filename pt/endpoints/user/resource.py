@@ -1,9 +1,11 @@
 import secrets
+
 from flask import jsonify, request, make_response
 from flask_restful import Resource, reqparse
 from werkzeug.security import generate_password_hash, check_password_hash
+from loguru import logger
 
-from utils.logging import logging
+
 from utils.oauth import auth, g, serializer
 from .model import User
 
@@ -33,7 +35,7 @@ class UserResource(Resource):
     # pylint: disable=R0201
     @auth.login_required
     def get(self):
-        logging.info(f"[Get User Request]\nUser Account:{g.account}\nUUID:{g.uuid}")
+        logger.info(f"[Get User Request]\nUser Account:{g.account}\nUUID:{g.uuid}")
         user = User.query.filter_by(uuid=g.uuid).first()
         response = jsonify(
             {
@@ -51,7 +53,7 @@ class UserResource(Resource):
     # pylint: disable=R0201
     @auth.login_required
     def put(self):
-        logging.info(f"[Put User Request]\nUser Account:{g.account}\nUUID:{g.uuid}")
+        logger.info(f"[Put User Request]\nUser Account:{g.account}\nUUID:{g.uuid}")
         user = User.query.filter_by(uuid=g.uuid).first()
         args = self.put_parser.parse_args()
         if check_password_hash(user.password, args["original_passwd"]):
@@ -115,7 +117,7 @@ class LoginResource(Resource):
                 return make_response(jsonify({"error": "Unauthorized access"}), 401)
         else:
             return make_response(jsonify({"error": "Unauthorized access"}), 401)
-        logging.info(f"[Post Login Request]\nUser Account:{g.username}\nUUID:{g.uuid}")
+        logger.info(f"[Post Login Request]\nUser Account:{g.username}\nUUID:{g.uuid}")
         short_lived_token = serializer.dumps(g.tag).decode("utf-8")
         response = jsonify({"id": g.uuid, "bearer": short_lived_token})
         return response
@@ -127,7 +129,7 @@ class ParticipantResource(Resource):
     # pylint: disable=R0201
     @auth.login_required
     def get(self):
-        logging.info(
+        logger.info(
             f"[Get Participant Request]\nUser Account:{g.account}\nUUID:{g.uuid}"
         )
         bems = [{"id": user.uuid, "name": user.username} for user in User.query.all()]

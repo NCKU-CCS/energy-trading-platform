@@ -1,9 +1,11 @@
 import base64
 import json
 import sys
+
 from datetime import datetime, date
 from sqlalchemy import extract
 from Cryptodome.Hash import SHA256
+from loguru import logger
 
 sys.path.insert(0, "../energy-trading-platform/pt")
 
@@ -52,6 +54,7 @@ def process_data():
                 ).all()
             ]
             transactions = [tx for tx in transaction_hash if tx not in db_hash]
+            logger.info(f"get {len(transactions)} {tag} data")
             # Tx Hash -> message
             if not transactions:
                 continue
@@ -73,8 +76,12 @@ def process_data():
                     # insert into db
                     data_type = iota_data_type[tag[:-1]]
                     insert_data = json.loads(decrypt_data.decode())
+                    # parse day result from datetime.isoformat
+                    # to process the time difference between IOTA and database
+                    # python3.7+ can use datetime.fromisoformat(<isoformat>)
+                    data_time = insert_data["updated_at"][:10]
                     insert_data["history_id"] = (
-                        History.query.filter_by(iota_address=address, time=date.today())
+                        History.query.filter_by(iota_address=address, time=data_time)
                         .first()
                         .uuid
                     )
@@ -92,5 +99,5 @@ def process_data():
                     data_type.add(data_type(**insert_data))
 
 
-# if __name__ == "__main__":
-process_data()
+if __name__ == "__main__":
+    process_data()

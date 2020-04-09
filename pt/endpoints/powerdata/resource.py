@@ -2,8 +2,8 @@ from datetime import datetime, date, timedelta
 from flask import jsonify, make_response
 from flask_restful import Resource, reqparse
 from sqlalchemy import extract
+from loguru import logger
 
-from utils.logging import logging
 from utils.oauth import auth, g
 from .model import PowerData
 from ..address.model import AMI, History
@@ -64,11 +64,11 @@ class PowerDatasResource(Resource):
     def get(self):
         args = self.get_parser.parse_args()
 
-        logging.info(f"[Get Datas Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n")
+        logger.info(f"[Get Datas Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n")
 
         # Data Table Mode
         if args["per_page"] and args["page"]:
-            logging.info("[Get Datas Request]:Data Table Mode")
+            logger.info("[Get Datas Request]:Data Table Mode")
             if args["time"]:
                 time = args["time"]
             else:
@@ -77,7 +77,7 @@ class PowerDatasResource(Resource):
 
         # Data Charts Mode
         if args["start_time"] and args["end_time"]:
-            logging.info("[Get Datas Request]:Data Charts Mode")
+            logger.info("[Get Datas Request]:Data Charts Mode")
             start_time = args["start_time"]
             end_time = args["end_time"]
             # if start time same as end time, default use three days' data

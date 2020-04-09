@@ -13,9 +13,9 @@ from flask import request
 from flask_socketio import SocketIO, ConnectionRefusedError
 # pylint: enable=W0622
 from itsdangerous import BadSignature
+from loguru import logger
 
 from utils.oauth import serializer
-from utils.logging import logging
 from endpoints.user.model import User
 
 
@@ -34,21 +34,21 @@ def is_verified():
             long_lived_token = serializer.loads(token.encode('utf-8'))
             user = User.query.filter_by(tag=long_lived_token).first()
             if user:
-                logging.info(
+                logger.success(
                     "[SocketIO]\nClient connected"
                 )
                 verified = True
             else:
-                logging.info(
+                logger.error(
                     "[SocketIO]\nLong-lived token does not match any database entry"
                 )
         # BadSignature catch nothing
         except BadSignature:
-            logging.info(
+            logger.error(
                 "[SocketIO]\nShort-lived token expired or invalid"
             )
     else:
-        logging.info(
+        logger.error(
             "[SocketIO]\nShort-lived token not provided"
         )
 
