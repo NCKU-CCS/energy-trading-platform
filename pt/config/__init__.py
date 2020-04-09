@@ -41,7 +41,8 @@ TAG_TEMPLATE = [
 # random
 RANDOM_GENERATOR = Random.new().read
 
-PEM_PATH = os.environ.get("PEM_PATH", "/home/energy-trading-platform/pt/rsa")
+PEM_PATH = os.environ.get("PEM_PATH", "rsa")
+PEM_PATH = os.path.join(os.getcwd(), PEM_PATH)
 # decrypt
 PLAT_RSA_PRI_KEY = RSA.importKey(
     open(os.path.join(PEM_PATH, "plat_rsa_private.pem")).read()

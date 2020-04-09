@@ -12,15 +12,30 @@
 
 主要功能為綠能交易平台的 API，詳細資訊：[API Document](https://et01.docs.apiary.io/#)
 
-## [GET] address
+## Getting Started
 
-+ 提供 AMI Data Uploader 詢問上傳的 IOTA Address
+### Prerequisites
 
-+ Authorization: Bearer Token
+- python 3.6.8
+- docker 18.09.7
 
-+ Address 規則：
-    + 每個上傳 AMI 對應到一個 Address
-    + 每天更新一次 Address
+
+### Running Development
+
+Installing Packages & Running
+```
+pipenv install
+pipenv run python pt/app.py
+```
+
+### Running Production
+
+1. update the .env file
+2. run docker
+```
+docker build -t et_platform . --no-cache
+docker run --env-file .env --name et_platform -d -p 5000:5000 --restart=always et_platform
+```
 
 ### Database
 
@@ -34,7 +49,25 @@
 
     `pipenv run python pt/iota_tracker.py`
 
-### Notice
+#### Run with Crontab
+
++ Run IOTA Tracker every minutes and save logs
+
+    `* * * * * cd /home/user/energy-trading-platform && /usr/local/bin/pipenv run python pt/scripts/iota_tracker.py >> /home/user/et_logs/`date +\%Y-\%m-\%d`.log 2>&1`
+
+*Crontab doesn't know PATH at runtime, direct use pipenv's binary file to execute.
+
+## [GET] address
+
++ 提供 AMI Data Uploader 詢問上傳的 IOTA Address
+
++ Authorization: Bearer Token
+
++ Address 規則：
+    + 每個上傳 AMI 對應到一個 Address
+    + 每天更新一次 Address
+
+## Notice
 
 + `.travis.yml` 中的 `secure` key 已經過加密
 
