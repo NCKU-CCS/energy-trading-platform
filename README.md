@@ -17,7 +17,7 @@
 ### Prerequisites
 
 - python 3.6.8
-- docker 18.09.7
+- docker 19.03.5
 
 
 ### Running Development
