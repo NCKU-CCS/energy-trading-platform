@@ -65,7 +65,7 @@ def add_bidsubmit(bid_data, user_id):
     }
     bid_data["tenders_id"] = get_tender_id(tender_data)
     bid_data["upload_time"] = datetime.today()
-    BidSubmit.add(BidSubmit(**bid_data))
+    BidSubmit(**bid_data).add()
     return True
 
 
@@ -102,5 +102,5 @@ def get_tender_id(tender_data):
     tender = get_tender(tender_data)
     if tender:
         return tender.uuid
-    Tenders.add(Tenders(**tender_data))
+    Tenders(**tender_data).add()
     return get_tender(tender_data).uuid

@@ -64,4 +64,4 @@ def renew(time):
                 "time_stamp": amis.time_stamp,
                 "ami_id": amis.uuid,
             }
-            History.add(History(**history))
+            History(**history).add()

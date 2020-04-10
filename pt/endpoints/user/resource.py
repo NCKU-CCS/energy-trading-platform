@@ -76,7 +76,7 @@ class UserResource(Resource):
             return make_response(jsonify({"error": "Account already exists"}), 409)
         data['password'] = generate_password_hash(data['password'])
         data['tag'] = secrets.token_hex()
-        User.add(data)
+        User(**data).add()
         return make_response(jsonify({"message": "Account created"}), 201)
 
     # pylint: enable=R0201

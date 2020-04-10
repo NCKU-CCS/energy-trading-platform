@@ -96,7 +96,7 @@ def process_data():
                     elif data_type == WT:
                         insert_data["windgridpower"] = insert_data.pop("WindGridPower")
 
-                    data_type.add(data_type(**insert_data))
+                    data_type(**insert_data).add()
 
 
 if __name__ == "__main__":
