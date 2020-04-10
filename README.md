@@ -69,6 +69,8 @@ docker run --env-file .env --name et_platform -d -p 5000:5000 --restart=always e
 
 ## Notice
 
++ set Time Zone at `.env` file
+
 + `.travis.yml` 中的 `secure` key 已經過加密
 
 + `config/config` 中的 `API_URI` 未來會用於完善 IOTA Tracker，提供動態選擇 URI 的清單。
