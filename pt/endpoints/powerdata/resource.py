@@ -1,4 +1,4 @@
-from datetime import datetime, date, timedelta
+from datetime import datetime, timedelta, timezone
 
 from flask import jsonify, make_response
 from flask_restful import Resource, reqparse
@@ -71,9 +71,9 @@ class PowerDatasResource(Resource):
         if args["per_page"] and args["page"]:
             logger.info("[Get Datas Request]:Data Table Mode")
             if args["time"]:
-                time = args["time"]
+                time = datetime.strptime(args["time"], "%Y/%m/%d").astimezone(timezone.utc).replace(tzinfo=None).date()
             else:
-                time = date.today()
+                time = datetime.utcnow().date()
             return self.data_table(args["per_page"], args["page"], time)
 
         # Data Charts Mode

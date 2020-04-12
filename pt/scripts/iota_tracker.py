@@ -2,10 +2,11 @@ import base64
 import json
 import sys
 
-from datetime import datetime, date
+from datetime import datetime
+from datetime import timezone
 from sqlalchemy import extract
-from Cryptodome.Hash import SHA256
 from loguru import logger
+from Cryptodome.Hash import SHA256
 
 sys.path.insert(0, "../energy-trading-platform/pt")
 
@@ -23,17 +24,19 @@ from endpoints.powerdata.model import PowerData, Demand, ESS, EV, PV, WT  # noqa
 # pylint: enable=C0413
 
 
+# Convert IOTA's tag to relate database model.
+# tag format: {BEMS}9{IOTA data type}9
+# In IOTA, tag must be A-Z and 9, so using '9' to replace Space.
+IOTA_DATA_TYPE = {
+    "BEMS9HOMEPAGE9INFORMATION9": Demand,
+    "BEMS9ESS9DISPLAY9": ESS,
+    "BEMS9EV9DISPLAY9": EV,
+    "BEMS9PV9DISPLAY9": PV,
+    "BEMS9WT9DISPLAY9": WT,
+}
+
+
 def process_data():
-    # Convert IOTA's tag to relate database model.
-    # tag format: {BEMS}9{IOTA data type}9
-    # In IOTA, tag must be A-Z and 9, so using '9' to replace Space.
-    iota_data_type = {
-        "BEMS9HOMEPAGE9INFORMATION9": Demand,
-        "BEMS9ESS9DISPLAY9": ESS,
-        "BEMS9EV9DISPLAY9": EV,
-        "BEMS9PV9DISPLAY9": PV,
-        "BEMS9WT9DISPLAY9": WT,
-    }
     # get address from db
     addresses = [str(ami.iota_address) for ami in AMI.query.all()]
     # generate tags by time
@@ -48,9 +51,9 @@ def process_data():
             db_hash = [
                 data.address
                 for data in PowerData.query.filter(
-                    extract("year", PowerData.updated_at) == date.today().year,
-                    extract("month", PowerData.updated_at) == date.today().month,
-                    extract("day", PowerData.updated_at) == date.today().day,
+                    extract("year", PowerData.updated_at) == datetime.utcnow().year,
+                    extract("month", PowerData.updated_at) == datetime.utcnow().month,
+                    extract("day", PowerData.updated_at) == datetime.utcnow().day,
                 ).all()
             ]
             transactions = [tx for tx in transaction_hash if tx not in db_hash]
@@ -74,17 +77,20 @@ def process_data():
                 # pylint: enable=E1102
                 if is_verify:
                     # insert into db
-                    data_type = iota_data_type[tag[:-1]]
+                    data_type = IOTA_DATA_TYPE[tag[:-1]]
                     insert_data = json.loads(decrypt_data.decode())
                     # parse day result from datetime.isoformat
                     # to process the time difference between IOTA and database
                     # python3.7+ can use datetime.fromisoformat(<isoformat>)
-                    data_time = insert_data["updated_at"][:10]
-                    insert_data["history_id"] = (
-                        History.query.filter_by(iota_address=address, time=data_time)
-                        .first()
-                        .uuid
+                    insert_data["updated_at"] = datetime.strptime(
+                        insert_data["updated_at"], "%Y-%m-%dT%H:%M:%S.%f"
                     )
+                    data_time = insert_data["updated_at"].astimezone(timezone.utc).replace(tzinfo=None).date()
+                    history = History.query.filter_by(iota_address=address, time=data_time).first()
+                    if history:
+                        insert_data["history_id"] = history.uuid
+                    else:
+                        continue
                     insert_data["address"] = str(receive_address)
 
                     # Handling different names

@@ -185,7 +185,7 @@ class BidSubmitResource(Resource):
                     tender.uuid
                     for tender in Tenders.query.filter(
                         Tenders.user_id == g.uuid,
-                        Tenders.start_time >= datetime.today(),
+                        Tenders.start_time >= datetime.utcnow(),
                         Tenders.bid_type == args["bid_type"],
                     ).all()
                 ]
