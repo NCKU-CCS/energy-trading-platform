@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 from flask import jsonify, make_response
 from flask_restful import Resource, reqparse
@@ -7,7 +7,6 @@ from loguru import logger
 
 from utils.oauth import auth, g
 from .model import PowerData
-from ..address.model import AMI, History
 
 
 class PowerDatasResource(Resource):
@@ -71,21 +70,20 @@ class PowerDatasResource(Resource):
         if args["per_page"] and args["page"]:
             logger.info("[Get Datas Request]:Data Table Mode")
             if args["time"]:
-                time = datetime.strptime(args["time"], "%Y/%m/%d").astimezone(timezone.utc).replace(tzinfo=None).date()
+                time = datetime.strptime(args["time"], "%Y/%m/%d")
             else:
-                time = datetime.utcnow().date()
+                time = datetime.combine(datetime.today(), datetime.min.time())
             return self.data_table(args["per_page"], args["page"], time)
 
         # Data Charts Mode
         if args["start_time"] and args["end_time"]:
             logger.info("[Get Datas Request]:Data Charts Mode")
-            start_time = args["start_time"]
-            end_time = args["end_time"]
+            start_time = datetime.strptime(args["start_time"], "%Y/%m/%d")
+            end_time = datetime.strptime(args["end_time"], "%Y/%m/%d")
             # if start time same as end time, default use three days' data
             if start_time == end_time:
-                start_time = str(
-                    datetime.strptime(start_time, "%Y/%m/%d").date() - timedelta(days=2)
-                )
+                start_time = start_time - timedelta(days=2)
+            end_time += timedelta(days=1)
             return self.chart_mode(start_time, end_time)
 
         return make_response(jsonify([]))
@@ -94,13 +92,11 @@ class PowerDatasResource(Resource):
 
     # pylint: disable=R0201
     def data_table(self, limit, offset, time):
-        filter_history = History.query.filter(
-            History.time == time,
-            History.ami_id == AMI.query.filter_by(user_id=g.uuid).first().uuid,
-        )
         messages = (
             PowerData.query.filter(
-                PowerData.history_id.in_([data.uuid for data in filter_history])
+                PowerData.field == g.account,
+                PowerData.updated_at >= time,
+                PowerData.updated_at <= time + timedelta(days=1),
             )
             .order_by(PowerData.updated_at.desc())
             .offset((offset - 1) * limit)
@@ -108,7 +104,9 @@ class PowerDatasResource(Resource):
             .all()
         )
         total_count = PowerData.query.filter(
-            PowerData.history_id.in_([data.uuid for data in filter_history])
+            PowerData.field == g.account,
+            PowerData.updated_at >= time,
+            PowerData.updated_at <= time + timedelta(days=1),
         ).count()
         datas = [
             {
@@ -129,14 +127,11 @@ class PowerDatasResource(Resource):
 
     # pylint: disable=R0201
     def chart_mode(self, start_time, end_time):
-        filter_history = History.query.filter(
-            History.time >= start_time,
-            History.time <= end_time,
-            History.ami_id == AMI.query.filter_by(user_id=g.uuid).first().uuid,
-        )
         messages = (
             PowerData.query.filter(
-                PowerData.history_id.in_([data.uuid for data in filter_history]),
+                PowerData.field == g.account,
+                PowerData.updated_at >= start_time,
+                PowerData.updated_at <= end_time,
                 # Hourly data every two hours
                 extract("minute", PowerData.updated_at) == "00",
                 extract("hour", PowerData.updated_at).in_(
