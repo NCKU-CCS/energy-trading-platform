@@ -1,8 +1,10 @@
 import os
+
 import iota
-from dotenv import load_dotenv
+import pytz
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from dotenv import load_dotenv
 from Cryptodome import Random
 from Cryptodome.Cipher import PKCS1_v1_5 as Cipher_pkcs1_v1_5
 from Cryptodome.Signature import PKCS1_v1_5 as Signature_pkcs1_v1_5
@@ -41,7 +43,8 @@ TAG_TEMPLATE = [
 # random
 RANDOM_GENERATOR = Random.new().read
 
-PEM_PATH = os.environ.get("PEM_PATH", "/home/energy-trading-platform/pt/rsa")
+PEM_PATH = os.environ.get("PEM_PATH", "rsa")
+PEM_PATH = os.path.join(os.getcwd(), PEM_PATH)
 # decrypt
 PLAT_RSA_PRI_KEY = RSA.importKey(
     open(os.path.join(PEM_PATH, "plat_rsa_private.pem")).read()
@@ -55,4 +58,6 @@ AMI_RSA_PUB_KEY = RSA.importKey(
 PLAT_SIGNER = Signature_pkcs1_v1_5.new(AMI_RSA_PUB_KEY)
 
 # the unique secret to form oauth serializer for short-lived token
-APP_SECRET_KEY = os.environ.get('APP_SECRET_KEY', 'VCn>ZaI],B/K-rPtq|2eB^gps~H>45')
+APP_SECRET_KEY = os.environ.get("APP_SECRET_KEY", "VCn>ZaI],B/K-rPtq|2eB^gps~H>45")
+
+TZ = pytz.timezone(os.environ.get("TZ", "Asia/Taipei"))

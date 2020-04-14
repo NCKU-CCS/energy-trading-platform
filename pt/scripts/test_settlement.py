@@ -1,10 +1,11 @@
 import json
 import random
+
 from datetime import datetime
 
 
 def get_settlement():
-    """ This function generates test settlement data for frond-end,
+    """ This function generates test settlement data for front-end,
         current ET users are mapped as below:
 
         智駕車BEMS=> Carlab_BEMS
@@ -45,7 +46,7 @@ def get_settlement():
             "achievement": random.choice(achievement_list) / 100
         }
     ]
-    now = datetime.now()
+    now = datetime.utcnow()
     data = {
         "date": now.strftime("%Y/%m/%d"),
         "time": now.strftime("%H:%M"),
