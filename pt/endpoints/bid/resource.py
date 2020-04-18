@@ -1,8 +1,9 @@
 from datetime import datetime
+
 from flask import jsonify, make_response
 from flask_restful import Resource, reqparse
+from loguru import logger
 
-from utils.logging import logging
 from utils.oauth import auth, g
 from .model import Tenders, MatchResult, BidSubmit, add_bidsubmit, edit_bidsubmit
 
@@ -11,7 +12,7 @@ class MatchResultsResource(Resource):
     # pylint: disable=R0201
     @auth.login_required
     def get(self):
-        logging.info(
+        logger.info(
             f"[Get MatchResults Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n"
         )
         if g.uuid in [tender.user_id for tender in Tenders.query.all()]:
@@ -175,7 +176,7 @@ class BidSubmitResource(Resource):
         limit = args["per_page"]
         offset = args["page"]
 
-        logging.info(
+        logger.info(
             f"[Get BidSubmit Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n"
         )
         bid_query = BidSubmit.query.filter(
@@ -184,7 +185,7 @@ class BidSubmitResource(Resource):
                     tender.uuid
                     for tender in Tenders.query.filter(
                         Tenders.user_id == g.uuid,
-                        Tenders.start_time >= datetime.today(),
+                        Tenders.start_time >= datetime.utcnow(),
                         Tenders.bid_type == args["bid_type"],
                     ).all()
                 ]

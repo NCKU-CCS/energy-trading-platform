@@ -1,6 +1,7 @@
 from flask import g, jsonify
 from flask_httpauth import HTTPTokenAuth
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, BadSignature
+from loguru import logger
 
 from endpoints.user.model import User
 
@@ -22,6 +23,7 @@ def verify_token(token):
         long_lived_token = serializer.loads(token.encode('utf-8'))
     except BadSignature:
         g.error_message = 'Unauthorized access'
+        logger.error(f"Login Faild: BadSignature\ntoken: {token}")
         return False
 
     # get username and uuid from database
@@ -30,7 +32,9 @@ def verify_token(token):
         g.uuid = user.uuid
         g.account = user.account
         g.is_aggregator = user.is_aggregator
+        logger.success(f"Login Success: {user.account}")
         return True
+    logger.error("Login Faild: Invalid User")
     g.error_message = 'Access denied'
     return False
 

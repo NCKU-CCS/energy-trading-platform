@@ -3,7 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from config import db, API
 
 # pylint: disable=W0611
-from utils.base_models import ETBaseMixin
+from utils.base_models import ETBaseMixin, UTCDate
 from ..user.model import User  # NOQA
 
 # pylint: enable=W0611
@@ -15,7 +15,7 @@ class AMI(db.Model, ETBaseMixin):
     name = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.String(120))
     iota_address = db.Column(db.String(120), unique=True, nullable=False)
-    time = db.Column(db.Date, unique=False, nullable=False)
+    time = db.Column(UTCDate, unique=False, nullable=False)
     time_stamp = db.Column(db.Integer, unique=False, nullable=False)
     tag = db.Column(db.String(120), unique=True, nullable=False)
     # ForeignKey to User
@@ -28,7 +28,7 @@ class History(db.Model, ETBaseMixin):
     name = db.Column(db.String(80), unique=False, nullable=False)
     description = db.Column(db.String(120))
     iota_address = db.Column(db.String(120), unique=True, nullable=False)
-    time = db.Column(db.Date, unique=False, nullable=False)
+    time = db.Column(UTCDate, unique=False, nullable=False)
     time_stamp = db.Column(db.Integer, unique=False, nullable=False)
     # ForeignKey to AMI
     ami_id = db.Column(UUID(), db.ForeignKey("ami.uuid"), nullable=False)
@@ -64,4 +64,4 @@ def renew(time):
                 "time_stamp": amis.time_stamp,
                 "ami_id": amis.uuid,
             }
-            History.add(History(**history))
+            History(**history).add()

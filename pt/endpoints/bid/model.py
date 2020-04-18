@@ -3,6 +3,7 @@ from datetime import datetime
 from sqlalchemy.dialects.postgresql import UUID
 
 from config import db
+from utils.base_models import UTCDatetime
 
 # pylint: disable=W0611
 from utils.base_models import ETBaseMixin
@@ -14,8 +15,8 @@ from ..user.model import User # NOQA
 class Tenders(db.Model, ETBaseMixin):
     __tablename__ = "tenders"
     bid_type = db.Column(db.String(40))  # sell or buy
-    start_time = db.Column(db.DateTime, unique=False, nullable=False)
-    end_time = db.Column(db.DateTime, unique=False, nullable=False)
+    start_time = db.Column(UTCDatetime, unique=False, nullable=False)
+    end_time = db.Column(UTCDatetime, unique=False, nullable=False)
     # ForeignKey to Tenders
     user_id = db.Column(UUID(), db.ForeignKey("user.uuid"), nullable=False)
     user = db.relationship("User")
@@ -24,8 +25,8 @@ class Tenders(db.Model, ETBaseMixin):
 class MatchResult(db.Model, ETBaseMixin):
     __tablename__ = "matchresult"
     bid_type = db.Column(db.String(40))  # sell or buy
-    start_time = db.Column(db.DateTime, unique=False, nullable=False)
-    end_time = db.Column(db.DateTime, unique=False, nullable=False)
+    start_time = db.Column(UTCDatetime, unique=False, nullable=False)
+    end_time = db.Column(UTCDatetime, unique=False, nullable=False)
     win = db.Column(db.Integer, nullable=False)
     status = db.Column(db.String(40))
     counterpart_name = db.Column(db.String(80))
@@ -37,7 +38,7 @@ class MatchResult(db.Model, ETBaseMixin):
     achievement = db.Column(db.Float)
     settlement = db.Column(db.Float)
     transaction_hash = db.Column(db.String(80))
-    upload = db.Column(db.DateTime, unique=False, nullable=False)
+    upload = db.Column(UTCDatetime, unique=False, nullable=False)
     # ForeignKey to Tenders
     tenders_id = db.Column(UUID(), db.ForeignKey("tenders.uuid"), nullable=False)
     tenders = db.relationship("Tenders")
@@ -46,11 +47,11 @@ class MatchResult(db.Model, ETBaseMixin):
 class BidSubmit(db.Model, ETBaseMixin):
     __tablename__ = "bidsubmit"
     bid_type = db.Column(db.String(40))  # sell or buy
-    start_time = db.Column(db.DateTime, unique=False, nullable=False)
-    end_time = db.Column(db.DateTime, unique=False, nullable=False)
+    start_time = db.Column(UTCDatetime, unique=False, nullable=False)
+    end_time = db.Column(UTCDatetime, unique=False, nullable=False)
     value = db.Column(db.Float)
     price = db.Column(db.Float)
-    upload_time = db.Column(db.DateTime, unique=False, nullable=False)
+    upload_time = db.Column(UTCDatetime, unique=False, nullable=False)
     # ForeignKey to Bid
     tenders_id = db.Column(UUID(), db.ForeignKey("tenders.uuid"), nullable=False)
     tenders = db.relationship("Tenders")
@@ -65,7 +66,7 @@ def add_bidsubmit(bid_data, user_id):
     }
     bid_data["tenders_id"] = get_tender_id(tender_data)
     bid_data["upload_time"] = datetime.today()
-    BidSubmit.add(BidSubmit(**bid_data))
+    BidSubmit(**bid_data).add()
     return True
 
 
@@ -102,5 +103,5 @@ def get_tender_id(tender_data):
     tender = get_tender(tender_data)
     if tender:
         return tender.uuid
-    Tenders.add(Tenders(**tender_data))
+    Tenders(**tender_data).add()
     return get_tender(tender_data).uuid
