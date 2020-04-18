@@ -7,6 +7,7 @@ from datetime import timezone
 from sqlalchemy import extract
 from loguru import logger
 from Cryptodome.Hash import SHA256
+import sqlalchemy
 
 sys.path.insert(0, "../energy-trading-platform/pt")
 
@@ -34,15 +35,18 @@ IOTA_DATA_TYPE = {
     "BEMS9PV9DISPLAY9": PV,
     "BEMS9WT9DISPLAY9": WT,
 }
+DB_DATA_TYPE = ("Demand", "ESS", "EV", "PV", "WT")
 
 
 def process_data():
-    # get address from db
+    # get address and transaction hash from db
     addresses = [str(ami.iota_address) for ami in AMI.query.all()]
-    # generate tags by time
-    tags = [tag + chr(ord("A") + datetime.now().hour) for tag in TAG_TEMPLATE]
+    # use the same time as the AMI query to prevent cross-day errors
+    utc_now = datetime.utcnow()
+    # generate tags by utc time
+    tags = [tag + chr(ord("A") + utc_now.hour) for tag in TAG_TEMPLATE]
     for address in addresses:
-        for tag in tags:
+        for tag, db_data_type in zip(tags, DB_DATA_TYPE):
             # addresses -> Transaction Hash
             transaction_hash = get_tx_hash(addresses=[address], tags=[tag])
             if not transaction_hash:
@@ -51,9 +55,11 @@ def process_data():
             db_hash = [
                 data.address
                 for data in PowerData.query.filter(
-                    extract("year", PowerData.updated_at) == datetime.utcnow().year,
-                    extract("month", PowerData.updated_at) == datetime.utcnow().month,
-                    extract("day", PowerData.updated_at) == datetime.utcnow().day,
+                    PowerData.data_type == db_data_type,
+                    extract("year", PowerData.updated_at) == utc_now.year,
+                    extract("month", PowerData.updated_at) == utc_now.month,
+                    extract("day", PowerData.updated_at) == utc_now.day,
+                    extract("hour", PowerData.updated_at) == utc_now.hour,
                 ).all()
             ]
             transactions = [tx for tx in transaction_hash if tx not in db_hash]
@@ -101,8 +107,10 @@ def process_data():
                         insert_data["pac"] = insert_data.pop("PAC")
                     elif data_type == WT:
                         insert_data["windgridpower"] = insert_data.pop("WindGridPower")
-
-                    data_type(**insert_data).add()
+                    try:
+                        data_type(**insert_data).add()
+                    except sqlalchemy.exc.IntegrityError:
+                        logger.error(f"DB Insert Error: Unique Violation\nre-inserted data id: {insert_data['uuid']}")
 
 
 if __name__ == "__main__":
