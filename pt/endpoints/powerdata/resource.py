@@ -90,9 +90,7 @@ class PowerDatasResource(Resource):
             end_time = datetime.strptime(args["end_time"], "%Y/%m/%d")
             # if start time same as end time, default use three days' data
             if start_time == end_time:
-                start_time = str(
-                    datetime.strptime(start_time, "%Y/%m/%d").date() - timedelta(days=2)
-                )
+                start_time -= timedelta(days=2)
             return self.chart_mode(start_time, end_time, user_id)
         return make_response(jsonify([]))
 
