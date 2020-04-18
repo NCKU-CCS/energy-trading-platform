@@ -1,7 +1,7 @@
 from config import db
 
 # pylint: disable=W0611
-from utils.base_models import ETBaseMixin, UUID2STR
+from utils.base_models import ETBaseMixin, UUID2STR, UTCDatetime
 from ..address.model import History  # NOQA
 
 # pylint: enable=W0611
@@ -10,7 +10,7 @@ from ..address.model import History  # NOQA
 class PowerData(db.Model, ETBaseMixin):
     __tablename__ = "powerdata"
     field = db.Column(db.String(120), unique=False, nullable=False)
-    updated_at = db.Column(db.DateTime, unique=False, nullable=False)
+    updated_at = db.Column(UTCDatetime, unique=False, nullable=False)
     address = db.Column(db.String(120))
     # ForeignKey to History
     history_id = db.Column(UUID2STR, db.ForeignKey("history.uuid"), nullable=False)
