@@ -17,7 +17,7 @@ class NewsResource(Resource):
                 "time": message.publish_time.strftime("%Y/%m/%d %H:%M"),
                 "content": message.content,
             }
-            for message in News.query.order_by(News.time.desc()).limit(10).all()
+            for message in News.query.order_by(News.publish_time.desc()).limit(10).all()
         ]
         response = jsonify(news)
         return response

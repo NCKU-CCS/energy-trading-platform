@@ -31,6 +31,7 @@ def verify_token(token):
     if user:
         g.uuid = user.uuid
         g.account = user.account
+        g.is_aggregator = user.is_aggregator
         logger.success(f"Login Success: {user.account}")
         return True
     logger.error("Login Faild: Invalid User")

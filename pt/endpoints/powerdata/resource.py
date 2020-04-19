@@ -58,14 +58,23 @@ class PowerDatasResource(Resource):
             location="args",
             help="Get PowerDatas: time is required",
         )
+        self.get_parser.add_argument(
+            "participant_id",
+            type=str,
+            required=False,
+            location="args",
+            help="Get PowerDatas: pariticipant ID is required",
+        )
 
     # pylint: disable=R0201
     @auth.login_required
     def get(self):
         args = self.get_parser.parse_args()
-
-        logger.info(f"[Get Datas Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n")
-
+        logger.info(f"[Get Datas Request]\nUser Account:{g.account}\nUUID:{g.uuid}\nIs_Aggregator:{g.is_aggregator}\n")
+        if g.is_aggregator is True and args["participant_id"]:
+            user_id = args["participant_id"]
+        else:
+            user_id = g.uuid
         # Data Table Mode
         if args["per_page"] and args["page"]:
             logger.info("[Get Datas Request]:Data Table Mode")
@@ -73,8 +82,7 @@ class PowerDatasResource(Resource):
                 time = datetime.strptime(args["time"], "%Y/%m/%d")
             else:
                 time = datetime.combine(datetime.today(), datetime.min.time())
-            return self.data_table(args["per_page"], args["page"], time)
-
+            return self.data_table(args["per_page"], args["page"], time, user_id)
         # Data Charts Mode
         if args["start_time"] and args["end_time"]:
             logger.info("[Get Datas Request]:Data Charts Mode")
@@ -82,19 +90,17 @@ class PowerDatasResource(Resource):
             end_time = datetime.strptime(args["end_time"], "%Y/%m/%d")
             # if start time same as end time, default use three days' data
             if start_time == end_time:
-                start_time = start_time - timedelta(days=2)
-            end_time += timedelta(days=1)
-            return self.chart_mode(start_time, end_time)
-
+                start_time -= timedelta(days=2)
+            return self.chart_mode(start_time, end_time, user_id)
         return make_response(jsonify([]))
 
     # pylint: enable=R0201
 
     # pylint: disable=R0201
-    def data_table(self, limit, offset, time):
+    def data_table(self, limit, offset, time, user_id):
         messages = (
             PowerData.query.filter(
-                PowerData.field == g.account,
+                PowerData.field == user_id,
                 PowerData.updated_at >= time,
                 PowerData.updated_at <= time + timedelta(days=1),
             )
@@ -104,7 +110,7 @@ class PowerDatasResource(Resource):
             .all()
         )
         total_count = PowerData.query.filter(
-            PowerData.field == g.account,
+            PowerData.field == user_id,
             PowerData.updated_at >= time,
             PowerData.updated_at <= time + timedelta(days=1),
         ).count()
@@ -126,10 +132,10 @@ class PowerDatasResource(Resource):
     # pylint: enable=R0201
 
     # pylint: disable=R0201
-    def chart_mode(self, start_time, end_time):
+    def chart_mode(self, start_time, end_time, user_id):
         messages = (
             PowerData.query.filter(
-                PowerData.field == g.account,
+                PowerData.field == user_id,
                 PowerData.updated_at >= start_time,
                 PowerData.updated_at <= end_time,
                 # Hourly data every two hours
