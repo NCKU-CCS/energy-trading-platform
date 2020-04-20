@@ -177,9 +177,11 @@ class PowerDatasResource(Resource):
             charts_datas[data_time][message.data_type] = self.power_source[
                 message.data_type
             ][0](message)
-        return make_response(
-            jsonify(sorted(list(charts_datas.values()), key=lambda item: item["name"]))
-        )
+        data = sorted(list(charts_datas.values()), key=lambda item: item["name"])
+        for entry in data:
+            entry['Generate'] = round(entry['ESS'] + entry['EV'] + entry['PV'] + entry['WT'], 3)
+            entry['Consume'] = round(entry['Demand'] - entry['Generate'], 3)
+        return make_response(jsonify(data))
 
     # pylint: enable=R0201
 
@@ -250,8 +252,6 @@ class PowerDatasResource(Resource):
         # Add Power comsumption field
         consume = round(data['Demand'] - data['WT'] - data['PV'] - data['EV'] - data['ESS'], 3)
         data["Consume"] = consume
-        return make_response(
-            jsonify(data)
-        )
+        return make_response(jsonify(data))
 
     # pylint: enable=R0201
