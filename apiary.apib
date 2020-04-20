@@ -368,6 +368,29 @@ curl http://140.116.247.120:5000/power_info?start_time=2020/02/14?end_time=2020/
         + (ChartData1) - 產用電資訊 1
         + (ChartData2) - 產用電資訊 2
 
+### PowerData (Date Summary Mode) [GET /power_info{?summary_date}]
+<pre>
+curl http://140.116.247.120:5000/power_info?summary_date=2020/02/14 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+</pre>
+
++ Parameters
+    + summary_date: `2020/02/14` (string, required) - Date for the data, format YYYY/MM/DD.
+
++ Request (application/json)
+    + Headers
+
+            API-version: 0.1
+            Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR - Authentication Bearer Token
+
++ Response 200 (application/json)
+    + Attributes
+        + Consume: `48.19` (number) - 正常用電
+        + Demand: `47.208` (number) - 總淨負載
+        + ESS: `0.219` (number) - 儲電系統
+        + EV: `2.017` (number) - 充電樁
+        + PV: `-3.501` (number) - 太陽能
+        + WT: `0.283` (number) - 風能
+
 # Group Web Socket
 ## Association Diagram [/s1]
 
