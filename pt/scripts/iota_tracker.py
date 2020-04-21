@@ -2,12 +2,11 @@ import base64
 import json
 import sys
 
-from datetime import datetime
-from datetime import timezone
+from datetime import datetime, timezone, timedelta
 from sqlalchemy import extract
+import sqlalchemy.exc
 from loguru import logger
 from Cryptodome.Hash import SHA256
-import sqlalchemy
 
 sys.path.insert(0, "../energy-trading-platform/pt")
 
@@ -38,11 +37,9 @@ IOTA_DATA_TYPE = {
 DB_DATA_TYPE = ("Demand", "ESS", "EV", "PV", "WT")
 
 
-def process_data():
+def process_data(utc_now=datetime.utcnow()):
     # get address and transaction hash from db
     addresses = [str(ami.iota_address) for ami in AMI.query.all()]
-    # use the same time as the AMI query to prevent cross-day errors
-    utc_now = datetime.utcnow()
     # generate tags by utc time
     tags = [tag + chr(ord("A") + utc_now.hour) for tag in TAG_TEMPLATE]
     for address in addresses:
@@ -88,9 +85,15 @@ def process_data():
                     # parse day result from datetime.isoformat
                     # to process the time difference between IOTA and database
                     # python3.7+ can use datetime.fromisoformat(<isoformat>)
-                    insert_data["updated_at"] = datetime.strptime(
-                        insert_data["updated_at"], "%Y-%m-%dT%H:%M:%S.%f"
-                    )
+                    # try-catch is to prevent if `second` is an interger
+                    try:
+                        insert_data["updated_at"] = datetime.strptime(
+                            insert_data["updated_at"], "%Y-%m-%dT%H:%M:%S.%f"
+                        )
+                    except ValueError:
+                        insert_data["updated_at"] = datetime.strptime(
+                            insert_data["updated_at"], "%Y-%m-%dT%H:%M:%S"
+                        )
                     data_time = insert_data["updated_at"].astimezone(timezone.utc).replace(tzinfo=None).date()
                     history = History.query.filter_by(iota_address=address, time=data_time).first()
                     if history:
@@ -114,4 +117,4 @@ def process_data():
 
 
 if __name__ == "__main__":
-    process_data()
+    process_data(datetime.utcnow() - timedelta(minutes=1))
