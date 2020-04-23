@@ -8,6 +8,61 @@ from utils.oauth import auth, g
 from .model import Tenders, MatchResult, BidSubmit, add_bidsubmit, edit_bidsubmit
 
 
+class HomePageResource(Resource):
+    # pylint: disable=R0201
+    @auth.login_required
+    def get(self):
+        logger.info(
+            f"[Get HomePage Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n"
+        )
+        if g.uuid in [tender.user_id for tender in Tenders.query.all()]:
+            results = MatchResult.query.filter(
+                MatchResult.status.in_(['已得標', '執行中', '結算中', '已結算']),
+                MatchResult.tenders_id.in_(
+                    [
+                        tender.uuid
+                        for tender in Tenders.query.filter_by(user_id=g.uuid).all()
+                    ]
+                )
+            ).order_by(MatchResult.start_time.desc()).limit(10).all()
+            data = {
+                "executing": {
+                    "bid_type": None,
+                    "price": None,
+                    "volume": None
+                }
+            }
+            for result in results:
+                if (result.start_time <= datetime.now() < result.end_time) and result.status == "執行中":
+                    data["executing"] = {
+                        "bid_type": result.bid_type,
+                        "price": result.win_price,
+                        "volume": result.win_value
+                    }
+                    break
+            data["results"] = [
+                {
+                    "date": result.start_time.strftime("%Y/%m/%d"),
+                    "time": f'{result.start_time.strftime("%H:00")}-{result.end_time.strftime("%H:00")}',
+                    "price": result.win_value,
+                    "volume": result.bid_price
+                } for result in results
+            ]
+        else:
+            data = {
+                "executing": {
+                    "bid_type": None,
+                    "price": None,
+                    "volume": None,
+                },
+                "results": []
+            }
+        response = jsonify(data)
+        return response
+
+    # pylint: enable=R0201
+
+
 class MatchResultsResource(Resource):
     # pylint: disable=R0201
     @auth.login_required

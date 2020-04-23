@@ -277,6 +277,34 @@ curl http://140.116.247.120:5000/bidsubmit -X DELETE -H 'Authorization: Bearer 3
         + message: Reject
         + description: The bid has been closed - Error message
 
+
+## Home Page [/homepage]
+
+Return information for home page.
+
+### Home Page [GET]
+<pre>
+curl http://140.116.247.120:5000/homepage -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
+</pre>
+
+Return detail information sets for home page which includes current execution info and 10 most recent succuessful bid results (if any).
+
++ Request (application/json)
+    + Headers
+
+            API-version: 0.1
+            Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR - Authentication Bearer Token
+
++ Response 200 (application/json)
+    + Attributes
+        + executing - 首頁即時交易資訊 (當時段)。如果沒有執行階段，則以下皆 null。
+            + bid_type: `buy` - 買賣類別
+            + price: 4.0 (number) - 交易價錢
+            + volume: 40 (number) - 交易電量
+        + results (array) - 最近十筆得標成功的資料 (if any)
+            + (HomepageBid1) - 第一筆資料
+            + (HomepageBid2) - 第二筆資料
+
 ## Match Result [/matchresult]
 
 Return match results.
@@ -515,3 +543,15 @@ NOT YET !!!!!!
 + PV: `0.055` (number) - PV
 + WT: `-2.146` (number) - WT
 + name: `2020/01/14 01:00` (string) - 資料時間
+
+### HomepageBid1
++ date: `2020/04/23` - 日期
++ time: `23:00-00:00` - 時段
++ price: `4.5` (number) - 單價
++ volume: `30` (number) - 得標度數
+
+### HomepageBid2
++ date: `2020/04/23` - 日期
++ time: `13:00-14:00` - 時段
++ price: `4.0` (number) - 單價
++ volume: `35` (number) - 得標度數
