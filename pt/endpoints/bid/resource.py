@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import jsonify, make_response
 from flask_restful import Resource, reqparse
@@ -52,6 +52,33 @@ class MatchResultsResource(Resource):
         return response
 
     # pylint: enable=R0201
+
+
+class BidStatusResource(Resource):
+    # pylint: disable=R0201
+    @auth.login_required
+    def get(self):
+        logger.info(
+            f"[Get BidStatus Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n"
+        )
+        if datetime.today().minute < 40:
+            start_time = datetime.today() + timedelta(hours=1)
+        else:
+            start_time = datetime.today() + timedelta(hours=2)
+        start_time = start_time.replace(minute=0).replace(second=0).replace(microsecond=0)
+        tenders = Tenders.query.filter(Tenders.start_time == start_time).all()
+        unique_users = list(dict.fromkeys([tender.user_id for tender in tenders]))
+        bids = BidSubmit.query.filter(
+            BidSubmit.tenders_id.in_([tender.uuid for tender in tenders])
+        ).all()
+        average_price = round(sum([bid.price for bid in bids]) / len(bids), 2) if bids else 0
+        response = jsonify(
+            {
+                "average_price": average_price,
+                "participants": len(unique_users),
+            }
+        )
+        return response
 
 
 class BidSubmitResource(Resource):

@@ -156,6 +156,28 @@ curl http://140.116.247.120:5000/news -X GET -H "Content-Type: application/json"
             + time: `2019/08/25 10:00` - The Message Upload Date
             + content: `Website Upload to Version 0.2` - The Message Content
 
+## Bid Status [/bidstatus]
+
+Related to bidding page info.
+
+### Bidding Status [GET /bidstatus]
+<pre>
+curl http://140.116.247.120:5000/bidstatus -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
+</pre>
+
+Return the average bidding price and active participants in the active hour.
+
++ Request (application/json)
+    + Headers
+
+            API-version: 0.1
+            Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR - Authentication Bearer Token
+
++ Response 200 (application/json)
+    + Attributes
+        + average_price: `7.3` (number) - 在下一個有效的執行時段，參與者的平均競標單價
+        + participants: `2` (number) - 在下一個有效的執行時段，投標的參與者數目
+
 ## Bid Submit [/bidsubmit]
 
 Related to bidding.
