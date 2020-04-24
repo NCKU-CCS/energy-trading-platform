@@ -145,7 +145,7 @@ def insert_to_db(tag, decrypt_data, db_uuid, address, receive_address):
 
 def main(utc_now=datetime.utcnow()):
     # get address and transaction hash from db
-    addresses = [str(ami.iota_address) for ami in AMI.query.all()]
+    addresses = (str(ami.iota_address) for ami in AMI.query.all())
 
     # generate tags by utc time
     tags = [tag + chr(ord("A") + utc_now.hour) for tag in TAG_TEMPLATE]
