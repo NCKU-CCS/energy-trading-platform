@@ -39,6 +39,16 @@ DB_DATA_TYPE = ("Demand", "ESS", "EV", "PV", "WT")
 
 
 def get_inserted_data(utc_now, db_data_type):
+    """get data from db
+
+    Arguments:
+        utc_now {datetime} -- set time to query
+        db_data_type {string} -- set data_type to query
+
+    Returns:
+        db_uuid {tuple} -- uuids in db
+        db_address {tuple} -- addresses in db
+    """
     # Get inserted data of the hour
     db_datas = [
         (data.uuid, data.address)
@@ -60,6 +70,15 @@ def get_inserted_data(utc_now, db_data_type):
 
 
 def get_decrypt_data_sign(receive_data):
+    """decrypt data with base64 and RSA
+
+    Arguments:
+        receive_data {dict} -- include data and signature
+
+    Returns:
+        decrypt_data {string} -- raw data
+        is_verify {bool} -- signature verify success or fail
+    """
     # decrypt data
     decrypt_data = PLAT_CIPHER.decrypt(
         base64.b64decode(receive_data["data"]), RANDOM_GENERATOR
@@ -75,30 +94,14 @@ def get_decrypt_data_sign(receive_data):
     return decrypt_data, is_verify
 
 
-def uniform_fields(insert_data, data_type):
-    insert_data["uuid"] = insert_data.pop("id")
-    if data_type == EV:
-        insert_data["power_display"] = insert_data.pop("power")
-    elif data_type == PV:
-        insert_data["pac"] = insert_data.pop("PAC")
-    elif data_type == WT:
-        insert_data["windgridpower"] = insert_data.pop("WindGridPower")
-    return insert_data
+def add_fields(insert_data, address, receive_address):
+    """Add fields to data
 
-
-def insert_to_db(tag, decrypt_data, db_uuid, address, receive_address):
-    data_type = IOTA_DATA_TYPE[tag[:-1]]
-    insert_data = json.loads(decrypt_data.decode())
-
-    # Prevent reinsertion of data using the same uuid
-    if insert_data["id"] in db_uuid:
-        logger.error(
-            f"Repeated Insert Error\n\
-            uuid: {insert_data['id']}\n\
-            address: {insert_data['address']}"
-        )
-        return
-
+    Arguments:
+        insert_data {dict} -- data
+        address {string} -- iota receiver address
+        receive_address {string} -- iota transaction address
+    """
     # parse day result from datetime.isoformat
     # to process the time difference between IOTA and database
     # python3.7+ can use datetime.fromisoformat(<isoformat>)
@@ -127,8 +130,32 @@ def insert_to_db(tag, decrypt_data, db_uuid, address, receive_address):
     # put IOTA address into data_structure
     insert_data["address"] = str(receive_address)
 
-    # Handling different names
-    insert_data = uniform_fields(insert_data, data_type)
+
+def uniform_fields(insert_data, db_data_type):
+    """Adjust data field name
+
+    Arguments:
+        insert_data {dict} -- data
+        db_data_type {string} -- insert model name
+
+    """
+    insert_data["uuid"] = insert_data.pop("id")
+    if db_data_type == "EV":
+        insert_data["power_display"] = insert_data.pop("power")
+    elif db_data_type == "PV":
+        insert_data["pac"] = insert_data.pop("PAC")
+    elif db_data_type == "WT":
+        insert_data["windgridpower"] = insert_data.pop("WindGridPower")
+
+
+def insert_to_db(tag, insert_data):
+    """Insert data to db
+
+    Arguments:
+        tag {string} -- identify insert table
+        insert_data {dict} -- data
+    """
+    data_type = IOTA_DATA_TYPE[tag[:-1]]
 
     # Insert data by ORM
     try:
@@ -178,8 +205,26 @@ def main(utc_now=datetime.utcnow()):
                     logger.error(f"Verify Faild\n{decrypt_data}")
                     continue
 
-                # insert into db
-                insert_to_db(tag, decrypt_data, db_uuid, address, receive_address)
+                # prepare to insert into db
+                insert_data = json.loads(decrypt_data.decode())
+
+                # Prevent reinsertion of data using the same uuid
+                if insert_data["id"] in db_uuid:
+                    logger.error(
+                        f"Repeated Insert Error\n\
+                        uuid: {insert_data['id']}\n\
+                        address: {receive_address}"
+                    )
+                    continue
+
+                # Add fields with data
+                add_fields(insert_data, address, receive_address)
+
+                # Handling different names
+                uniform_fields(insert_data, db_data_type)
+
+                # Insert to db
+                insert_to_db(tag, insert_data)
 
 
 if __name__ == "__main__":
