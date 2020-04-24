@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 
 from flask import jsonify, make_response
 from flask_restful import Resource, reqparse
-from sqlalchemy import extract
 from loguru import logger
 
 from utils.oauth import auth, g
@@ -46,18 +45,11 @@ class PowerDatasResource(Resource):
             help="Get PowerData: offset is required",
         )
         self.get_parser.add_argument(
-            "start_time",
+            "chart_date",
             type=str,
             required=False,
             location="args",
-            help="Get PowerData: time is required",
-        )
-        self.get_parser.add_argument(
-            "end_time",
-            type=str,
-            required=False,
-            location="args",
-            help="Get PowerData: time is required",
+            help="Get PowerData: chart date is required",
         )
         self.get_parser.add_argument(
             "summary_date",
@@ -99,13 +91,11 @@ class PowerDatasResource(Resource):
                 time = datetime.combine(datetime.today(), datetime.min.time())
             return self.data_table(args["per_page"], args["page"], time, field)
         # Data Charts Mode
-        if args["start_time"] and args["end_time"]:
+        if args["chart_date"]:
             logger.info("[Get PowerData Request]:Data Charts Mode")
-            start_time = datetime.strptime(args["start_time"], "%Y/%m/%d")
-            end_time = datetime.strptime(args["end_time"], "%Y/%m/%d")
-            # if start time same as end time, default use three days' data
-            if start_time == end_time:
-                start_time -= timedelta(days=2)
+            chart_date = datetime.strptime(args["chart_date"], "%Y/%m/%d")
+            start_time = chart_date - timedelta(days=6)
+            end_time = chart_date + timedelta(days=1)
             return self.chart_mode(start_time, end_time, field)
         # Day Summary Mode
         if args["summary_date"]:
@@ -154,34 +144,79 @@ class PowerDatasResource(Resource):
 
     # pylint: disable=R0201
     def chart_mode(self, start_time, end_time, field):
-        messages = (
-            PowerData.query.filter(
-                PowerData.field == field,
-                PowerData.updated_at >= start_time,
-                PowerData.updated_at <= end_time,
-                # Hourly data every two hours
-                extract("minute", PowerData.updated_at) == "00",
-                extract("hour", PowerData.updated_at).in_(
-                    ["%02d" % i for i in range(0, 25, 2)]
-                ),
-            )
-            .order_by(PowerData.updated_at)
-            .all()
-        )
-        charts_datas = {}
-        for message in messages:
-            data_time = message.updated_at.strftime("%Y/%m/%d %H:%M")
-            if data_time not in charts_datas:
-                charts_datas[data_time] = {}
-                charts_datas[data_time]["name"] = data_time
-            charts_datas[data_time][message.data_type] = self.power_source[
-                message.data_type
-            ][0](message)
-        data = sorted(list(charts_datas.values()), key=lambda item: item["name"])
-        for entry in data:
-            entry['Generate'] = round(entry['ESS'] + entry['EV'] + entry['PV'] + entry['WT'], 3)
-            entry['Consume'] = round(entry['Demand'] - entry['Generate'], 3)
-        return make_response(jsonify(data))
+        data_list = list()
+        start = start_time
+        while start < end_time:
+            end = start + timedelta(days=1)
+            # Demand
+            demand_data = Demand.query.filter(
+                Demand.uuid.in_(
+                    [data.uuid for data in PowerData.query.filter(
+                        PowerData.updated_at >= start,
+                        PowerData.updated_at < end,
+                        PowerData.field == field,
+                        PowerData.data_type == 'Demand'
+                    ).all()]
+                )
+            ).all()
+            # PV
+            pv_data = PV.query.filter(
+                PV.uuid.in_(
+                    [data.uuid for data in PowerData.query.filter(
+                        PowerData.updated_at >= start,
+                        PowerData.updated_at < end,
+                        PowerData.field == field,
+                        PowerData.data_type == 'PV'
+                    ).all()]
+                )
+            ).all()
+            # EV
+            ev_data = EV.query.filter(
+                EV.uuid.in_(
+                    [data.uuid for data in PowerData.query.filter(
+                        PowerData.updated_at >= start,
+                        PowerData.updated_at < end,
+                        PowerData.field == field,
+                        PowerData.data_type == 'EV'
+                    ).all()]
+                )
+            ).all()
+            # WT
+            wt_data = WT.query.filter(
+                WT.uuid.in_(
+                    [data.uuid for data in PowerData.query.filter(
+                        PowerData.updated_at >= start,
+                        PowerData.updated_at < end,
+                        PowerData.field == field,
+                        PowerData.data_type == 'WT'
+                    ).all()]
+                )
+            ).all()
+            # ESS
+            ess_data = ESS.query.filter(
+                ESS.uuid.in_(
+                    [data.uuid for data in PowerData.query.filter(
+                        PowerData.updated_at >= start,
+                        PowerData.updated_at < end,
+                        PowerData.field == field,
+                        PowerData.data_type == 'ESS'
+                    ).all()]
+                )
+            ).all()
+            data = {
+                "Demand": round(sum([d.grid for d in demand_data]) / 60, 3) if demand_data else 0,
+                "WT": round(sum([d.windgridpower for d in wt_data]) / 60, 3) if wt_data else 0,
+                "PV": round(sum([d.pac for d in pv_data]) / 60, 3) if pv_data else 0,
+                "EV": round(sum([d.power_display for d in ev_data]) / 60, 3) if ev_data else 0,
+                "ESS": round(sum([d.power_display for d in ess_data]) / 60, 3) if ess_data else 0
+            }
+            # Add Power comsumption field
+            data["Generate"] = round(data['WT'] + data['PV'] + data['EV'] + data['ESS'], 3)
+            data["Consume"] = round(data['Demand'] - data["Generate"], 3)
+            data['Date'] = start.strftime("%Y/%m/%d")
+            data_list.append(data)
+            start += timedelta(days=1)
+        return make_response(jsonify(data_list))
 
     # pylint: enable=R0201
 
@@ -250,8 +285,8 @@ class PowerDatasResource(Resource):
             "ESS": round(sum([d.power_display for d in ess_data]) / 60, 3) if ess_data else 0
         }
         # Add Power comsumption field
-        consume = round(data['Demand'] - data['WT'] - data['PV'] - data['EV'] - data['ESS'], 3)
-        data["Consume"] = consume
+        data["Generate"] = round(data['WT'] + data['PV'] + data['EV'] + data['ESS'], 3)
+        data["Consume"] = round(data['Demand'] - data["Generate"], 3)
         return make_response(jsonify(data))
 
     # pylint: enable=R0201
