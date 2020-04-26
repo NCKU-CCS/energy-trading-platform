@@ -4,7 +4,11 @@ from flask import jsonify, make_response
 from flask_restful import Resource, reqparse
 from loguru import logger
 
+from sqlalchemy import cast, func, DATE
+from sqlalchemy.dialects.postgresql import INTERVAL
+from sqlalchemy.sql.functions import concat
 from utils.oauth import auth, g
+from config import db
 from .model import PowerData, Demand, PV, EV, WT, ESS
 from ..user.model import User
 
@@ -74,7 +78,7 @@ class PowerDatasResource(Resource):
             f"[Get PowerData Request]\nUser Account:{g.account}\nUUID:{g.uuid}\nIs_Aggregator:{g.is_aggregator}\n"
         )
         # Account comfirmation by UUID
-        if g.is_aggregator is True and args["participant_id"]:
+        if g.is_aggregator and args["participant_id"]:
             user = User.query.filter_by(uuid=args["participant_id"]).first()
             if user:
                 field = user.account
@@ -144,148 +148,157 @@ class PowerDatasResource(Resource):
 
     # pylint: disable=R0201
     def chart_mode(self, start_time, end_time, field):
-        data_list = list()
-        start = start_time
-        while start < end_time:
-            end = start + timedelta(days=1)
-            # Demand
-            demand_data = Demand.query.filter(
-                Demand.uuid.in_(
-                    [data.uuid for data in PowerData.query.filter(
-                        PowerData.updated_at >= start,
-                        PowerData.updated_at < end,
-                        PowerData.field == field,
-                        PowerData.data_type == 'Demand'
-                    ).all()]
-                )
-            ).all()
-            # PV
-            pv_data = PV.query.filter(
-                PV.uuid.in_(
-                    [data.uuid for data in PowerData.query.filter(
-                        PowerData.updated_at >= start,
-                        PowerData.updated_at < end,
-                        PowerData.field == field,
-                        PowerData.data_type == 'PV'
-                    ).all()]
-                )
-            ).all()
-            # EV
-            ev_data = EV.query.filter(
-                EV.uuid.in_(
-                    [data.uuid for data in PowerData.query.filter(
-                        PowerData.updated_at >= start,
-                        PowerData.updated_at < end,
-                        PowerData.field == field,
-                        PowerData.data_type == 'EV'
-                    ).all()]
-                )
-            ).all()
-            # WT
-            wt_data = WT.query.filter(
-                WT.uuid.in_(
-                    [data.uuid for data in PowerData.query.filter(
-                        PowerData.updated_at >= start,
-                        PowerData.updated_at < end,
-                        PowerData.field == field,
-                        PowerData.data_type == 'WT'
-                    ).all()]
-                )
-            ).all()
-            # ESS
-            ess_data = ESS.query.filter(
-                ESS.uuid.in_(
-                    [data.uuid for data in PowerData.query.filter(
-                        PowerData.updated_at >= start,
-                        PowerData.updated_at < end,
-                        PowerData.field == field,
-                        PowerData.data_type == 'ESS'
-                    ).all()]
-                )
-            ).all()
+        data_list = []
+        # The kW record per minute should divide by 60 to convert to kWh
+        # Demand 7 days power usage
+        demand_list = db.session.query(
+            cast(Demand.updated_at + func.cast(concat(8, ' HOURS'), INTERVAL), DATE).label('date'),
+            (func.sum(Demand.grid) / 60).label('sum')
+        ).filter(
+            Demand.uuid.in_(
+                [data.uuid for data in PowerData.query.filter(
+                    PowerData.updated_at.between(start_time, end_time),
+                    PowerData.field == field,
+                    PowerData.data_type == 'Demand'
+                ).all()]
+            )
+        ).group_by('date').order_by('date').all()
+        # PV 7 days power usage
+        pv_list = db.session.query(
+            cast(PV.updated_at + func.cast(concat(8, ' HOURS'), INTERVAL), DATE).label('date'),
+            (func.sum(PV.pac) / 60).label('sum')
+        ).filter(
+            PV.uuid.in_(
+                [data.uuid for data in PowerData.query.filter(
+                    PowerData.updated_at.between(start_time, end_time),
+                    PowerData.field == field,
+                    PowerData.data_type == 'PV'
+                ).all()]
+            )
+        ).group_by('date').order_by('date').all()
+        # EV 7 days power usage
+        ev_list = db.session.query(
+            cast(EV.updated_at + func.cast(concat(8, ' HOURS'), INTERVAL), DATE).label('date'),
+            (func.sum(EV.power_display) / 60).label('sum')
+        ).filter(
+            EV.uuid.in_(
+                [data.uuid for data in PowerData.query.filter(
+                    PowerData.updated_at.between(start_time, end_time),
+                    PowerData.field == field,
+                    PowerData.data_type == 'EV'
+                ).all()]
+            )
+        ).group_by('date').order_by('date').all()
+        # ESS 7 days power usage
+        ess_list = db.session.query(
+            cast(ESS.updated_at + func.cast(concat(8, ' HOURS'), INTERVAL), DATE).label('date'),
+            (func.sum(ESS.power_display) / 60).label('sum')
+        ).filter(
+            ESS.uuid.in_(
+                [data.uuid for data in PowerData.query.filter(
+                    PowerData.updated_at.between(start_time, end_time),
+                    PowerData.field == field,
+                    PowerData.data_type == 'ESS'
+                ).all()]
+            )
+        ).group_by('date').order_by('date').all()
+        # WT 7 days power usage
+        wt_list = db.session.query(
+            cast(WT.updated_at + func.cast(concat(8, ' HOURS'), INTERVAL), DATE).label('date'),
+            (func.sum(WT.windgridpower) / 60).label('sum')
+        ).filter(
+            WT.uuid.in_(
+                [data.uuid for data in PowerData.query.filter(
+                    PowerData.updated_at.between(start_time, end_time),
+                    PowerData.field == field,
+                    PowerData.data_type == 'WT'
+                ).all()]
+            )
+        ).group_by('date').order_by('date').all()
+        # combine each power usage lists into one list
+        for i in range(7):
             data = {
-                "Demand": round(sum([d.grid for d in demand_data]) / 60, 3) if demand_data else 0,
-                "WT": round(sum([d.windgridpower for d in wt_data]) / 60, 3) if wt_data else 0,
-                "PV": round(sum([d.pac for d in pv_data]) / 60, 3) if pv_data else 0,
-                "EV": round(sum([d.power_display for d in ev_data]) / 60, 3) if ev_data else 0,
-                "ESS": round(sum([d.power_display for d in ess_data]) / 60, 3) if ess_data else 0
+                'Date': demand_list[i].date.strftime('%Y-%m-%d'),
+                'Demand': round(demand_list[i].sum, 3),
+                'PV': round(pv_list[i].sum, 3),
+                'EV': round(ev_list[i].sum, 3),
+                'ESS': round(ess_list[i].sum, 3),
+                'WT': round(wt_list[i].sum, 3)
             }
-            # Add Power comsumption field
+            # add a calculated field called Generate
             data["Generate"] = round(data['WT'] + data['PV'] + data['EV'] + data['ESS'], 3)
+            # add a calculated field called Comsume
             data["Consume"] = round(data['Demand'] - data["Generate"], 3)
-            data['Date'] = start.strftime("%Y/%m/%d")
+            # append each data to final list
             data_list.append(data)
-            start += timedelta(days=1)
         return make_response(jsonify(data_list))
 
     # pylint: enable=R0201
 
     # pylint: disable=R0201
     def summary_mode(self, start_time, end_time, field):
+        # The kW record per minute should divide by 60 to convert to kWh
         # Demand sum
-        demand_data = Demand.query.filter(
+        demand_data = db.session.query((func.sum(Demand.grid) / 60).label('sum')).filter(
             Demand.uuid.in_(
                 [data.uuid for data in PowerData.query.filter(
-                    PowerData.updated_at >= start_time,
-                    PowerData.updated_at < end_time,
+                    PowerData.updated_at.between(start_time, end_time),
                     PowerData.field == field,
                     PowerData.data_type == 'Demand'
                 ).all()]
             )
         ).all()
         # PV sum
-        pv_data = PV.query.filter(
+        pv_data = db.session.query((func.sum(PV.pac) / 60).label('sum')).filter(
             PV.uuid.in_(
                 [data.uuid for data in PowerData.query.filter(
-                    PowerData.updated_at >= start_time,
-                    PowerData.updated_at < end_time,
+                    PowerData.updated_at.between(start_time, end_time),
                     PowerData.field == field,
                     PowerData.data_type == 'PV'
                 ).all()]
             )
         ).all()
         # EV sum
-        ev_data = EV.query.filter(
+        ev_data = db.session.query((func.sum(EV.power_display) / 60).label('sum')).filter(
             EV.uuid.in_(
                 [data.uuid for data in PowerData.query.filter(
-                    PowerData.updated_at >= start_time,
-                    PowerData.updated_at < end_time,
+                    PowerData.updated_at.between(start_time, end_time),
                     PowerData.field == field,
                     PowerData.data_type == 'EV'
                 ).all()]
             )
         ).all()
-        # WT sum
-        wt_data = WT.query.filter(
-            WT.uuid.in_(
-                [data.uuid for data in PowerData.query.filter(
-                    PowerData.updated_at >= start_time,
-                    PowerData.updated_at < end_time,
-                    PowerData.field == field,
-                    PowerData.data_type == 'WT'
-                ).all()]
-            )
-        ).all()
         # ESS sum
-        ess_data = ESS.query.filter(
+        ess_data = db.session.query((func.sum(ESS.power_display) / 60).label('sum')).filter(
             ESS.uuid.in_(
                 [data.uuid for data in PowerData.query.filter(
-                    PowerData.updated_at >= start_time,
-                    PowerData.updated_at < end_time,
+                    PowerData.updated_at.between(start_time, end_time),
                     PowerData.field == field,
                     PowerData.data_type == 'ESS'
                 ).all()]
             )
         ).all()
+        # WT sum
+        wt_data = db.session.query((func.sum(WT.windgridpower) / 60).label('sum')).filter(
+            WT.uuid.in_(
+                [data.uuid for data in PowerData.query.filter(
+                    PowerData.updated_at.between(start_time, end_time),
+                    PowerData.field == field,
+                    PowerData.data_type == 'WT'
+                ).all()]
+            )
+        ).all()
+        # record sum to data object
         data = {
-            "Demand": round(sum([d.grid for d in demand_data]) / 60, 3) if demand_data else 0,
-            "WT": round(sum([d.windgridpower for d in wt_data]) / 60, 3) if wt_data else 0,
-            "PV": round(sum([d.pac for d in pv_data]) / 60, 3) if pv_data else 0,
-            "EV": round(sum([d.power_display for d in ev_data]) / 60, 3) if ev_data else 0,
-            "ESS": round(sum([d.power_display for d in ess_data]) / 60, 3) if ess_data else 0
+            "Demand": round(demand_data[0].sum, 3),
+            "WT": round(wt_data[0].sum, 3),
+            "PV": round(pv_data[0].sum, 3),
+            "EV": round(ev_data[0].sum, 3),
+            "ESS": round(ess_data[0].sum, 3)
         }
-        # Add Power comsumption field
+        # Add Power generation field
         data["Generate"] = round(data['WT'] + data['PV'] + data['EV'] + data['ESS'], 3)
+        # Add Power comsumption field
         data["Consume"] = round(data['Demand'] - data["Generate"], 3)
         return make_response(jsonify(data))
 
