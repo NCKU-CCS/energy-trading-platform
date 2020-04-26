@@ -39,6 +39,14 @@ docker run --env-file .env --name et_platform -d -p 5000:5000 --restart=always e
 
 ### Database
 
+Database using UTC timezone to store timestamps.
+
+Through the setting at [base_models](./pt/utils/base_models.py), ORM will convert UTC time to local time when reading and searching data, and also convert local time to UTC time when saving data.
+
+Some tables like `AMI` and `History` are saving and using in UTC timezone, because their timestamp data type is `Date`.
+
+Most query can just use local time, we have known that few query way need to change to UTC time by your self, like `extract`.
+
 + Running database at background
 
     `docker-compose up -d`
