@@ -15,6 +15,16 @@ class HomePageResource(Resource):
         logger.info(
             f"[Get HomePage Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n"
         )
+        # format of response, `executing` for real time execution info, and `results` for matched bid list
+        data = {
+            "executing": {
+                "bid_type": None,
+                "price": None,
+                "volume": None,
+            },
+            "results": []
+        }
+        # matched bids are status in one of the ['已得標', '執行中', '結算中', '已結算']
         if g.uuid in [tender.user_id for tender in Tenders.query.all()]:
             results = MatchResult.query.filter(
                 MatchResult.status.in_(['已得標', '執行中', '結算中', '已結算']),
@@ -25,14 +35,8 @@ class HomePageResource(Resource):
                     ]
                 )
             ).order_by(MatchResult.start_time.desc()).limit(10).all()
-            data = {
-                "executing": {
-                    "bid_type": None,
-                    "price": None,
-                    "volume": None
-                }
-            }
             for result in results:
+                # For execution info, check if there is a valid execution in given time to display
                 if (result.start_time <= datetime.now() < result.end_time) and result.status == "執行中":
                     data["executing"] = {
                         "bid_type": result.bid_type,
@@ -40,6 +44,7 @@ class HomePageResource(Resource):
                         "volume": result.win_value
                     }
                     break
+            # For results in matches bid list
             data["results"] = [
                 {
                     "date": result.start_time.strftime("%Y/%m/%d"),
@@ -48,15 +53,6 @@ class HomePageResource(Resource):
                     "volume": result.bid_price
                 } for result in results
             ]
-        else:
-            data = {
-                "executing": {
-                    "bid_type": None,
-                    "price": None,
-                    "volume": None,
-                },
-                "results": []
-            }
         response = jsonify(data)
         return response
 
