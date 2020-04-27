@@ -34,24 +34,29 @@ class HomePageResource(Resource):
                         for tender in Tenders.query.filter_by(user_id=g.uuid).all()
                     ]
                 )
-            ).order_by(MatchResult.start_time.desc()).limit(10).all()
-            for result in results:
-                # For execution info, check if there is a valid execution in given time to display
-                if (result.start_time <= datetime.now() < result.end_time) and result.status == "執行中":
-                    data["executing"] = {
-                        "bid_type": result.bid_type,
-                        "price": result.win_price,
-                        "volume": result.win_value
-                    }
-                    break
-            # For results in matches bid list
+            )
+            # check current time execution info by further filter the `results` query
+            current_time = datetime.now()
+            executing_bid = results.filter(
+                MatchResult.start_time <= current_time,
+                MatchResult.end_time > current_time,
+                MatchResult.status == '執行中'
+            ).first()
+            # if there is one execution happening, update data object
+            if executing_bid:
+                data["executing"] = {
+                    "bid_type": executing_bid.bid_type,
+                    "price": executing_bid.win_price,
+                    "volume": executing_bid.win_value
+                }
+            # result of matched bids are based on the order by and limit of results query
             data["results"] = [
                 {
                     "date": result.start_time.strftime("%Y/%m/%d"),
                     "time": f'{result.start_time.strftime("%H:00")}-{result.end_time.strftime("%H:00")}',
                     "price": result.win_value,
-                    "volume": result.bid_price
-                } for result in results
+                    "volume": result.win_price
+                } for result in results.order_by(MatchResult.start_time.desc()).limit(10).all()
             ]
         response = jsonify(data)
         return response
