@@ -185,7 +185,7 @@ class BidSubmitResource(Resource):
                     tender.uuid
                     for tender in Tenders.query.filter(
                         Tenders.user_id == g.uuid,
-                        Tenders.start_time >= datetime.utcnow(),
+                        Tenders.start_time >= datetime.today(),
                         Tenders.bid_type == args["bid_type"],
                     ).all()
                 ]
@@ -226,8 +226,12 @@ class BidSubmitResource(Resource):
         args = self.post_parser.parse_args()
         if args["start_time"] >= datetime.today():
             # insert into db
+            logger.info("Insert bid into db")
             if add_bidsubmit(args, g.uuid):
+                logger.success("Insert Success")
                 return make_response(jsonify({"message": "Accept"}))
+            logger.error("Insert Fail")
+        logger.error("Bid didn't accept")
         return make_response(jsonify({"message": "Reject"}))
 
     @auth.login_required

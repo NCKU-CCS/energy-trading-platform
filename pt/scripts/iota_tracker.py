@@ -2,9 +2,9 @@ import base64
 import json
 import sys
 
-from datetime import datetime
-from datetime import timezone
+from datetime import datetime, timezone, timedelta
 from sqlalchemy import extract
+import sqlalchemy.exc
 from loguru import logger
 from Cryptodome.Hash import SHA256
 
@@ -34,76 +34,199 @@ IOTA_DATA_TYPE = {
     "BEMS9PV9DISPLAY9": PV,
     "BEMS9WT9DISPLAY9": WT,
 }
+# Content of data_field in db
+DB_DATA_TYPE = ("Demand", "ESS", "EV", "PV", "WT")
 
 
-def process_data():
-    # get address from db
-    addresses = [str(ami.iota_address) for ami in AMI.query.all()]
-    # generate tags by time
-    tags = [tag + chr(ord("A") + datetime.now().hour) for tag in TAG_TEMPLATE]
+def get_inserted_data(utc_now, db_data_type):
+    """get data from db
+
+    Arguments:
+        utc_now {datetime} -- set time to query
+        db_data_type {string} -- set data_type to query
+
+    Returns:
+        db_uuid {tuple} -- uuids in db
+        db_address {tuple} -- addresses in db
+    """
+    # Get inserted data of the hour
+    db_datas = [
+        (data.uuid, data.address)
+        for data in PowerData.query.filter(
+            PowerData.data_type == db_data_type,
+            extract("year", PowerData.updated_at) == utc_now.year,
+            extract("month", PowerData.updated_at) == utc_now.month,
+            extract("day", PowerData.updated_at) == utc_now.day,
+            extract("hour", PowerData.updated_at) == utc_now.hour,
+        ).all()
+    ]
+
+    if db_datas:
+        # Split uuid and address into two tuples
+        return map(tuple, zip(*db_datas))
+
+    # First query of the hour, no inserted data is normal
+    return [], []
+
+
+def get_decrypt_data_sign(receive_data):
+    """decrypt data with base64 and RSA
+
+    Arguments:
+        receive_data {dict} -- include data and signature
+
+    Returns:
+        decrypt_data {string} -- raw data
+        is_verify {bool} -- signature verify success or fail
+    """
+    # decrypt data
+    decrypt_data = PLAT_CIPHER.decrypt(
+        base64.b64decode(receive_data["data"]), RANDOM_GENERATOR
+    )
+
+    # check signature
+    # pylint: disable=E1102
+    is_verify = PLAT_SIGNER.verify(
+        SHA256.new(decrypt_data), base64.b64decode(receive_data["signature"])
+    )
+    # pylint: enable=E1102
+
+    return decrypt_data, is_verify
+
+
+def add_fields(insert_data, address, receive_address):
+    """Add fields to data
+
+    Arguments:
+        insert_data {dict} -- data
+        address {string} -- iota receiver address
+        receive_address {string} -- iota transaction address
+    """
+    # parse day result from datetime.isoformat
+    # to process the time difference between IOTA and database
+    # python3.7+ can use datetime.fromisoformat(<isoformat>)
+    # try-catch is to prevent if `second` is an interger
+    try:
+        insert_data["updated_at"] = datetime.strptime(
+            insert_data["updated_at"], "%Y-%m-%dT%H:%M:%S.%f"
+        )
+    except ValueError:
+        insert_data["updated_at"] = datetime.strptime(
+            insert_data["updated_at"], "%Y-%m-%dT%H:%M:%S"
+        )
+
+    # get upload data's data_time
+    data_time = (
+        insert_data["updated_at"].astimezone(timezone.utc).replace(tzinfo=None).date()
+    )
+
+    # get related history id
+    history = History.query.filter_by(iota_address=address, time=data_time).first()
+    if history:
+        insert_data["history_id"] = history.uuid
+    else:
+        return
+
+    # put IOTA address into data_structure
+    insert_data["address"] = str(receive_address)
+
+
+def uniform_fields(insert_data, db_data_type):
+    """Adjust data field name
+
+    Arguments:
+        insert_data {dict} -- data
+        db_data_type {string} -- insert model name
+
+    """
+    insert_data["uuid"] = insert_data.pop("id")
+    if db_data_type == "EV":
+        insert_data["power_display"] = insert_data.pop("power")
+    elif db_data_type == "PV":
+        insert_data["pac"] = insert_data.pop("PAC")
+    elif db_data_type == "WT":
+        insert_data["windgridpower"] = insert_data.pop("WindGridPower")
+
+
+def insert_to_db(tag, insert_data):
+    """Insert data to db
+
+    Arguments:
+        tag {string} -- identify insert table
+        insert_data {dict} -- data
+    """
+    data_type = IOTA_DATA_TYPE[tag[:-1]]
+
+    # Insert data by ORM
+    try:
+        data_type(**insert_data).add()
+
+    # Check Insert same UUID's data
+    except sqlalchemy.exc.IntegrityError:
+        logger.error(
+            f"DB Insert Error: Unique Violation\n\
+            re-inserted data id: {insert_data['uuid']}\n\
+            address: {insert_data['address']}"
+        )
+
+
+def main(utc_now=datetime.utcnow()):
+    # get address and transaction hash from db
+    addresses = (str(ami.iota_address) for ami in AMI.query.all())
+
+    # generate tags by utc time
+    tags = [tag + chr(ord("A") + utc_now.hour) for tag in TAG_TEMPLATE]
+
     for address in addresses:
-        for tag in tags:
+        for tag, db_data_type in zip(tags, DB_DATA_TYPE):
             # addresses -> Transaction Hash
             transaction_hash = get_tx_hash(addresses=[address], tags=[tag])
             if not transaction_hash:
                 continue
-            # filt transaction hash by db
-            db_hash = [
-                data.address
-                for data in PowerData.query.filter(
-                    extract("year", PowerData.updated_at) == datetime.utcnow().year,
-                    extract("month", PowerData.updated_at) == datetime.utcnow().month,
-                    extract("day", PowerData.updated_at) == datetime.utcnow().day,
-                ).all()
-            ]
+
+            # filt transaction db and hash by db
+            db_uuid, db_hash = get_inserted_data(utc_now, db_data_type)
             transactions = [tx for tx in transaction_hash if tx not in db_hash]
             logger.info(f"get {len(transactions)} {tag} data")
-            # Tx Hash -> message
             if not transactions:
                 continue
+
+            # Tx Hash -> message
             messages = get_data(transactions)
+
             for receive_address in messages:
-                # decrypt
-                decrypt_data = PLAT_CIPHER.decrypt(
-                    base64.b64decode(messages[receive_address]["data"]),
-                    RANDOM_GENERATOR,
+                # decrypt data and signature
+                decrypt_data, is_verify = get_decrypt_data_sign(
+                    messages[receive_address]
                 )
-                # signature
-                # pylint: disable=E1102
-                is_verify = PLAT_SIGNER.verify(
-                    SHA256.new(decrypt_data),
-                    base64.b64decode(messages[receive_address]["signature"]),
-                )
-                # pylint: enable=E1102
-                if is_verify:
-                    # insert into db
-                    data_type = IOTA_DATA_TYPE[tag[:-1]]
-                    insert_data = json.loads(decrypt_data.decode())
-                    # parse day result from datetime.isoformat
-                    # to process the time difference between IOTA and database
-                    # python3.7+ can use datetime.fromisoformat(<isoformat>)
-                    insert_data["updated_at"] = datetime.strptime(
-                        insert_data["updated_at"], "%Y-%m-%dT%H:%M:%S.%f"
+
+                # check signature
+                if not is_verify:
+                    logger.error(f"Verify Faild\n{decrypt_data}")
+                    continue
+
+                # prepare to insert into db
+                insert_data = json.loads(decrypt_data.decode())
+
+                # Prevent reinsertion of data using the same uuid
+                if insert_data["id"] in db_uuid:
+                    logger.error(
+                        f"Repeated Insert Error\n\
+                        uuid: {insert_data['id']}\n\
+                        address: {receive_address}"
                     )
-                    data_time = insert_data["updated_at"].astimezone(timezone.utc).replace(tzinfo=None).date()
-                    history = History.query.filter_by(iota_address=address, time=data_time).first()
-                    if history:
-                        insert_data["history_id"] = history.uuid
-                    else:
-                        continue
-                    insert_data["address"] = str(receive_address)
+                    continue
 
-                    # Handling different names
-                    insert_data["uuid"] = insert_data.pop("id")
-                    if data_type == EV:
-                        insert_data["power_display"] = insert_data.pop("power")
-                    elif data_type == PV:
-                        insert_data["pac"] = insert_data.pop("PAC")
-                    elif data_type == WT:
-                        insert_data["windgridpower"] = insert_data.pop("WindGridPower")
+                # Add fields with data
+                add_fields(insert_data, address, receive_address)
 
-                    data_type(**insert_data).add()
+                # Handling different names
+                uniform_fields(insert_data, db_data_type)
+
+                # Insert to db
+                insert_to_db(tag, insert_data)
 
 
 if __name__ == "__main__":
-    process_data()
+    # One minute deduction is to receive the last data of the last hour
+    main(datetime.utcnow() - timedelta(minutes=1))
