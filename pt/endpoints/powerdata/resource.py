@@ -224,12 +224,17 @@ class PowerDatasResource(Resource):
         data = {}
         for data_type in powerdata_datatype:
             # the kW record per minute should divide by 60 to convert to kWh
-            data[data_type] = round(db.session.query(
-                (func.sum(powerdata_datatype[data_type]['field']) / 60).label('sum')
-            ).filter(
-                powerdata_datatype[data_type]['model'].updated_at.between(start_time, end_time),
-                PowerData.field == field
-            ).all()[0][0], 3)
+            data[data_type] = round(
+                db.session.query(
+                    (func.sum(powerdata_datatype[data_type]['field']) / 60).label('sum')
+                )
+                .filter(
+                    powerdata_datatype[data_type]['model'].updated_at.between(start_time, end_time),
+                    powerdata_datatype[data_type]['model'].field == field
+                )
+                .first().sum,
+                3
+            )
         # add power generation field for response
         data["Generate"] = round(data['WT'] + data['PV'] + data['EV'] + data['ESS'], 3)
         # add power consumption field for response
