@@ -297,8 +297,10 @@ Return detail information sets for home page which includes current execution in
 
 + Response 200 (application/json)
     + Attributes
-        + executing - 首頁即時交易資訊 (當時段)。如果沒有執行階段，則以下皆 null。
-            + bid_type: `buy` - 買賣類別
+        + buy - 首頁即時買電交易資訊 (當時段執行買電的資料,若沒有買電,以下皆 null)
+            + price: 4.0 (number) - 交易價錢
+            + volume: 40 (number) - 交易電量
+        + sell - 首頁即時賣電交易資訊 (當時段賣電的資料,若沒有賣電,以下皆 null)
             + price: 4.0 (number) - 交易價錢
             + volume: 40 (number) - 交易電量
         + results (array) - 最近十筆得標成功的資料 (if any)

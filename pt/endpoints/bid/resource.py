@@ -15,10 +15,13 @@ class HomePageResource(Resource):
         logger.info(
             f"[Get HomePage Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n"
         )
-        # format of response, `executing` for real time execution info, and `results` for matched bid list
+        # format of response for real time execution info matched bid list
         data = {
-            "executing": {
-                "bid_type": None,
+            "buy": {
+                "price": None,
+                "volume": None,
+            },
+            "sell": {
                 "price": None,
                 "volume": None,
             },
@@ -37,17 +40,28 @@ class HomePageResource(Resource):
             )
             # check current time execution info by further filter the `results` query
             current_time = datetime.now()
-            executing_bid = results.filter(
+            executing_bids = results.filter(
                 MatchResult.start_time <= current_time,
                 MatchResult.end_time > current_time,
                 MatchResult.status == '執行中'
-            ).first()
-            # if there is one execution happening, update data object
-            if executing_bid:
-                data["executing"] = {
-                    "bid_type": executing_bid.bid_type,
-                    "price": executing_bid.win_price,
-                    "volume": executing_bid.win_value
+            )
+            # if `buy` happening, update data object
+            buy_bids = executing_bids.filter_by(bid_type='buy').all()
+            if buy_bids:
+                data["buy"] = {
+                    # since buy bids exist, take the first price to data object (same price)
+                    "price": buy_bids[0].win_price,
+                    # sum of volumes if multiple counterparts exist
+                    "volume": sum([bid.win_value for bid in buy_bids])
+                }
+            # if `sell` happening, update data object
+            sell_bids = executing_bids.filter_by(bid_type='sell').all()
+            if sell_bids:
+                data["sell"] = {
+                    # since sell bids exist, take the first price to data object (same price)
+                    "price": sell_bids[0].win_price,
+                    # sum of volumes if multiple counterparts exist
+                    "volume": sum([bid.win_value for bid in sell_bids])
                 }
             # result of matched bids are based on the order by and limit of results query
             data["results"] = [
