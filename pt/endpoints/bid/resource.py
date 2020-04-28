@@ -2,8 +2,10 @@ from datetime import datetime, timedelta
 
 from flask import jsonify, make_response
 from flask_restful import Resource, reqparse
+from sqlalchemy import func
 from loguru import logger
 
+from config import db
 from utils.oauth import auth, g
 from .model import Tenders, MatchResult, BidSubmit, add_bidsubmit, edit_bidsubmit
 
@@ -66,19 +68,31 @@ class BidStatusResource(Resource):
         else:
             start_time = datetime.today() + timedelta(hours=2)
         start_time = start_time.replace(minute=0).replace(second=0).replace(microsecond=0)
-        tenders = Tenders.query.filter(Tenders.start_time == start_time).all()
-        unique_users = list(dict.fromkeys([tender.user_id for tender in tenders]))
-        bids = BidSubmit.query.filter(
-            BidSubmit.tenders_id.in_([tender.uuid for tender in tenders])
-        ).all()
-        average_price = round(sum([bid.price for bid in bids]) / len(bids), 2) if bids else 0
-        response = jsonify(
-            {
-                "average_price": average_price,
-                "participants": len(unique_users),
+        # filter tenders on given time range
+        user_group = Tenders.query.filter(Tenders.start_time == start_time)
+        # default response all zeros
+        data = {
+            "average_price": 0,
+            "average_volume": 0,
+            "participants": 0
+        }
+        # get distinct users count
+        distinct_user_count = user_group.distinct(Tenders.user_id).count()
+        # if distinct_user_count exists, query for average price and volume base on users
+        if distinct_user_count:
+            bid_info = db.session.query(
+                (func.sum(BidSubmit.price) / func.count(BidSubmit.price)).label('average_price'),
+                (func.sum(BidSubmit.value) / func.count(BidSubmit.value)).label('average_volume'),
+            ).filter(
+                BidSubmit.tenders_id.in_([bidder.uuid for bidder in user_group.all()])
+            ).first()
+            # form the response
+            data = {
+                "average_price": round(bid_info.average_price, 3),
+                "average_volume": round(bid_info.average_volume, 3),
+                "participants": distinct_user_count
             }
-        )
-        return response
+        return make_response(jsonify(data))
 
 
 class BidSubmitResource(Resource):
