@@ -181,8 +181,9 @@ Return the bid content valid from the day (Today, current time).
 + Response 200 (application/json)
     + Attributes
         + data (array) - 頁面所顯示的標案資訊
-            + (BidSubmit1) - 第一筆資料
-            + (BidSubmit2) - 第二筆資料
+            + (BidSubmit) - 第一筆資料
+            + (BidSubmit) - 第二筆資料
+                + bid_type: `sell` (string) - 投標類型
         + page: `1` (number) - 所在頁數
         + totalCount: `20` (number) - 在當時間總共有效的標案
 
@@ -343,19 +344,22 @@ curl http://140.116.247.120:5000/power_info?per_page=10&page=1&time=2020/02/14 -
 + Response 200 (application/json)
     + Attributes
         + data (array) - 頁面所顯示的電力資訊
-            + (PowerEntry1) - 第一筆資料
-            + (PowerEntry2) - 第二筆資料
+            + (PowerEntry) - 第一筆資料
+            + (PowerEntry) - 第二筆資料
+                + time: `23:51`
+                + id: `049a9c28-c0cc-418e-9f35-23f6bc43df7e`
         + page: `1` (number) - 所在頁數
         + totalCount: `785` (number) - Query 時間內資料總數
 
-### PowerData (Data Chart Mode) [GET /power_info{?start_time}{?end_time}]
+### PowerData (Data Chart Mode) [GET /power_info{?chart_date}]
 <pre>
-curl http://140.116.247.120:5000/power_info?start_time=2020/02/14?end_time=2020/02/15 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+curl http://140.116.247.120:5000/power_info?chart_date=2020/01/13 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 </pre>
 
+Return past 7 days power information.
+
 + Parameters
-    + start_time: `2020/02/14` (string, required) - Date for the data, format YYYY/MM/DD.
-    + end_time: `2020/02/15` (string, required) - Date for the data, format YYYY/MM/DD.
+    + chart_date: `2020/02/14` (string, required) - Date for the data, format YYYY/MM/DD.
 
 + Request (application/json)
     + Headers
@@ -365,8 +369,43 @@ curl http://140.116.247.120:5000/power_info?start_time=2020/02/14?end_time=2020/
 
 + Response 200 (application/json)
     + Attributes (array, fixed-type)
-        + (ChartData1) - 產用電資訊 1
-        + (ChartData2) - 產用電資訊 2
+        + (ChartData)
+            + Date: `2020/02/08`
+        + (ChartData)
+            + Date: `2020/02/09`
+        + (ChartData)
+            + Date: `2020/02/10`
+        + (ChartData)
+            + Date: `2020/02/11`
+        + (ChartData)
+            + Date: `2020/02/12`
+        + (ChartData)
+            + Date: `2020/02/13`
+        + (ChartData)
+            + Date: `2020/02/14`
+
+### PowerData (Date Summary Mode) [GET /power_info{?summary_date}]
+<pre>
+curl http://140.116.247.120:5000/power_info?summary_date=2020/02/14 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+</pre>
+
++ Parameters
+    + summary_date: `2020/02/14` (string, required) - Date for the data, format YYYY/MM/DD.
+
++ Request (application/json)
+    + Headers
+
+            API-version: 0.1
+            Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR - Authentication Bearer Token
+
++ Response 200 (application/json)
+    + Attributes
+        + Consume: `48.19` (number) - 正常用電
+        + Demand: `47.208` (number) - 總淨負載
+        + ESS: `0.219` (number) - 儲電系統
+        + EV: `2.017` (number) - 充電樁
+        + PV: `-3.501` (number) - 太陽能
+        + WT: `0.283` (number) - 風能
 
 # Group Web Socket
 ## Association Diagram [/s1]
@@ -417,7 +456,7 @@ NOT YET !!!!!!
 + achievement: `100%` - 0~100%
 + settlement: `50` (number) - Settlement Transaction Price
 
-### BidSubmit1
+### BidSubmit
 + bid_type: `buy` (string) - 投標類型
 + date: `2020/10/29` (string) - 目標執行日期 YYYY/MM/DD
 + end_time: `2020/10/29 19` (string) - 執行結束時間
@@ -428,29 +467,6 @@ NOT YET !!!!!!
 + total_price: `68.0` (number) - 總交易價格
 + upload_time: `Sat, 21 Mar 2020 14:28:59 GMT` (string) - 投標上傳時間
 + volume: `10` (number) - 投標電量
-
-### BidSubmit2
-+ bid_type: `buy` (string) - 投標類型
-+ date: `2020/10/230` (string) - 目標執行日期 YYYY/MM/DD
-+ end_time: `2020/10/30 7` (string) - 執行結束時間
-+ id: `b6953af5-0803-4559-af5c-115613627624` - 投標 UUID
-+ price: `4.771` (number) - 投標單價
-+ start_time: `2020/10/30 6` (string) - 執行開始時間
-+ time: `6` (number) - 執行時間
-+ total_price: `47.71` (number) - 總交易價格
-+ upload_time: `Sat, 21 Mar 2020 14:28:59 GMT` (string) - 投標上傳時間
-+ volume: `10` (number) - 投標電量
-
-### HOMEPAGE
-+ table: `homepage`
-+ id: `b6953af5-0803-4559-af5c-115613627624` - Data's UUID
-+ field: `NCKU` (string) - 場域
-+ grid: `2.516` (number) - 電網即時功率
-+ pv: `0.000` (number) - 太陽能即時功率
-+ building: `2.466` (number) - 大樓即時用電
-+ ess: `0.000` (number) - 儲能即時功率
-+ ev: `0.000` (number) - 充電樁即時功率
-+ updated_at: `2019-09-04T12:00:00` - 資料上傳時間
 
 ### ESS
 + table: `ess`
@@ -484,7 +500,7 @@ NOT YET !!!!!!
 + WindGridPower: `0.000` (number) - 風機功率
 + updated_at: `2019-09-04T12:00:00` - 資料上傳時間
 
-### PowerEntry1
+### PowerEntry
 + address: `https://thetangle.org/transaction/WGQEE9ZNHHNPZ9AILVK9NAUXTRQZWJVEMIXWPBMWFQZTRXLIURDKLVUKACJAQIJOCKDWAZTLTLZY99999` - IOTA address
 + data_type: `ESS` - 產能設備
 + date: `2020/02/14` - 日期
@@ -492,26 +508,12 @@ NOT YET !!!!!!
 + power_display: `4.771` (number) - 電力資訊
 + time: `23:50` - 時間
 
-### PowerEntry2
-+ address: `https://thetangle.org/transaction/QAYPUZOKFXCDXGL9ZUZNVMKRNYGPSYRDQNJDQBGL9HYZRHBZ9FPJFWXRIGTXJSKMADGPODWYMCQYZ9999` - IOTA address
-+ data_type: `WT` - 產能設備
-+ date: `2020/02/14` - 日期
-+ id: `049a9c28-c0cc-418e-9f35-23f6bc43df7e` - PowerData UUID
-+ power_display: `2.471` (number) - 電力資訊
-+ time: `23:51` - 時間
-
-### ChartData1
-+ Demand: `-7.486` (number)- 淨負載
-+ ESS: `-3.211` (number) - ESS
-+ EV: `-3.592` (number) - EV
-+ PV: `-4.121` (number) - PV
-+ WT: `-2.267` (number) - WT
-+ name: `2020/02/14 00:00` (string) - 資料時間
-
-### ChartData2
-+ Demand: `-1.171` (number)- 淨負載
-+ ESS: `2.076` (number) - ESS 資訊
-+ EV: `-3.277` (number) - EV
-+ PV: `0.055` (number) - PV
-+ WT: `-2.146` (number) - WT
-+ name: `2020/01/14 01:00` (string) - 資料時間
+### ChartData
++ Consume: `47.823` (number) - 用電
++ Date: `2020/01/07` - 日期
++ Demand: `49.044` (number) - 淨負載
++ ESS: `2.245` (number) - 儲能裝置
++ EV: `-0.499` (number) - 充電樁
++ Generate: `1.221` (number) - 產電
++ PV: `0.053` (number) - 太陽能
++ WT: `-0.578` (number) - 風能
