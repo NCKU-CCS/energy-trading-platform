@@ -1,4 +1,5 @@
 import os
+
 from flask import Flask, jsonify, make_response
 from flask_restful import Api
 from werkzeug.exceptions import HTTPException
@@ -65,6 +66,7 @@ def create_app(config_mode):
     api.add_resource(RESOURCES['matchresult'], '/matchresult')
     api.add_resource(RESOURCES['bidsubmit'], '/bidsubmit')
     api.add_resource(RESOURCES['homepage'], '/homepage')
+    api.add_resource(RESOURCES['bidstatus'], '/bidstatus')
     api.add_resource(RESOURCES['socketio'], '/socket_settlement')
 
     return app
