@@ -10,6 +10,76 @@ from utils.oauth import auth, g
 from .model import Tenders, MatchResult, BidSubmit, add_bidsubmit, edit_bidsubmit
 
 
+class HomePageResource(Resource):
+    # pylint: disable=R0201
+    @auth.login_required
+    def get(self):
+        logger.info(
+            f"[Get HomePage Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n"
+        )
+        # format of response for real time execution info matched bid list
+        data = {
+            "buy": {
+                "price": None,
+                "volume": None,
+            },
+            "sell": {
+                "price": None,
+                "volume": None,
+            },
+            "results": []
+        }
+        # matched bids are status in one of the ['已得標', '執行中', '結算中', '已結算']
+        if g.uuid in [tender.user_id for tender in Tenders.query.all()]:
+            results = MatchResult.query.filter(
+                MatchResult.status.in_(['已得標', '執行中', '結算中', '已結算']),
+                MatchResult.tenders_id.in_(
+                    [
+                        tender.uuid
+                        for tender in Tenders.query.filter_by(user_id=g.uuid).all()
+                    ]
+                )
+            )
+            # check current time execution info by further filter the `results` query
+            current_time = datetime.now()
+            executing_bids = results.filter(
+                MatchResult.start_time <= current_time,
+                MatchResult.end_time > current_time,
+                MatchResult.status == '執行中'
+            )
+            # if `buy` happening, update data object
+            buy_bids = executing_bids.filter_by(bid_type='buy').all()
+            if buy_bids:
+                data["buy"] = {
+                    # since buy bids exist, take the first price to data object (same price)
+                    "price": buy_bids[0].win_price,
+                    # sum of volumes if multiple counterparts exist
+                    "volume": sum([bid.win_value for bid in buy_bids])
+                }
+            # if `sell` happening, update data object
+            sell_bids = executing_bids.filter_by(bid_type='sell').all()
+            if sell_bids:
+                data["sell"] = {
+                    # since sell bids exist, take the first price to data object (same price)
+                    "price": sell_bids[0].win_price,
+                    # sum of volumes if multiple counterparts exist
+                    "volume": sum([bid.win_value for bid in sell_bids])
+                }
+            # result of matched bids are based on the order by and limit of results query
+            data["results"] = [
+                {
+                    "date": result.start_time.strftime("%Y/%m/%d"),
+                    "time": f'{result.start_time.strftime("%H:00")}-{result.end_time.strftime("%H:00")}',
+                    "price": result.win_value,
+                    "volume": result.win_price
+                } for result in results.order_by(MatchResult.start_time.desc()).limit(10).all()
+            ]
+        response = jsonify(data)
+        return response
+
+    # pylint: enable=R0201
+
+
 class MatchResultsResource(Resource):
     # pylint: disable=R0201
     @auth.login_required
