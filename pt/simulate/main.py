@@ -20,10 +20,10 @@ def main():
     logger.add(sys.stderr, level=LOG_LEVEL)
     parser = ArgumentParser()
     parser.add_argument(
-        "-b", "--bems", help="BEMS Name", type=str, default="Carlab_BEMS"
+        "-b", "--bems", help="BEMS Name", type=str
     )
     parser.add_argument(
-        "-p", "--path", help=".csv Path", type=str, default=SIMULATE_FILE_PATH
+        "-p", "--path", help=".csv Path", type=str, default=SIMULATE_FILE_PATH, required=False
     )
     args = parser.parse_args()
     logger.info(f"Arguments: {args}")
