@@ -27,7 +27,16 @@ def main():
     )
     args = parser.parse_args()
     logger.info(f"Arguments: {args}")
-    parse = PARSERS[args.bems]
+    try:
+        parse = PARSERS[args.bems]
+    except KeyError:
+        logger.warn(
+            (
+                f"No matching parser for {args.bems} BEMS, "
+                "using the default parser(carlab_parser)."
+            )
+        )
+        parse = carlab_parser
 
     contents = read(args.path)
     contents = parse(contents)
