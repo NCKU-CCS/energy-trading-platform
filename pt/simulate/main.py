@@ -83,13 +83,14 @@ def send(demand: dict):
     now = now.replace(minute=demand["inserted_at"].minute)
     logger.debug(f'Send Time: {now}')
     payload = raw_data_template.copy()
-    payload["id"] = str(uuid4())
-    payload["field"] = "Carlab_BEMS"
-    payload["grid"] = demand["grid_power"]
-    payload["updated_at"] = now.isoformat()
+    payload["bems_homepage_information"]["id"] = str(uuid4())
+    payload["bems_homepage_information"]["field"] = "Carlab_BEMS"
+    payload["bems_homepage_information"]["grid"] = demand["grid_power"]
+    payload["bems_homepage_information"]["updated_at"] = now.isoformat()
     payload = {
         "Carlab_BEMS" :  payload
     }
+    logger.debug(f'Payload: {payload}')
     headers = {
         "Content-Type": "application/json"
     }
