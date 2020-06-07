@@ -43,7 +43,7 @@ def find_one(processed: List[dict]):
     filtered_list = list(
         filter(lambda x: same_period(x["inserted_at"], now), processed)
     )
-    logger.debug(f"Fitered Result: {filtered_list}")
+    logger.debug(f"Filtered Result: {filtered_list}")
     return get_nearest(filtered_list, now)
 
 
@@ -62,7 +62,7 @@ def get_nearest(filtered_list: List[dict], target: datetime):
         old = abs(target.minute - result["inserted_at"].minute)
         if new < old:
             result = sim_data
-    logger.info(f'Fitered Result: {result["inserted_at"]}')
+    logger.info(f'Filtered Result: {result["inserted_at"]}')
     return result
 
 def form_payload(demand: dict, field: str, time: datetime):
