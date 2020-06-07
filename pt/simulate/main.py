@@ -13,10 +13,13 @@ def main():
     parser.add_argument(
         "-b", "--bems", help="BEMS Name", type=str, default="Carlab_BEMS"
     )
+    parser.add_argument(
+        "-p", "--path", help=".csv Path", type=str, default=SIMULATE_FILE_PATH
+    )
     args = parser.parse_args()
     logger.info(f'Arguments: {args}')
 
-    contents = read(SIMULATE_FILE_PATH)
+    contents = read(args.path)
     contents = parse(contents)
     result = find_one(contents)
     send(result, args.bems)
