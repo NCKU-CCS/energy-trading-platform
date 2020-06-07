@@ -2,8 +2,17 @@ import sys
 from argparse import ArgumentParser
 from loguru import logger
 
-from pt.simulate.config import SIMULATE_FILE_PATH, LOG_LEVEL
-from pt.simulate.utils import read, parse, find_one, send
+from pt.simulate.config import (
+    SIMULATE_FILE_PATH,
+    LOG_LEVEL,
+)
+from pt.simulate.utils import read, find_one, send, carlab_parser, abri_parser
+
+PARSERS = {
+    "Carlab_BEMS": carlab_parser,
+    "NCKU_BEMS": carlab_parser,
+    "ABRI_BEMS": abri_parser,
+}
 
 
 def main():
@@ -17,7 +26,8 @@ def main():
         "-p", "--path", help=".csv Path", type=str, default=SIMULATE_FILE_PATH
     )
     args = parser.parse_args()
-    logger.info(f'Arguments: {args}')
+    logger.info(f"Arguments: {args}")
+    parse = PARSERS[args.bems]
 
     contents = read(args.path)
     contents = parse(contents)

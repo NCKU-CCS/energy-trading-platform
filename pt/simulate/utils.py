@@ -16,7 +16,7 @@ def read(path: str):
     return contents
 
 
-def parse(contents: List[Dict]):
+def carlab_parser(contents: List[Dict]):
     """
     Example: [
         OrderedDict([('id', '5121'), ('field', 'carlab'), ('grid_power', '11.689'), ('inserted_at', '2020/5/1 23:30')]),
@@ -36,6 +36,25 @@ def parse(contents: List[Dict]):
     logger.debug(processed)
     return processed
 
+def abri_parser(contents: List[Dict]):
+    """
+    Example: [
+        OrderedDict([('AMI_1', '11.5'), ('AMI_2', '13.44'), ('AMI_3', '2'), ('', ''), ('total_load(kW)', '26.94'), ('PV_generate(kW)', '0'), ('net_load(kW)', '26.94'), ('TIME', '2020/5/8 20:15')]),
+        OrderedDict([('AMI_1', '11.5'), ('AMI_2', '12.16'), ('AMI_3', '2.4'), ('', ''), ('total_load(kW)', '26.06'), ('PV_generate(kW)', '0'), ('net_load(kW)', '26.06'), ('TIME', '2020/5/8 20:30')])
+    ]
+    """
+    processed = sorted(
+        [
+            {
+                "inserted_at": datetime.strptime(line["TIME"], "%Y/%m/%d %H:%M"),
+                "grid_power": float(line["total_load(kW)"]),
+            }
+            for line in contents
+        ],
+        key=lambda x: x["inserted_at"],
+    )
+    logger.debug(processed)
+    return processed
 
 def find_one(processed: List[dict]):
     now = datetime.now()
