@@ -91,7 +91,7 @@ def form_payload(demand: dict, field: str, time: datetime):
     payload["bems_homepage_information"]["grid"] = demand["grid_power"]
     payload["bems_homepage_information"]["updated_at"] = time.isoformat()
     payload = {f"{field}": payload}
-    logger.debug(f"Payload: {payload}")
+    logger.info(f"Payload: {payload}")
     return payload
 
 
