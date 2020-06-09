@@ -125,10 +125,11 @@ def add_fields(insert_data, address, receive_address):
     if history:
         insert_data["history_id"] = history.uuid
     else:
-        return
+        return False
 
     # put IOTA address into data_structure
     insert_data["address"] = str(receive_address)
+    return True
 
 
 def uniform_fields(insert_data, db_data_type):
@@ -218,7 +219,8 @@ def main(utc_now=datetime.utcnow()):
                     continue
 
                 # Add fields with data
-                add_fields(insert_data, address, receive_address)
+                if not add_fields(insert_data, address, receive_address):
+                    break
 
                 # Handling different names
                 uniform_fields(insert_data, db_data_type)
