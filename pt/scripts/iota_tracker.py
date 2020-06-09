@@ -143,9 +143,9 @@ def uniform_fields(insert_data, db_data_type):
     if db_data_type == "EV":
         insert_data["power_display"] = insert_data.pop("power")
     elif db_data_type == "PV":
-        insert_data["pac"] = insert_data.pop("PAC")
+        insert_data["pac"] = insert_data.pop("pac")
     elif db_data_type == "WT":
-        insert_data["windgridpower"] = insert_data.pop("WindGridPower")
+        insert_data["windgridpower"] = insert_data.pop("wind_grid_power")
 
 
 def insert_to_db(tag, insert_data):
