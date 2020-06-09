@@ -22,12 +22,10 @@ black:
 
 lint: flake8 pylint
 
+
 build_docker:
-	pipenv lock --requirements > platform/requirements.txt
-	docker login
-	docker build --no-cache -t platform_docker:latest platform/
-	docker tag platform_docker ttw225/platform_docker
-	docker push ttw225/platform_docker
+	docker build -t et_platform . --no-cache
+
 
 clean:
 	find . -type d -name '__pycache__' -delete
