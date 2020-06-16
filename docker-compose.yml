@@ -6,7 +6,7 @@ services:
     container_name: ET_DB_POSTGRE
     restart: always
     volumes:
-      - ${POSTGRES_DATA_DIR}:/var/lib/postgresql/dev-data
+      - ${POSTGRES_DATA_DIR}:/var/lib/postgresql/data
     expose:
       - 5432
     ports:
