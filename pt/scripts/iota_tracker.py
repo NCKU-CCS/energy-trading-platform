@@ -125,10 +125,11 @@ def add_fields(insert_data, address, receive_address):
     if history:
         insert_data["history_id"] = history.uuid
     else:
-        return
+        return False
 
     # put IOTA address into data_structure
     insert_data["address"] = str(receive_address)
+    return True
 
 
 def uniform_fields(insert_data, db_data_type):
@@ -143,9 +144,9 @@ def uniform_fields(insert_data, db_data_type):
     if db_data_type == "EV":
         insert_data["power_display"] = insert_data.pop("power")
     elif db_data_type == "PV":
-        insert_data["pac"] = insert_data.pop("PAC")
+        insert_data["pac"] = insert_data.pop("pac")
     elif db_data_type == "WT":
-        insert_data["windgridpower"] = insert_data.pop("WindGridPower")
+        insert_data["windgridpower"] = insert_data.pop("wind_grid_power")
 
 
 def insert_to_db(tag, insert_data):
@@ -218,7 +219,8 @@ def main(utc_now=datetime.utcnow()):
                     continue
 
                 # Add fields with data
-                add_fields(insert_data, address, receive_address)
+                if not add_fields(insert_data, address, receive_address):
+                    break
 
                 # Handling different names
                 uniform_fields(insert_data, db_data_type)
