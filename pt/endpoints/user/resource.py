@@ -39,6 +39,7 @@ class UserResource(Resource):
         user = User.query.filter_by(uuid=g.uuid).first()
         response = jsonify(
             {
+                "account": user.account,
                 "username": user.username,
                 "avatar": user.avatar,
                 "balance": user.balance,
