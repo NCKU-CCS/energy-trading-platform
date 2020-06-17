@@ -148,16 +148,12 @@ class PowerDatasResource(Resource):
             )
         # distribute data to response format
         powerdata_list = []
-        for i in range(min(7, len(powerdata['Demand']))):
-            # postion 0 is date and position 1 is data value
+        for i in range(len(powerdata['Demand'])):
             data = {
-                "Date": powerdata['Demand'][i][0].strftime("%Y/%m/%d"),
-                "Demand": round(powerdata['Demand'][i][1], 3) if i < len(powerdata['Demand']) else 0,
-                "PV": round(powerdata['PV'][i][1], 3) if i < len(powerdata['PV']) else 0,
-                "EV": round(powerdata['EV'][i][1], 3) if i < len(powerdata['EV']) else 0,
-                "ESS": round(powerdata['ESS'][i][1], 3) if i < len(powerdata['ESS']) else 0,
-                "WT": round(powerdata['WT'][i][1], 3) if i < len(powerdata['WT']) else 0,
+                power_type: round(powerdata[power_type][i].sum, 3) if i < len(powerdata[power_type]) else 0
+                for power_type in powerdata_datatype
             }
+            data["Date"] = powerdata['Demand'][i].date.strftime("%Y/%m/%d")
             # add power generation field for response
             data["Generate"] = round(data['WT'] + data['PV'] + data['EV'] + data['ESS'], 3)
             # add power consumption field for response
