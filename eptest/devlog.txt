@@ -1,0 +1,10 @@
+2020/06/23 install pip3 via apt-get
+2020/06/23 install pytest via pip3
+2020/06/28 use requests to test server
+2020/06/29 test basic function of pytest
+
+Work not yet:
+1. (ok) Use requests to test the response from Endpoint
+2. Use pytest to generate the testing result
+3. Integrate requests and pytest kit for Endpoint testing
+4. Finish all testing terms to reach testing automation
