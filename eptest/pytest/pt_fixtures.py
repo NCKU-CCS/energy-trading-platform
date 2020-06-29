@@ -2,6 +2,7 @@
 
 import pytest
 
+
 @pytest.fixture()
 def hello_world():
     return "hello_world"
