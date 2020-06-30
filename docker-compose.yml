@@ -11,7 +11,13 @@ services:
     ports:
       - ${POSTGRES_PORT}:5432
     environment:
-      POSTGRES_DB: dev_db
-      POSTGRES_USER: dev_user
-      POSTGRES_PASSWORD: dev191026
-
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_ACCOUNT}
+      POSTGRES_PASSWORD: ${DB_PASSWD}
+  et-platform:
+    image: et_platform:latest
+    container_name: ET_PLATFORM
+    restart: always
+    env_file: ./production/.env
+    ports:
+      - 5000:5000

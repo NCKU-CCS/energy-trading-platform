@@ -1,13 +1,14 @@
 from datetime import datetime, timedelta
 from itertools import tee
-from csv import DictReader
 from typing import List, Dict
 from uuid import uuid4
 import json
+from csv import DictReader
 import requests
 from loguru import logger
+import pytz
 
-from pt.simulate.config import RAW_DATA_TEMPLATE, UPLOADER_URL, HOST
+from pt.simulate.config import RAW_DATA_TEMPLATE, UPLOADER_URL, HOST, UPLOAD_TZ
 
 
 def read(path: str):
@@ -58,7 +59,7 @@ def abri_parser(contents: List[Dict]):
     return processed
 
 def find_one(processed: List[dict]):
-    now = datetime.now()
+    now = convert_time_zone(datetime.now(), pytz.utc, UPLOAD_TZ)
     logger.info(f"Current Time: {now.isoformat()}")
     filtered_list = list(
         filter(lambda x: same_period(x["inserted_at"], now), processed)
@@ -97,7 +98,7 @@ def form_payload(demand: dict, field: str, time: datetime):
 
 
 def send(demand: dict, bems: str):
-    now = datetime.now()
+    now = convert_time_zone(datetime.now(), pytz.utc, UPLOAD_TZ)
     now = now.replace(minute=demand["inserted_at"].minute)
     logger.debug(f"Send Time: {now}")
 
@@ -129,6 +130,10 @@ def bidsubmit(token: str, start_time:str, end_time:str, bid_type: str, value: fl
         json=req_body
     )
     logger.debug(f"{res.json()}")
+
+def convert_time_zone(time_object: datetime, from_tz, to_tz):
+    """Convert DateTime's Time Zone"""
+    return time_object.replace(tzinfo=from_tz).astimezone(to_tz).replace(tzinfo=None)
 
 def daterange_hours(start_time, end_time):
     for n in range(int((end_time - start_time).seconds//3600)):

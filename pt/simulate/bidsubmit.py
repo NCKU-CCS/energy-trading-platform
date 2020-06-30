@@ -2,12 +2,14 @@ import sys
 from datetime import datetime
 from argparse import ArgumentParser
 from loguru import logger
+import pytz
 
 from pt.simulate.config import (
     SIMULATE_FILE_PATH,
     LOG_LEVEL,
+    UPLOAD_TZ
 )
-from pt.simulate.utils import auth, bidsubmit, daterange_hours, pairwise
+from pt.simulate.utils import auth, bidsubmit, daterange_hours, pairwise, convert_time_zone
 
 
 def main():
@@ -45,8 +47,16 @@ def main():
     submit_args.pop('account')
     submit_args.pop('password')
 
-    start_time = datetime.strptime(args.start_time, "%Y/%m/%d %H")
-    end_time = datetime.strptime(args.end_time, "%Y/%m/%d %H")
+    start_time = convert_time_zone(
+        datetime.strptime(args.start_time, "%Y/%m/%d %H"),
+        pytz.utc,
+        UPLOAD_TZ
+    )
+    end_time = convert_time_zone(
+        datetime.strptime(args.end_time, "%Y/%m/%d %H"),
+        pytz.utc,
+        UPLOAD_TZ
+    )
 
     for st, et in pairwise(daterange_hours(start_time, end_time)):
         submit_args["start_time"] = st.strftime('%Y/%m/%d %H')
