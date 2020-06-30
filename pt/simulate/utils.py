@@ -129,7 +129,7 @@ def bidsubmit(token: str, start_time:str, end_time:str, bid_type: str, value: fl
         },
         json=req_body
     )
-    logger.debug(f"{res.json()}")
+    logger.info(f"Start_Time: {start_time} End_Time: {end_time} Result: {res.json()}")
 
 def convert_time_zone(time_object: datetime, from_tz, to_tz):
     """Convert DateTime's Time Zone"""
