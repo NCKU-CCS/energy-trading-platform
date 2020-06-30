@@ -136,7 +136,7 @@ def convert_time_zone(time_object: datetime, from_tz, to_tz):
     return time_object.replace(tzinfo=from_tz).astimezone(to_tz).replace(tzinfo=None)
 
 def daterange_hours(start_time, end_time):
-    for n in range(int((end_time - start_time).seconds//3600)):
+    for n in range(int((end_time - start_time).total_seconds()//3600)):
         yield start_time + timedelta(hours=n)
 
 def pairwise(iterable):
