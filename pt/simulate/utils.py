@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+from itertools import tee
 from csv import DictReader
 from typing import List, Dict
 from uuid import uuid4
@@ -6,7 +7,7 @@ import json
 import requests
 from loguru import logger
 
-from pt.simulate.config import RAW_DATA_TEMPLATE, UPLOADER_URL
+from pt.simulate.config import RAW_DATA_TEMPLATE, UPLOADER_URL, HOST
 
 
 def read(path: str):
@@ -105,3 +106,36 @@ def send(demand: dict, bems: str):
     headers = {"Content-Type": "application/json"}
     res = requests.post(UPLOADER_URL, headers=headers, data=json.dumps(payload))
     logger.info(f"Response Code: {res.status_code}, Response Body: {res.json()}")
+
+def auth(account: str, password: str):
+    logger.debug(f"Account: {account}")
+    res = requests.post(f"{HOST}/login", json={"account":f"{account}", "password":"test"})
+    if(res.status_code == 200):
+        return res.json()['bearer']
+    else:
+        logger.warning("Authorization Failed!")
+        return ""
+
+
+def bidsubmit(token: str, start_time:str, end_time:str, bid_type: str, value: float, price: float):
+    logger.debug(f"Bidsubmit Arguments:{locals()}")
+    req_body = locals()
+    req_body.pop("token")
+    res = requests.post(
+        f"{HOST}/bidsubmit",
+        headers={
+            "Authorization": f"Bearer {token}"
+        },
+        json=req_body
+    )
+    logger.debug(f"{res.json()}")
+
+def daterange_hours(start_time, end_time):
+    for n in range(int((end_time - start_time).seconds//3600)):
+        yield start_time + timedelta(hours=n)
+
+def pairwise(iterable):
+    "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+    a, b = tee(iterable)
+    next(b, None)
+    return zip(a, b)
