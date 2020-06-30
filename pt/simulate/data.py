@@ -20,7 +20,7 @@ def main():
     logger.add(sys.stderr, level=LOG_LEVEL)
     parser = ArgumentParser()
     parser.add_argument(
-        "-b", "--bems", help="BEMS Name", type=str
+        "-b", "--bems", help="BEMS Name", type=str, required=True
     )
     parser.add_argument(
         "-p", "--path", help=".csv Path", type=str, default=SIMULATE_FILE_PATH, required=False
@@ -30,7 +30,7 @@ def main():
     try:
         parse = PARSERS[args.bems]
     except KeyError:
-        logger.warn(
+        logger.warning(
             (
                 f"No matching parser for {args.bems} BEMS, "
                 "using the default parser(carlab_parser)."
