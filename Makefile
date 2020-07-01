@@ -10,7 +10,6 @@ init: clean
 
 dev: init
 	pipenv install --dev
-	pipenv run pre-commit install
 	pipenv run pre-commit install -t commit-msg
 
 commit:
