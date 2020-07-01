@@ -7,7 +7,7 @@ import sqlalchemy.types as types
 from config import db, TZ
 
 
-# pylint: disable=W0223
+# pylint: disable=W0223, W0613, R0201
 class UTCDatetime(types.TypeDecorator):
     impl = types.DATETIME
 
@@ -30,18 +30,10 @@ class UTCDatetime(types.TypeDecorator):
         )
 
 
-# pylint: enable=W0223
-
-
-# pylint: disable=W0223
 class UTCDate(types.TypeDecorator):
     impl = types.DATE
 
 
-# pylint: enable=W0223
-
-
-# pylint: disable=W0223
 class UUID2STR(types.TypeDecorator):
     impl = UUID(as_uuid=True)
 
@@ -49,7 +41,7 @@ class UUID2STR(types.TypeDecorator):
         return str(value)
 
 
-# pylint: enable=W0223
+# pylint: enable=W0223, W0613, R0201
 
 
 class ETBaseMixin:

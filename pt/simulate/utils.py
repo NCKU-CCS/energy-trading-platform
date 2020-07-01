@@ -42,8 +42,12 @@ def carlab_parser(contents: List[Dict]):
 def abri_parser(contents: List[Dict]):
     """
     Example: [
-        OrderedDict([('AMI_1', '11.5'), ('AMI_2', '13.44'), ('AMI_3', '2'), ('', ''), ('total_load(kW)', '26.94'), ('PV_generate(kW)', '0'), ('net_load(kW)', '26.94'), ('TIME', '2020/5/8 20:15')]),
-        OrderedDict([('AMI_1', '11.5'), ('AMI_2', '12.16'), ('AMI_3', '2.4'), ('', ''), ('total_load(kW)', '26.06'), ('PV_generate(kW)', '0'), ('net_load(kW)', '26.06'), ('TIME', '2020/5/8 20:30')])
+        OrderedDict([('AMI_1', '11.5'), ('AMI_2', '13.44'), ('AMI_3', '2'), ('', ''),
+                     ('total_load(kW)', '26.94'), ('PV_generate(kW)', '0'), ('net_load(kW)', '26.94'),
+                     ('TIME', '2020/5/8 20:15')]),
+        OrderedDict([('AMI_1', '11.5'), ('AMI_2', '12.16'), ('AMI_3', '2.4'), ('', ''),
+                     ('total_load(kW)', '26.06'), ('PV_generate(kW)', '0'), ('net_load(kW)', '26.06'),
+                     ('TIME', '2020/5/8 20:30')])
     ]
     """
     processed = sorted(
@@ -115,15 +119,18 @@ def send(demand: dict, bems: str):
 def auth(account: str, password: str):
     logger.debug(f"Account: {account}")
     res = requests.post(
-        f"{HOST}/login", json={"account": f"{account}", "password": "test"}
+        f"{HOST}/login", json={"account": f"{account}", "password": f"{password}"}
     )
+
+    return_str = ""
     if res.status_code == 200:
-        return res.json()["bearer"]
+        return_str = res.json()["bearer"]
     else:
         logger.warning("Authorization Failed!")
-        return ""
+    return return_str
 
 
+# pylint: disable=unused-argument
 def bidsubmit(
     token: str,
     start_time: str,
@@ -141,18 +148,21 @@ def bidsubmit(
     logger.info(f"Start_Time: {start_time} End_Time: {end_time} Result: {res.json()}")
 
 
+# pylint: enable=unused-argument
+
+
 def convert_time_zone(time_object: datetime, from_tz, to_tz):
     """Convert DateTime's Time Zone"""
     return time_object.replace(tzinfo=from_tz).astimezone(to_tz).replace(tzinfo=None)
 
 
 def daterange_hours(start_time, end_time):
-    for n in range(int((end_time - start_time).total_seconds() // 3600)):
-        yield start_time + timedelta(hours=n)
+    for hour in range(int((end_time - start_time).total_seconds() // 3600)):
+        yield start_time + timedelta(hours=hour)
 
 
 def pairwise(iterable):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
-    a, b = tee(iterable)
-    next(b, None)
-    return zip(a, b)
+    first, second = tee(iterable)
+    next(second, None)
+    return zip(first, second)

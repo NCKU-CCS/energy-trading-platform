@@ -52,9 +52,9 @@ def main():
         datetime.strptime(args.end_time, "%Y/%m/%d %H"), pytz.utc, UPLOAD_TZ
     )
 
-    for st, et in pairwise(daterange_hours(start_time, end_time)):
-        submit_args["start_time"] = st.strftime("%Y/%m/%d %H")
-        submit_args["end_time"] = et.strftime("%Y/%m/%d %H")
+    for start, end in pairwise(daterange_hours(start_time, end_time)):
+        submit_args["start_time"] = start.strftime("%Y/%m/%d %H")
+        submit_args["end_time"] = end.strftime("%Y/%m/%d %H")
 
         bidsubmit(token=token, **submit_args)
 
