@@ -7,8 +7,12 @@ init: clean
 	pipenv install
 	# pipenv install --dev
 
+
 dev: init
-	pre-commit install
+	pipenv install --dev
+	pipenv run pre-commit install
+	pipenv run pre-commit install -t commit-msg
+
 
 flake8:
 	pipenv run flake8

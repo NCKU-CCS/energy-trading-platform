@@ -28,3 +28,9 @@ repos:
     -   id: python-bandit-vulnerability-check
         args: [-ll, --recursive, -x, tests, --skip, B311]
         files: .py$
+
+-   repo: https://github.com/commitizen-tools/commitizen
+    rev: v1.17.0
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]
