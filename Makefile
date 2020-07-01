@@ -7,6 +7,8 @@ init: clean
 	pipenv install
 	# pipenv install --dev
 
+dev: init
+	pre-commit install
 
 flake8:
 	pipenv run flake8
