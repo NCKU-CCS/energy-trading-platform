@@ -22,9 +22,11 @@ def create_app(config_mode):
     @app.after_request
     def af_request(resp):
         resp = make_response(resp)
-        resp.headers['Access-Control-Allow-Origin'] = '*'
-        resp.headers['Access-Control-Allow-Methods'] = 'GET,POST,PUT,DELETE,OPTIONS'
-        resp.headers['Access-Control-Allow-Headers'] = 'X-Requested-With, Content-Type, Authorization'
+        resp.headers["Access-Control-Allow-Origin"] = "*"
+        resp.headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,OPTIONS"
+        resp.headers[
+            "Access-Control-Allow-Headers"
+        ] = "X-Requested-With, Content-Type, Authorization"
         return resp
 
     # pylint: enable=W0612
@@ -38,7 +40,7 @@ def create_app(config_mode):
             code = error.code
 
         # pylint: disable=E1101
-        app.logger.warning(f'{code} - {error}')
+        app.logger.warning(f"{code} - {error}")
         # pylint: enable=E1101
 
         return jsonify(error=str(error)), code
@@ -47,41 +49,37 @@ def create_app(config_mode):
         app.register_error_handler(ex, handle_error)
 
     # flask config
-    app.config.from_pyfile('./config/config.py')
+    app.config.from_pyfile("./config/config.py")
     # pylint: disable=E1101
-    app.logger.info(f'APP Mode: {config_mode}')
+    app.logger.info(f"APP Mode: {config_mode}")
     # pylint: enable=E1101
 
     # DB Init
     db.init_app(app)
     # Route Init
     api = Api(app)
-    api.add_resource(RESOURCES['user'], '/user')
-    api.add_resource(RESOURCES['login'], '/login')
-    api.add_resource(RESOURCES['address'], '/address')
-    api.add_resource(RESOURCES['amis'], '/amis')
-    api.add_resource(RESOURCES['news'], '/news')
-    api.add_resource(RESOURCES['power_info'], '/power_info')
-    api.add_resource(RESOURCES['participant'], '/participant')
-    api.add_resource(RESOURCES['matchresult'], '/matchresult')
-    api.add_resource(RESOURCES['bidsubmit'], '/bidsubmit')
-    api.add_resource(RESOURCES['homepage'], '/homepage')
-    api.add_resource(RESOURCES['bidstatus'], '/bidstatus')
-    api.add_resource(RESOURCES['socketio'], '/socket_settlement')
+    api.add_resource(RESOURCES["user"], "/user")
+    api.add_resource(RESOURCES["login"], "/login")
+    api.add_resource(RESOURCES["address"], "/address")
+    api.add_resource(RESOURCES["amis"], "/amis")
+    api.add_resource(RESOURCES["news"], "/news")
+    api.add_resource(RESOURCES["power_info"], "/power_info")
+    api.add_resource(RESOURCES["participant"], "/participant")
+    api.add_resource(RESOURCES["matchresult"], "/matchresult")
+    api.add_resource(RESOURCES["bidsubmit"], "/bidsubmit")
+    api.add_resource(RESOURCES["homepage"], "/homepage")
+    api.add_resource(RESOURCES["bidstatus"], "/bidstatus")
+    api.add_resource(RESOURCES["socketio"], "/socket_settlement")
 
     return app
 
 
 def main():
-    config_name = os.environ.get('APP_SETTINGS', 'development')
+    config_name = os.environ.get("APP_SETTINGS", "development")
     app = create_app(config_name)
 
     socketio.init_app(app, cors_allowed_origins="*")
-    socketio.run(
-        app,
-        host='0.0.0.0',
-        port=os.environ.get('PORT', 5000)
-    )
+    socketio.run(app, host="127.0.0.1", port=os.environ.get("PORT", 5000))
 
 
 if __name__ == "__main__":

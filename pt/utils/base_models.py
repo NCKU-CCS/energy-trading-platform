@@ -37,6 +37,7 @@ class UTCDatetime(types.TypeDecorator):
 class UTCDate(types.TypeDecorator):
     impl = types.DATE
 
+
 # pylint: enable=W0223
 
 

@@ -4,24 +4,22 @@ from argparse import ArgumentParser
 from loguru import logger
 import pytz
 
-from pt.simulate.config import (
-    SIMULATE_FILE_PATH,
-    LOG_LEVEL,
-    UPLOAD_TZ
+from pt.simulate.config import LOG_LEVEL, UPLOAD_TZ
+from pt.simulate.utils import (
+    auth,
+    bidsubmit,
+    daterange_hours,
+    pairwise,
+    convert_time_zone,
 )
-from pt.simulate.utils import auth, bidsubmit, daterange_hours, pairwise, convert_time_zone
 
 
 def main():
     logger.remove(0)
     logger.add(sys.stderr, level=LOG_LEVEL)
     parser = ArgumentParser()
-    parser.add_argument(
-        "-a", "--account", help="account", type=str, required=True
-    )
-    parser.add_argument(
-        "-p", "--password", help="password", type=str, required=True
-    )
+    parser.add_argument("-a", "--account", help="account", type=str, required=True)
+    parser.add_argument("-p", "--password", help="password", type=str, required=True)
     parser.add_argument(
         "-t", "--bid_type", help="Bidding Type", type=str, required=True
     )
@@ -44,26 +42,22 @@ def main():
     logger.debug(f"Token: {token}")
 
     submit_args = vars(args)
-    submit_args.pop('account')
-    submit_args.pop('password')
+    submit_args.pop("account")
+    submit_args.pop("password")
 
     start_time = convert_time_zone(
-        datetime.strptime(args.start_time, "%Y/%m/%d %H"),
-        pytz.utc,
-        UPLOAD_TZ
+        datetime.strptime(args.start_time, "%Y/%m/%d %H"), pytz.utc, UPLOAD_TZ
     )
     end_time = convert_time_zone(
-        datetime.strptime(args.end_time, "%Y/%m/%d %H"),
-        pytz.utc,
-        UPLOAD_TZ
+        datetime.strptime(args.end_time, "%Y/%m/%d %H"), pytz.utc, UPLOAD_TZ
     )
 
     for st, et in pairwise(daterange_hours(start_time, end_time)):
-        submit_args["start_time"] = st.strftime('%Y/%m/%d %H')
-        submit_args["end_time"] = et.strftime('%Y/%m/%d %H')
+        submit_args["start_time"] = st.strftime("%Y/%m/%d %H")
+        submit_args["end_time"] = et.strftime("%Y/%m/%d %H")
 
         bidsubmit(token=token, **submit_args)
-    
+
 
 if __name__ == "__main__":
     main()

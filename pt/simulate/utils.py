@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from itertools import tee
-from typing import List, Dict
+from typing import List, Dict, Any
 from uuid import uuid4
 import json
 from csv import DictReader
@@ -38,6 +38,7 @@ def carlab_parser(contents: List[Dict]):
     logger.debug(processed)
     return processed
 
+
 def abri_parser(contents: List[Dict]):
     """
     Example: [
@@ -57,6 +58,7 @@ def abri_parser(contents: List[Dict]):
     )
     logger.debug(processed)
     return processed
+
 
 def find_one(processed: List[dict]):
     now = convert_time_zone(datetime.now(), pytz.utc, UPLOAD_TZ)
@@ -86,13 +88,14 @@ def get_nearest(filtered_list: List[dict], target: datetime):
     logger.info(f'Filtered Result: {result["inserted_at"]}')
     return result
 
-def form_payload(demand: dict, field: str, time: datetime):
+
+def form_payload(demand: dict, field: str, time: datetime) -> Dict[str, Any]:
     payload = RAW_DATA_TEMPLATE.copy()
     payload["bems_homepage_information"]["id"] = str(uuid4())
     payload["bems_homepage_information"]["field"] = field
     payload["bems_homepage_information"]["grid"] = demand["grid_power"]
     payload["bems_homepage_information"]["updated_at"] = time.isoformat()
-    payload = {f"{field}": payload}
+    payload = {field: dict(payload)}
     logger.info(f"Payload: {payload}")
     return payload
 
@@ -103,41 +106,50 @@ def send(demand: dict, bems: str):
     logger.debug(f"Send Time: {now}")
 
     payload = form_payload(demand, bems, now)
-    
+
     headers = {"Content-Type": "application/json"}
     res = requests.post(UPLOADER_URL, headers=headers, data=json.dumps(payload))
     logger.info(f"Response Code: {res.status_code}, Response Body: {res.json()}")
 
+
 def auth(account: str, password: str):
     logger.debug(f"Account: {account}")
-    res = requests.post(f"{HOST}/login", json={"account":f"{account}", "password":"test"})
-    if(res.status_code == 200):
-        return res.json()['bearer']
+    res = requests.post(
+        f"{HOST}/login", json={"account": f"{account}", "password": "test"}
+    )
+    if res.status_code == 200:
+        return res.json()["bearer"]
     else:
         logger.warning("Authorization Failed!")
         return ""
 
 
-def bidsubmit(token: str, start_time:str, end_time:str, bid_type: str, value: float, price: float):
+def bidsubmit(
+    token: str,
+    start_time: str,
+    end_time: str,
+    bid_type: str,
+    value: float,
+    price: float,
+):
     logger.debug(f"Bidsubmit Arguments:{locals()}")
     req_body = locals()
     req_body.pop("token")
     res = requests.post(
-        f"{HOST}/bidsubmit",
-        headers={
-            "Authorization": f"Bearer {token}"
-        },
-        json=req_body
+        f"{HOST}/bidsubmit", headers={"Authorization": f"Bearer {token}"}, json=req_body
     )
     logger.info(f"Start_Time: {start_time} End_Time: {end_time} Result: {res.json()}")
+
 
 def convert_time_zone(time_object: datetime, from_tz, to_tz):
     """Convert DateTime's Time Zone"""
     return time_object.replace(tzinfo=from_tz).astimezone(to_tz).replace(tzinfo=None)
 
+
 def daterange_hours(start_time, end_time):
-    for n in range(int((end_time - start_time).total_seconds()//3600)):
+    for n in range(int((end_time - start_time).total_seconds() // 3600)):
         yield start_time + timedelta(hours=n)
+
 
 def pairwise(iterable):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
