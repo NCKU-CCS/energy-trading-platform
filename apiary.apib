@@ -1,5 +1,5 @@
 FORMAT: 1A
-HOST:http://140.116.247.120:5000
+HOST:http://140.116.247.117:5000
 
 # Energy Trading (ET) API Document
 
@@ -14,7 +14,7 @@ Used to login platform.
 
 ### Login [POST]
 <pre>
-curl http://140.116.247.120:5000/login -X POST -H "Content-Type: application/json" -d '{"account": "TestA1", "password": "TestA1"}'
+curl http://140.116.247.117:5000/login -X POST -H "Content-Type: application/json" -d '{"account": "TestA1", "password": "TestA1"}'
 </pre>
 
 + Request (application/json)
@@ -41,7 +41,7 @@ User's information.
 
 ### User Info [GET]
 <pre>
-curl http://140.116.247.120:5000/user -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+curl http://140.116.247.117:5000/user -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 </pre>
 
 + Request (application/json)
@@ -52,6 +52,7 @@ curl http://140.116.247.120:5000/user -X GET -H "Content-Type: application/json"
 
 + Response 200 (application/json)
     + Attributes
+        + account: `TestA1_BEMS`
         + username: `TestA1`
         + avatar: `https://imgur.com/0JMAdHM` - Profile Picture's URL
         + balance: `100` (number) - User's Token balance
@@ -61,7 +62,7 @@ curl http://140.116.247.120:5000/user -X GET -H "Content-Type: application/json"
 
 ### Change Password [PUT]
 <pre>
-curl http://140.116.247.120:5000/user -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR" -d '{"original_passwd": "TestA1","new_passwd": "new_password"}'
+curl http://140.116.247.117:5000/user -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR" -d '{"original_passwd": "TestA1","new_passwd": "new_password"}'
 </pre>
 
 + Request (application/json)
@@ -85,7 +86,7 @@ curl http://140.116.247.120:5000/user -X PUT -H "Content-Type: application/json"
 
 ### Create User [POST]
 <pre>
-curl http://140.116.247.120:5000/user -X POST -H "Content-Type: application/json"
+curl http://140.116.247.117:5000/user -X POST -H "Content-Type: application/json"
   -d '{
         "account": "TestA1",
         "username": "TestA1_BEMS",
@@ -118,7 +119,7 @@ Get User's AMIs.
 
 ### AMIs [GET]
 <pre>
-curl http://140.116.247.120:5000/amis -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+curl http://140.116.247.117:5000/amis -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 </pre>
 
 + Request (application/json)
@@ -140,7 +141,7 @@ Get latest ten system news.
 
 ### News [GET]
 <pre>
-curl http://140.116.247.120:5000/news -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+curl http://140.116.247.117:5000/news -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 </pre>
 
 + Request (application/json)
@@ -162,7 +163,7 @@ Related to bidding page info.
 
 ### Bidding Status [GET /bidstatus]
 <pre>
-curl http://140.116.247.120:5000/bidstatus -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
+curl http://140.116.247.117:5000/bidstatus -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
 </pre>
 
 Return the average bidding price and active participants in the active hour.
@@ -185,7 +186,7 @@ Related to bidding.
 
 ### Bidding Project [GET /bidsubmit{?per_page}{?page}{?bid_type}]
 <pre>
-curl http://140.116.247.120:5000/bidsubmit?per_page=10&page=5&bid_type=buy -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
+curl http://140.116.247.117:5000/bidsubmit?per_page=10&page=5&bid_type=buy -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
 </pre>
 
 Return the bid content valid from the day (Today, current time).
@@ -212,7 +213,7 @@ Return the bid content valid from the day (Today, current time).
 
 ### Order [POST]
 <pre>
-curl http://140.116.247.120:5000/bidsubmit -X POST -H 'Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc' -H 'Content-Type: application/json' \
+curl http://140.116.247.117:5000/bidsubmit -X POST -H 'Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc' -H 'Content-Type: application/json' \
   -d '{
     "bid_type": "buy",
     "start_time": "2019/10/29 18",
@@ -245,7 +246,7 @@ curl http://140.116.247.120:5000/bidsubmit -X POST -H 'Authorization: Bearer 3Ma
 
 ### Edit [PUT]
 <pre>
-curl http://140.116.247.120:5000/bidsubmit -X PUT -H 'Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc' -H 'Content-Type: application/json' \
+curl http://140.116.247.117:5000/bidsubmit -X PUT -H 'Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc' -H 'Content-Type: application/json' \
   -d '{
     "id": "2048b3c9-0125-41fc-bef6-9b1e52bd825f",
     "bid_type": buy,
@@ -280,7 +281,7 @@ curl http://140.116.247.120:5000/bidsubmit -X PUT -H 'Authorization: Bearer 3MaT
 
 ### Remove [DELETE]
 <pre>
-curl http://140.116.247.120:5000/bidsubmit -X DELETE -H 'Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc' -H 'Content-Type: application/json' -d '{"id": "104fa450-c688-4f7f-8cca-fae7a18f2eb8"}'
+curl http://140.116.247.117:5000/bidsubmit -X DELETE -H 'Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc' -H 'Content-Type: application/json' -d '{"id": "104fa450-c688-4f7f-8cca-fae7a18f2eb8"}'
 </pre>
 
 + Request (application/json)
@@ -308,7 +309,7 @@ Return information for home page.
 
 ### Home Page [GET]
 <pre>
-curl http://140.116.247.120:5000/homepage -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
+curl http://140.116.247.117:5000/homepage -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
 </pre>
 
 Return detail information sets for home page which includes current execution info and 10 most recent succuessful bid results (if any).
@@ -338,7 +339,7 @@ Return match results.
 
 ### Match Result [GET]
 <pre>
-curl http://140.116.247.120:5000/matchresult -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
+curl http://140.116.247.117:5000/matchresult -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
 </pre>
 
 Return details information sets of the user's bids.
@@ -360,7 +361,7 @@ Return participants in the transaction to paint schematic diagram.
 
 ### Participants [GET]
 <pre>
-curl http://140.116.247.120:5000/participant -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+curl http://140.116.247.117:5000/participant -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 </pre>
 
 + Request (application/json)
@@ -381,7 +382,7 @@ Return Electricity History Usage.
 
 ### PowerData (Data Table Mode) [GET /power_info{?per_page}{?page}{?time}]
 <pre>
-curl http://140.116.247.120:5000/power_info?per_page=10&page=1&time=2020/02/14 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+curl http://140.116.247.117:5000/power_info?per_page=10&page=1&time=2020/02/14 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 </pre>
 
 + Parameters
@@ -407,7 +408,7 @@ curl http://140.116.247.120:5000/power_info?per_page=10&page=1&time=2020/02/14 -
 
 ### PowerData (Data Chart Mode) [GET /power_info{?chart_date}]
 <pre>
-curl http://140.116.247.120:5000/power_info?chart_date=2020/01/13 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+curl http://140.116.247.117:5000/power_info?chart_date=2020/01/13 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 </pre>
 
 Return past 7 days power information.
@@ -440,7 +441,7 @@ Return past 7 days power information.
 
 ### PowerData (Date Summary Mode) [GET /power_info{?summary_date}]
 <pre>
-curl http://140.116.247.120:5000/power_info?summary_date=2020/02/14 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+curl http://140.116.247.117:5000/power_info?summary_date=2020/02/14 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 </pre>
 
 + Parameters

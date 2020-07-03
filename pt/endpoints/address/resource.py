@@ -12,6 +12,8 @@ from .model import get_address, AMI
 # pylint: disable=C0103
 auth_ami = HTTPTokenAuth(scheme="Bearer")
 # pylint: enable=C0103
+
+
 @auth_ami.verify_token
 def verify_token(token):
     # get username and uuid from database

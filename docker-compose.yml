@@ -4,8 +4,9 @@ services:
     # checking connection: $ docker exec -it  ET_DB_POSTGRE psql -U {POSTGRES_USER} -W {POSTGRES_DB}
     image: postgres:11-alpine
     container_name: ET_DB_POSTGRE
+    restart: always
     volumes:
-      - ${POSTGRES_DATA_DIR}:/var/lib/postgresql/dev-data
+      - ${POSTGRES_DATA_DIR}:/var/lib/postgresql/data
     expose:
       - 5432
     ports:
