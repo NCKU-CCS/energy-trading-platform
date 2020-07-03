@@ -102,7 +102,6 @@ class PowerDatasResource(Resource):
     def data_table(self, limit, offset, time, field):
         # query for all powerdata within the day
         powerdata = PowerData.query.filter(
-<<<<<<< HEAD
             PowerData.field == field,
             PowerData.updated_at.between(time, time + timedelta(days=1)),
         )
@@ -113,12 +112,6 @@ class PowerDatasResource(Resource):
             .limit(limit)
             .all()
         )
-=======
-            PowerData.field == field, PowerData.updated_at.between(time, time + timedelta(days=1))
-        )
-        # get requested powerdata by setting order, offset, and limit based on above query
-        messages = powerdata.order_by(PowerData.updated_at.desc()).offset((offset - 1) * limit).limit(limit).all()
->>>>>>> develop
         # building the response from messages
         datas = [
             {
@@ -146,7 +139,6 @@ class PowerDatasResource(Resource):
             powerdata[data_type] = (
                 db.session.query(
                     cast(
-<<<<<<< HEAD
                         powerdata_datatype[data_type]["model"].updated_at
                         + func.cast(concat(8, " HOURS"), INTERVAL),
                         DATE,
@@ -160,16 +152,6 @@ class PowerDatasResource(Resource):
                         start_time, end_time
                     ),
                     powerdata_datatype[data_type]["model"].field == field,
-=======
-                        powerdata_datatype[data_type]['model'].updated_at + func.cast(concat(8, ' HOURS'), INTERVAL),
-                        DATE,
-                    ).label('date'),
-                    (func.sum(powerdata_datatype[data_type]['field']) / 60).label('sum'),
-                )
-                .filter(
-                    powerdata_datatype[data_type]['model'].updated_at.between(start_time, end_time),
-                    powerdata_datatype[data_type]['model'].field == field,
->>>>>>> develop
                 )
                 .group_by("date")
                 .order_by("date")
@@ -177,32 +159,10 @@ class PowerDatasResource(Resource):
             )
         # distribute data to response format
         powerdata_list = []
-<<<<<<< HEAD
-        for i in range(len(powerdata["Demand"])):
-            # postion 0 is date and position 1 is data value
-            data = {
-                "Date": powerdata["Demand"][i][0].strftime("%Y/%m/%d"),
-                "Demand": round(powerdata["Demand"][i][1], 3)
-                if i < len(powerdata["Demand"])
-                else 0,
-                "PV": round(powerdata["PV"][i][1], 3)
-                if i < len(powerdata["PV"])
-                else 0,
-                "EV": round(powerdata["EV"][i][1], 3)
-                if i < len(powerdata["EV"])
-                else 0,
-                "ESS": round(powerdata["ESS"][i][1], 3)
-                if i < len(powerdata["ESS"])
-                else 0,
-                "WT": round(powerdata["WT"][i][1], 3)
-                if i < len(powerdata["WT"])
-                else 0,
-=======
         for i in range(len(powerdata['Demand'])):
             data = {
                 power_type: round(powerdata[power_type][i].sum, 3) if i < len(powerdata[power_type]) else 0
                 for power_type in powerdata_datatype
->>>>>>> develop
             }
             data["Date"] = powerdata['Demand'][i].date.strftime("%Y/%m/%d")
             # add power generation field for response
@@ -225,21 +185,6 @@ class PowerDatasResource(Resource):
         data = {}
         for data_type in powerdata_datatype:
             # the kW record per minute should divide by 60 to convert to kWh
-<<<<<<< HEAD
-            data[data_type] = round(
-                db.session.query(
-                    (func.sum(powerdata_datatype[data_type]["field"]) / 60).label("sum")
-                )
-                .filter(
-                    powerdata_datatype[data_type]["model"].updated_at.between(
-                        start_time, end_time
-                    ),
-                    powerdata_datatype[data_type]["model"].field == field,
-                )
-                .first()
-                .sum,
-                3,
-=======
             powerdata_sum = (
                 db.session.query((func.sum(powerdata_datatype[data_type]['field']) / 60).label('sum'))
                 .filter(
@@ -248,7 +193,6 @@ class PowerDatasResource(Resource):
                 )
                 .first()
                 .sum
->>>>>>> develop
             )
             data[data_type] = round(powerdata_sum if powerdata_sum else 0, 3)
         # add power generation field for response
