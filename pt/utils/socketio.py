@@ -9,8 +9,10 @@ but need to implement indivisually.
 """
 
 from flask import request
+
 # pylint: disable=W0622
 from flask_socketio import SocketIO, ConnectionRefusedError
+
 # pylint: enable=W0622
 from itsdangerous import BadSignature
 from loguru import logger
@@ -24,19 +26,17 @@ socketio = SocketIO()
 # pylint: enable=C0103
 
 
-@socketio.on('connect')
+@socketio.on("connect")
 def is_verified():
     verified = False
     # Verify token
-    token = request.args.get('token')
+    token = request.args.get("token")
     if token is not None:
         try:
-            long_lived_token = serializer.loads(token.encode('utf-8'))
+            long_lived_token = serializer.loads(token.encode("utf-8"))
             user = User.query.filter_by(tag=long_lived_token).first()
             if user:
-                logger.success(
-                    "[SocketIO]\nClient connected"
-                )
+                logger.success("[SocketIO]\nClient connected")
                 verified = True
             else:
                 logger.error(
@@ -44,13 +44,9 @@ def is_verified():
                 )
         # BadSignature catch nothing
         except BadSignature:
-            logger.error(
-                "[SocketIO]\nShort-lived token expired or invalid"
-            )
+            logger.error("[SocketIO]\nShort-lived token expired or invalid")
     else:
-        logger.error(
-            "[SocketIO]\nShort-lived token not provided"
-        )
+        logger.error("[SocketIO]\nShort-lived token not provided")
 
     if verified is False:
         raise ConnectionRefusedError("Unauthorized access")

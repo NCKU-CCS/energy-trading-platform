@@ -102,10 +102,16 @@ class PowerDatasResource(Resource):
     def data_table(self, limit, offset, time, field):
         # query for all powerdata within the day
         powerdata = PowerData.query.filter(
-            PowerData.field == field, PowerData.updated_at.between(time, time + timedelta(days=1))
+            PowerData.field == field,
+            PowerData.updated_at.between(time, time + timedelta(days=1)),
         )
         # get requested powerdata by setting order, offset, and limit based on above query
-        messages = powerdata.order_by(PowerData.updated_at.desc()).offset((offset - 1) * limit).limit(limit).all()
+        messages = (
+            powerdata.order_by(PowerData.updated_at.desc())
+            .offset((offset - 1) * limit)
+            .limit(limit)
+            .all()
+        )
         # building the response from messages
         datas = [
             {
@@ -133,17 +139,22 @@ class PowerDatasResource(Resource):
             powerdata[data_type] = (
                 db.session.query(
                     cast(
-                        powerdata_datatype[data_type]['model'].updated_at + func.cast(concat(8, ' HOURS'), INTERVAL),
+                        powerdata_datatype[data_type]["model"].updated_at
+                        + func.cast(concat(8, " HOURS"), INTERVAL),
                         DATE,
-                    ).label('date'),
-                    (func.sum(powerdata_datatype[data_type]['field']) / 60).label('sum'),
+                    ).label("date"),
+                    (func.sum(powerdata_datatype[data_type]["field"]) / 60).label(
+                        "sum"
+                    ),
                 )
                 .filter(
-                    powerdata_datatype[data_type]['model'].updated_at.between(start_time, end_time),
-                    powerdata_datatype[data_type]['model'].field == field,
+                    powerdata_datatype[data_type]["model"].updated_at.between(
+                        start_time, end_time
+                    ),
+                    powerdata_datatype[data_type]["model"].field == field,
                 )
-                .group_by('date')
-                .order_by('date')
+                .group_by("date")
+                .order_by("date")
                 .all()
             )
         # distribute data to response format
@@ -155,9 +166,11 @@ class PowerDatasResource(Resource):
             }
             data["Date"] = powerdata['Demand'][i].date.strftime("%Y/%m/%d")
             # add power generation field for response
-            data["Generate"] = round(data['WT'] + data['PV'] + data['EV'] + data['ESS'], 3)
+            data["Generate"] = round(
+                data["WT"] + data["PV"] + data["EV"] + data["ESS"], 3
+            )
             # add power consumption field for response
-            data["Consume"] = round(data['Demand'] - data["Generate"], 3)
+            data["Consume"] = round(data["Demand"] - data["Generate"], 3)
             # append data to powerdata_list
             powerdata_list.append(data)
         return make_response(jsonify(powerdata_list))
@@ -183,9 +196,9 @@ class PowerDatasResource(Resource):
             )
             data[data_type] = round(powerdata_sum if powerdata_sum else 0, 3)
         # add power generation field for response
-        data["Generate"] = round(data['WT'] + data['PV'] + data['EV'] + data['ESS'], 3)
+        data["Generate"] = round(data["WT"] + data["PV"] + data["EV"] + data["ESS"], 3)
         # add power consumption field for response
-        data["Consume"] = round(data['Demand'] - data["Generate"], 3)
+        data["Consume"] = round(data["Demand"] - data["Generate"], 3)
         return make_response(jsonify(data))
 
     # pylint: enable=R0201

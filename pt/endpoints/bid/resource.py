@@ -19,51 +19,45 @@ class HomePageResource(Resource):
         )
         # format of response for real time execution info matched bid list
         data = {
-            "buy": {
-                "price": None,
-                "volume": None,
-            },
-            "sell": {
-                "price": None,
-                "volume": None,
-            },
-            "results": []
+            "buy": {"price": None, "volume": None},
+            "sell": {"price": None, "volume": None},
+            "results": [],
         }
         # matched bids are status in one of the ['已得標', '執行中', '結算中', '已結算']
         if g.uuid in [tender.user_id for tender in Tenders.query.all()]:
             results = MatchResult.query.filter(
-                MatchResult.status.in_(['已得標', '執行中', '結算中', '已結算']),
+                MatchResult.status.in_(["已得標", "執行中", "結算中", "已結算"]),
                 MatchResult.tenders_id.in_(
                     [
                         tender.uuid
                         for tender in Tenders.query.filter_by(user_id=g.uuid).all()
                     ]
-                )
+                ),
             )
             # check current time execution info by further filter the `results` query
             current_time = datetime.now()
             executing_bids = results.filter(
                 MatchResult.start_time <= current_time,
                 MatchResult.end_time > current_time,
-                MatchResult.status == '執行中'
+                MatchResult.status == "執行中",
             )
             # if `buy` happening, update data object
-            buy_bids = executing_bids.filter_by(bid_type='buy').all()
+            buy_bids = executing_bids.filter_by(bid_type="buy").all()
             if buy_bids:
                 data["buy"] = {
                     # since buy bids exist, take the first price to data object (same price)
                     "price": buy_bids[0].win_price,
                     # sum of volumes if multiple counterparts exist
-                    "volume": sum([bid.win_value for bid in buy_bids])
+                    "volume": sum([bid.win_value for bid in buy_bids]),
                 }
             # if `sell` happening, update data object
-            sell_bids = executing_bids.filter_by(bid_type='sell').all()
+            sell_bids = executing_bids.filter_by(bid_type="sell").all()
             if sell_bids:
                 data["sell"] = {
                     # since sell bids exist, take the first price to data object (same price)
                     "price": sell_bids[0].win_price,
                     # sum of volumes if multiple counterparts exist
-                    "volume": sum([bid.win_value for bid in sell_bids])
+                    "volume": sum([bid.win_value for bid in sell_bids]),
                 }
             # result of matched bids are based on the order by and limit of results query
             data["results"] = [
@@ -71,8 +65,11 @@ class HomePageResource(Resource):
                     "date": result.start_time.strftime("%Y/%m/%d"),
                     "time": f'{result.start_time.strftime("%H:00")}-{result.end_time.strftime("%H:00")}',
                     "price": result.win_value,
-                    "volume": result.win_price
-                } for result in results.order_by(MatchResult.start_time.desc()).limit(10).all()
+                    "volume": result.win_price,
+                }
+                for result in results.order_by(MatchResult.start_time.desc())
+                .limit(10)
+                .all()
             ]
         response = jsonify(data)
         return response
@@ -137,30 +134,38 @@ class BidStatusResource(Resource):
             start_time = datetime.today() + timedelta(hours=1)
         else:
             start_time = datetime.today() + timedelta(hours=2)
-        start_time = start_time.replace(minute=0).replace(second=0).replace(microsecond=0)
+        start_time = (
+            start_time.replace(minute=0).replace(second=0).replace(microsecond=0)
+        )
         # filter tenders on given time range
         user_group = Tenders.query.filter(Tenders.start_time == start_time)
         # default response all zeros
-        data = {
-            "average_price": 0,
-            "average_volume": 0,
-            "participants": 0
-        }
+        data = {"average_price": 0, "average_volume": 0, "participants": 0}
         # get distinct users count
         distinct_user_count = user_group.distinct(Tenders.user_id).count()
         # if distinct_user_count exists, query for average price and volume base on users
         if distinct_user_count:
-            bid_info = db.session.query(
-                (func.sum(BidSubmit.price) / func.count(BidSubmit.price)).label('average_price'),
-                (func.sum(BidSubmit.value) / func.count(BidSubmit.value)).label('average_volume'),
-            ).filter(
-                BidSubmit.tenders_id.in_([bidder.uuid for bidder in user_group.all()])
-            ).first()
+            bid_info = (
+                db.session.query(
+                    (func.sum(BidSubmit.price) / func.count(BidSubmit.price)).label(
+                        "average_price"
+                    ),
+                    (func.sum(BidSubmit.value) / func.count(BidSubmit.value)).label(
+                        "average_volume"
+                    ),
+                )
+                .filter(
+                    BidSubmit.tenders_id.in_(
+                        [bidder.uuid for bidder in user_group.all()]
+                    )
+                )
+                .first()
+            )
             # form the response
             data = {
                 "average_price": round(bid_info.average_price, 3),
                 "average_volume": round(bid_info.average_volume, 3),
-                "participants": distinct_user_count
+                "participants": distinct_user_count,
             }
         return make_response(jsonify(data))
 
@@ -304,10 +309,14 @@ class BidSubmitResource(Resource):
         )
         # buy prices is in high to low order
         if args["bid_type"] == "buy":
-            bid_queryset = bid_query.order_by(BidSubmit.start_time, BidSubmit.price.desc()).all()
+            bid_queryset = bid_query.order_by(
+                BidSubmit.start_time, BidSubmit.price.desc()
+            ).all()
         # sell prices is in low to high order
         elif args["bid_type"] == "sell":
-            bid_queryset = bid_query.order_by(BidSubmit.start_time, BidSubmit.price.asc()).all()
+            bid_queryset = bid_query.order_by(
+                BidSubmit.start_time, BidSubmit.price.asc()
+            ).all()
         bids = [
             {
                 "id": message.uuid,

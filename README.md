@@ -75,6 +75,79 @@ Most query can just use local time, we have known that few query way need to cha
     + 每個上傳 AMI 對應到一個 Address
     + 每天更新一次 Address
 
+## Simulate Data
+
+- 模擬資料傳送至平台
+
+### Powerdata
+
+- 模擬 BEMS 的 用電資料傳送至平台
+
+```bash
+sh /energy-trading-platform-simulate/pt/simulate/trigger/data.sh <bems_name> <simulate_data_path>
+```
+
+#### Description
+
+| Name               | Description                                           |
+|--------------------|-------------------------------------------------------|
+| bems_name          | BEMS account name                                     |
+| simulate_data_path | .csv file path. The .csv file must in specific format |
+|                    |                                                       |
+
+#### Powerdata Crontab Example
+
+```bash
+*/15 * * * * sh $HOME/energy-trading-platform/pt/simulate/trigger/data.sh ABC_BEMS $HOME/ABC_BEMS.csv
+```
+
+#### Powerdata Data Example
+
+ABRI_BEMS
+
+```csv
+AMI_1,AMI_2,AMI_3,total_load(kW),PV_generate(kW),net_load(kW),TIME
+8,12.16,1.8,21.96,0,21.96,2020/5/2 00:00
+8.5,10.88,2.2,21.58,0,21.58,2020/5/2 00:15
+8.5,11.52,1.6,21.62,0,21.62,2020/5/2 00:30
+```
+
+Carlab_BEMS
+
+```csv
+id,field,grid_power,inserted_at
+4451,carlab,12.228,2020/4/25 00:00
+4452,carlab,11.817,2020/4/25 00:15
+4453,carlab,12.13,2020/4/25 00:30
+4454,carlab,12.264,2020/4/25 00:45
+4455,carlab,12.069,2020/4/25 01:00
+```
+
+NCKU_BEMS
+
+```csv
+id,field,grid_power,inserted_at
+33147,NCKU,1.075,2020/3/14 00:00
+33148,NCKU,1.087,2020/3/14 00:15
+33149,NCKU,1.072,2020/3/14 00:30
+33150,NCKU,1.067,2020/3/14 00:45
+33151,NCKU,1.073,2020/3/14 01:00
+```
+
+### Bidsubmit
+
+- 模擬 BEMS 的投標資料（買 or 賣）傳送至平台
+
+```bash
+sh /energy-trading-platform-simulate/pt/simulate/trigger/bidsubmit.sh <bems_account> <password> <bid_amount> <bid_value> <bid_type>
+```
+
+#### Bidsubmit Crontab Example
+
+```bash
+10 16 * * * sh $HOME/energy-trading-platform/pt/simulate/trigger/bidsubmit.sh ABC_BEMS password 10 20 buy
+```
+
 ## Notice
 
 + set Time Zone at `.env` file

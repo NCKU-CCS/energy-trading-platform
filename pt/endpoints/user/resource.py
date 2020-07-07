@@ -76,8 +76,8 @@ class UserResource(Resource):
         user = User.query.filter_by(account=data["account"]).first()
         if user:
             return make_response(jsonify({"error": "Account already exists"}), 409)
-        data['password'] = generate_password_hash(data['password'])
-        data['tag'] = secrets.token_hex()
+        data["password"] = generate_password_hash(data["password"])
+        data["tag"] = secrets.token_hex()
         User(**data).add()
         return make_response(jsonify({"message": "Account created"}), 201)
 
@@ -124,7 +124,13 @@ class LoginResource(Resource):
             f"[Post Login Request]\nUser Account:{g.username}\nUUID:{g.uuid}\nIs_Aggregator:{g.is_aggregator}\n"
         )
         short_lived_token = serializer.dumps(g.tag).decode("utf-8")
-        response = jsonify({"id": g.uuid, "bearer": short_lived_token, "is_aggregator": g.is_aggregator})
+        response = jsonify(
+            {
+                "id": g.uuid,
+                "bearer": short_lived_token,
+                "is_aggregator": g.is_aggregator,
+            }
+        )
         return response
 
     # pylint: enable=R0201

@@ -8,6 +8,13 @@ init: clean
 	# pipenv install --dev
 
 
+dev: init
+	pipenv install --dev
+	pipenv run pre-commit install -t commit-msg
+
+commit:
+	pipenv run cz commit
+
 flake8:
 	pipenv run flake8
 

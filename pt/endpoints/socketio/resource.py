@@ -9,9 +9,8 @@ from scripts.test_settlement import get_settlement
 class SocketResource(Resource):
     # pylint: disable=R0201
     def post(self):
-        socketio.emit('transaction', get_settlement())
-        logger.info(
-            "[Emit Settlement Transactions]\nMessage sent"
-        )
+        socketio.emit("transaction", get_settlement())
+        logger.info("[Emit Settlement Transactions]\nMessage sent")
         return jsonify({"msg": "Successfulling emitted settlement transactions"})
+
     # pylint: enable=R0201

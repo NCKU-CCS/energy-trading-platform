@@ -24,6 +24,8 @@ flask-script = "==2.0.6"
 itsdangerous = "==1.1.0"
 loguru = "==0.4.1"
 pytz = "==2019.3"
+pre-commit = "==2.5.1"
+commitizen = "==1.23.0"
 
 [packages]
 requests = "==2.22.0"

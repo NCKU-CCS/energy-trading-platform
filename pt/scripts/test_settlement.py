@@ -33,24 +33,24 @@ def get_settlement():
         {
             "seller": "Carlab_BEMS",
             "buyer": "SGESC_C_BEMS",
-            "achievement": random.choice(achievement_list) / 100
+            "achievement": random.choice(achievement_list) / 100,
         },
         {
             "seller": "SGESC_D_BEMS",
             "buyer": "SGESC_C_BEMS",
-            "achievement": random.choice(achievement_list) / 100
+            "achievement": random.choice(achievement_list) / 100,
         },
         {
             "seller": "SGESC_C_BEMS",
             "buyer": "ABRI_BEMS",
-            "achievement": random.choice(achievement_list) / 100
-        }
+            "achievement": random.choice(achievement_list) / 100,
+        },
     ]
     now = datetime.utcnow()
     data = {
         "date": now.strftime("%Y/%m/%d"),
         "time": now.strftime("%H:%M"),
-        "transactions": transactions
+        "transactions": transactions,
     }
 
     return json.dumps(data)
