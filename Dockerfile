@@ -21,4 +21,4 @@ USER pt
 
 EXPOSE 5000
 
-CMD ["gunicorn", "-c", "gunicorn.ini", "wsgi:app"]
+CMD ["gunicorn", "--certfile=fullchain.pem", "--keyfile=privkey.pem", "-c", "gunicorn.ini", "wsgi:app"]
