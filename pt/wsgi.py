@@ -11,5 +11,5 @@ load_dotenv()
 app = create_app(os.environ.get('APP_SETTINGS', 'production'))
 
 if __name__ == '__main__':
-    app.run(ssl_context=app.config['SSL_CONTEXT'])
+    app.run()
 # pylint: enable=C0103
