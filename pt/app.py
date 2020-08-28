@@ -79,7 +79,7 @@ def main():
     app = create_app(config_name)
 
     socketio.init_app(app, cors_allowed_origins="*")
-    socketio.run(app, host="127.0.0.1", port=os.environ.get("PORT", 5000))
+    socketio.run(app, host="127.0.0.1", port=os.environ.get("PORT", 5000), ssl_context=app.config['SSL_CONTEXT'])
 
 
 if __name__ == "__main__":
