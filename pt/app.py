@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask, jsonify, make_response
+from flask_cors import CORS
 from flask_restful import Api
 from werkzeug.exceptions import HTTPException
 from werkzeug.exceptions import default_exceptions
@@ -17,6 +18,7 @@ load_dotenv()
 def create_app(config_mode):
 
     app = Flask(__name__)
+    CORS(app)
 
     # pylint: disable=W0612
     @app.after_request
