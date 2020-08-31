@@ -13,7 +13,7 @@ BEMS_ACCEPT = [
     'bems_wt_display',
 ]
 
-SSL_PATH = os.environ.get('SSL_PATH', '/home/energy-trading-platform/pt/certificate/')
+SSL_PATH = os.environ.get('SSL_PATH', '/pt/certificate/')
 SSL_CONTEXT = (
     os.path.join(SSL_PATH, 'fullchain.pem'),
     os.path.join(SSL_PATH, 'privkey.pem'),
