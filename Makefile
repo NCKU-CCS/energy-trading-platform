@@ -31,7 +31,7 @@ lint: flake8 pylint
 
 
 build_docker:
-	docker build -t et_platform . --no-cache
+	docker build -t et_platform pt --no-cache
 
 
 clean:

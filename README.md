@@ -34,7 +34,7 @@ pipenv run python pt/app.py
 2. run docker
 ```
 docker build -t et_platform . --no-cache
-docker run --env-file .env --name et_platform -d -p 5000:5000 --restart=always et_platform
+docker-compose up -d
 ```
 
 ### Database

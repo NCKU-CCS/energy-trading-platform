@@ -13,10 +13,10 @@ BEMS_ACCEPT = [
     'bems_wt_display',
 ]
 
-SSL_PATH = os.environ.get('SSL_PATH', '/home/energy-trading-platform/pt/certificate/')
+SSL_PATH = os.environ.get('SSL_PATH', '/pt/certificate/')
 SSL_CONTEXT = (
-    os.path.join(SSL_PATH, 'server.crt'),
-    os.path.join(SSL_PATH, 'server.key'),
+    os.path.join(SSL_PATH, 'fullchain.pem'),
+    os.path.join(SSL_PATH, 'privkey.pem'),
 )
 
 API_URI = os.environ.get('API_URI', 'https://nodes.thetangle.org:443').split(',')

@@ -20,5 +20,8 @@ services:
     container_name: ET_PLATFORM
     restart: always
     env_file: ./production/.env
+    volumes:
+      - ${SSL_PATH}/fullchain.pem:/pt/certificate/fullchain.pem
+      - ${SSL_PATH}/privkey.pem:/pt/certificate/privkey.pem
     ports:
       - 5000:5000

@@ -46,6 +46,7 @@ marshmallow-sqlalchemy = "==0.19.0"
 pyota-ccurl = "==1.0.9"
 loguru = "==0.4.1"
 pytz = "==2019.3"
+flask-cors = "==3.0.8"
 
 [requires]
 python_version = "3.6"

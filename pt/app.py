@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask, jsonify, make_response
+from flask_cors import CORS
 from flask_restful import Api
 from werkzeug.exceptions import HTTPException
 from werkzeug.exceptions import default_exceptions
@@ -17,6 +18,7 @@ load_dotenv()
 def create_app(config_mode):
 
     app = Flask(__name__)
+    CORS(app)
 
     # pylint: disable=W0612
     @app.after_request
@@ -79,7 +81,7 @@ def main():
     app = create_app(config_name)
 
     socketio.init_app(app, cors_allowed_origins="*")
-    socketio.run(app, host="127.0.0.1", port=os.environ.get("PORT", 5000))
+    socketio.run(app, host="0.0.0.0", port=os.environ.get("PORT", 5000), ssl_context=app.config['SSL_CONTEXT'])
 
 
 if __name__ == "__main__":
