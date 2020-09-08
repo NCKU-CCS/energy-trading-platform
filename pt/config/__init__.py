@@ -56,3 +56,9 @@ PLAT_SIGNER = Signature_pkcs1_v1_5.new(AMI_RSA_PUB_KEY)
 APP_SECRET_KEY = os.environ.get("APP_SECRET_KEY", "VCn>ZaI],B/K-rPtq|2eB^gps~H>45")
 
 TZ = pytz.timezone(os.environ.get("TZ", "Asia/Taipei"))
+
+# contract related
+AES_KEY = os.environ.get("AES_KEY")
+INFURA_PROJECT_ID = os.environ.get("INFURA_PROJECT_ID")
+CONTRACT_ADDRESS = os.environ.get("CONTRACT_ADDRESS")
+ABI_PATH = os.environ.get("ABI_PATH", "pt/contract/")

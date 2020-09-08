@@ -1,10 +1,12 @@
 import json
-from typing import List
+from binascii import b2a_hex, a2b_hex
 from datetime import datetime
+from typing import List
 
 import iota
-from loguru import logger
 import requests
+from loguru import logger
+from Cryptodome.Cipher import AES
 
 
 def get_tx_hash(api_uri, addresses, tags):
@@ -77,3 +79,30 @@ def convert_time_zone(time_object: datetime, from_tz, to_tz):
         .astimezone(to_tz)
         .replace(tzinfo=None)
     )
+class SecretCrypto():
+    def __init__(self, key):
+        self.key = key
+        self.mode = AES.MODE_CBC
+
+    def encrypt(self, text):
+        cipher = AES.new(self.key, self.mode, self.key)
+
+        # encrypt text must be multiple of 16
+        length = 16
+        if len(text) % length != 0:
+            padding_size = length - (len(text) % length)
+        else:
+            padding_size = 0
+
+        # add padding null charactor
+        text += '\0' * padding_size
+
+        ciphertext = cipher.encrypt(bytes(text, encoding="utf-8"))
+        return b2a_hex(ciphertext)
+
+    def decrypt(self, text):
+        cipher = AES.new(self.key, self.mode, self.key)
+        plain_text = cipher.decrypt(a2b_hex(text))
+
+        # return plain_text with extra null charactors removed
+        return plain_text.decode("utf-8").rstrip('\0')
