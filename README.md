@@ -51,6 +51,16 @@ Most query can just use local time, we have known that few query way need to cha
 
     `docker-compose up -d`
 
+### Database Migration
+
+This project is already migration initialized. No need for `flask db init`.
+
+To make migration change:
+`python pt/manage.py db migrate`
+
+To apply migration changes to database:
+`python pt/manage.py db upgrade`
+
 ### IOTA Tracker
 
 + Get Datas from IOTA and decrypt, based on address from database and tags from configs.
