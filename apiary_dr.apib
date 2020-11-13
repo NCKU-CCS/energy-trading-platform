@@ -30,6 +30,7 @@ Login BEMS or CEMS to get Authentication Token, token can be used as role and id
     + Attributes
         + id: `03f87a5a-a4e6-4536-ba6c-265c03ebd317` - User's UUID
         + bearer: `OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR` - Authentication Bearer Token
+        + is_aggregator: false (boolean) - is aggregator or not
 
 + Response 401 (application/json)
     + Attributes
@@ -59,8 +60,8 @@ For Aggregator (CEMS) , they can get bids from bems which under its supervision.
             Authorization: `Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR
 
     + Parameters
-        + start_time (required, string)
-        + end_time (required, string)
+        + start_time: `2020-01-01 11:00` (required, string) - query start time (YYYY-MM-DD HH:mm)
+        + end_time: `2020-01-01 12:00 ` (required, string) - query end time (YYYY-MM-DD HH:mm)
 
 + Response 200 (application/json)
     + Attributes (array, fixed-type)
@@ -104,11 +105,11 @@ uuids on those bids he/she wants to accept.
     + Headers
 
             API-version: 0.1
-            Authorization: `Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR
+            Authorization: `Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR`
 
     + Attributes
         + start_time: `2020-11-11 11:00:00` (string) - DR start time
-        + end_time: `2020-11-11 11:00:00` (string) - DR end time
+        + end_time: `2020-11-11 12:00:00` (string) - DR end time
         + volume: 50 (number) - bidding capacity
         + price: 8 (number) - bidding price
 
@@ -134,17 +135,13 @@ uuids on those bids he/she wants to accept.
             - `36d87673-0daf-4ce2-917e-ec6d655d3c0a` (string)
             - `ca45ecc1-13a1-4a93-b047-857be806b764` (string)
 
-+ Response 200 (application/json)
-    + Attributes (array, fixed-type)
-        + ()
-            + uuid: `36d87673-0daf-4ce2-917e-ec6d655d3c0a` (string)
-            + blockchain_url: `https://ropsten.etherscan.io/tx/0xc94ec346cea143d8aab07e3a23a9f24031a9a9ae5b9717d99cf32ac0f57a920d` (string) - url
-        + ()
-            + uuid: `ca45ecc1-13a1-4a93-b047-857be806b764` (string)
-            + blockchain_url: `https://ropsten.etherscan.io/tx/0x07178bc6d022a826d7f85b64f00b77bf878d04519cfbdc6e33aacd802b191435` (string) - url
++ Response 200 (text/plain)
+    + body
+
+            ok
 
 + Response 400 (text/plain)
-     + body
+    + body
 
             error
 
@@ -169,8 +166,8 @@ Get one result: By specifying an uuid in query paramter, response will only retu
             Authorization: `Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR
 
     + Parameters
-        + start_time (required, string)
-        + end_time (required, string)
+        + start_time: `2020-01-01 11:00` (required, string) - query start time (YYYY-MM-DD HH:mm)
+        + end_time: `2020-01-01 12:00 ` (required, string) - query end time (YYYY-MM-DD HH:mm)
 
 + Response 200 (application/json)
     + Attributes (array, fixed-type)
@@ -209,8 +206,9 @@ Get one result: By specifying an uuid in query paramter, response will only retu
             Authorization: `Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR
 
     + Parameters
-        + start_time (required, string)
-        + end_time (required, string)
+        + Parameters
+        + start_time: `2020-01-01 11:00` (required, string) - query start time (YYYY-MM-DD HH:mm)
+        + end_time: `2020-01-01 12:00 ` (required, string) - query end time (YYYY-MM-DD HH:mm)
 
 + Response 200 (application/json)
     + Attributes (array, fixed-type)
@@ -257,7 +255,7 @@ Get one result: By specifying an uuid in query paramter, response will only retu
             Authorization: `Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR
 
     + Parameters
-        + uuid (required, string)
+        + uuid: `fbb4ccc5-d4ea-489d-94ea-3f04cd48b17b` (required, string) - uuid of bid
 
 + Response 200 (application/json)
     + Attributes (object)
