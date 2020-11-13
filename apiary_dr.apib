@@ -37,12 +37,12 @@ Login BEMS or CEMS to get Authentication Token, token can be used as role and id
         + error: `Unauthorized access` - Authentication failed
 
 
-## Demond Response Bids [/DR_bid]
+## Demand Response Bids [/DR_bid]
 
 Demand response operation API for both Aggregator (CEMS) and BEMS.
 
 ### GET BIDS [GET /DR_bid?start_time={start_time}&end_time={end_time}]
-For BEMS, they can only get bids submitted by themself.
+For BEMS, they can only get bids submitted by themselves.
 
 * Parameters: start_time, end_time
 * Description: getting bids that event times are from start_time to end_time
@@ -100,7 +100,7 @@ Note:
 ### POST DR BID [POST /DR_bid]
 For BEMS: This route is to post dr request to Aggregator
 
-For Aggregator: This route is to accept and comfirm bems' submitted bids, so aggregator should provide
+For Aggregator: This route is to accept and confirm bems' submitted bids, so aggregator should provide
 uuids on those bids he/she wants to accept.
 
 + Request (application/json)
@@ -154,7 +154,7 @@ uuids on those bids he/she wants to accept.
             error
 
 
-## Demond Response Result [/DR_result]
+## Demand Response Result [/DR_result]
 
 Demand response operation API for both Aggregator (CEMS) and BEMS.
 
@@ -164,7 +164,7 @@ For BEMS: They can only see their own dr bid result.
 
 For Aggregator: He/she can query all bid result for bems under his/her management (its executors).
 
-Get one result: By specifying an uuid in query paramter, response will only return one result.
+Get one result: By specifying an uuid in query parameter, response will only return one result.
 * When you are logged in as a BEMS, you can only query uuid within your bids, otherwise error.
 * For Aggregator, he/she can request any uuid unless the uuid is not found in database.
 
