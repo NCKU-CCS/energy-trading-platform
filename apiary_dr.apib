@@ -1,0 +1,300 @@
+FORMAT: 1A
+HOST:https://et.udc-service.io:5000
+
+# Energy Trading (ET-DR) API Document
+
+ET's back-end API<p>
+API-version: 0.1
+
+# Group Restful
+
+## Login [/login]
+
+Used to login platform.
+
+### Login [POST]
+<pre>
+Login BEMS or CEMS to get Authentication Token, token can be used as role and identity.
+</pre>
+
++ Request (application/json)
+    + Headers
+
+            API-version: 0.1
+
+    + Attributes
+        + account: `NCKU` - Login Account
+        + password: `test` - Account's Password
+
++ Response 200 (application/json)
+    + Attributes
+        + id: `03f87a5a-a4e6-4536-ba6c-265c03ebd317` - User's UUID
+        + bearer: `OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR` - Authentication Bearer Token
+
++ Response 401 (application/json)
+    + Attributes
+        + error: `Unauthorized access` - Authentication failed
+
+
+## Demond Response Bids [/DR_bid]
+
+Demand response operation API for both Aggregator (CEMS) and BEMS.
+
+### GET BIDS [GET /DR_bid?start_time={start_time}&end_time={end_time}]
+<pre>
+For BEMS, they can only get bids submitted by themself.
+-> Parameters: start_time, end_time
+-> Description: getting bids that event times are from start_time to end_time
+
+For Aggregator (CEMS) , they can get bids from bems which under its supervision.
+-> Parameters: start_time, end_time
+-> Description: getting bids that event times are from start_time to end_time
+-> Note: Aggregator can get bids from all its executors. (Maybe more than 1 executors at a time)
+</pre>
+
++ Request BEMS OR AGGREGATOR GET BIDS
+    + Headers
+
+            API-version: 0.1
+            Authorization: `Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR
+
+    + Parameters
+        + start_time (required, string)
+        + end_time (required, string)
+
++ Response 200 (application/json)
+    + Attributes (array, fixed-type)
+        + (BEMSBID)
+            + uuid: `36d87673-0daf-4ce2-917e-ec6d655d3c0a` (string) - bid uuid
+            + executor: `NCKU` (string) - Name of BEMS
+            + start_time: `2020-11-11 11:00:00` (string) - DR start time
+            + end_time: `2020-11-11 12:00:00` (string) - DR end time
+            + volume: 40 (number) - bidding capacity
+            + price: 8 (number) - bidding price
+        + (BEMSBID)
+            + uuid: `515ae958-187a-4503-815f-379d728390b1` (string) - bid uuid
+            + executor: `NCKU` (string) - Name of BEMS
+            + start_time: `2020-11-11 12:00:00` (string) - DR start time
+            + end_time: `2020-11-11 13:00:00` (string) - DR end time
+            + volume: 50 (number) - bidding capacity
+            + price: 6 (number) - bidding price
+        + (BEMSBID)
+            + uuid: `ca45ecc1-13a1-4a93-b047-857be806b764` (string) - bid uuid
+            + executor: `Carlab_BEMS` (string) - Name of BEMS
+            + start_time: `2020-11-11 11:00:00` (string) - DR start time
+            + end_time: `2020-11-11 12:00:00` (string) - DR end time
+            + volume: 30 (number) - bidding capacity
+            + price: 8 (number) - bidding price
+
+
++ Response 400 (text/plain)
+     + body
+
+            error
+
+
+### POST DR BID [POST /DR_bid]
+<pre>
+For BEMS: This route is to post dr request to Aggregator
+For Aggregator: This route is to accept and comfirm bems' submitted bids, so aggregator should provide
+uuids on those bids he/she wants to accept.
+</pre>
+
++ Request BEMS POST BID (application/json)
+    + Headers
+
+            API-version: 0.1
+            Authorization: `Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR
+
+    + Attributes
+        + start_time: `2020-11-11 11:00:00` (string) - DR start time
+        + end_time: `2020-11-11 11:00:00` (string) - DR end time
+        + volume: 50 (number) - bidding capacity
+        + price: 8 (number) - bidding price
+
++ Response 200 (text/plain)
+    + body
+
+            ok
+
++ Response 400 (text/plain)
+     + body
+
+            error
+
+
++ Request Aggregator POST BID (application/json)
+    + Headers
+
+            API-version: 0.1
+            Authorization: `Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR`
+
+    + Attributes
+        + uuid (array, fixed-type)
+            - `36d87673-0daf-4ce2-917e-ec6d655d3c0a` (string)
+            - `ca45ecc1-13a1-4a93-b047-857be806b764` (string)
+
++ Response 200 (application/json)
+    + Attributes (array, fixed-type)
+        + ()
+            + uuid: `36d87673-0daf-4ce2-917e-ec6d655d3c0a` (string)
+            + blockchain_url: `https://ropsten.etherscan.io/tx/0xc94ec346cea143d8aab07e3a23a9f24031a9a9ae5b9717d99cf32ac0f57a920d` (string) - url
+        + ()
+            + uuid: `ca45ecc1-13a1-4a93-b047-857be806b764` (string)
+            + blockchain_url: `https://ropsten.etherscan.io/tx/0x07178bc6d022a826d7f85b64f00b77bf878d04519cfbdc6e33aacd802b191435` (string) - url
+
++ Response 400 (text/plain)
+     + body
+
+            error
+
+
+## Demond Response Result [/DR_result]
+
+Demand response operation API for both Aggregator (CEMS) and BEMS.
+
+### BEMS DR RESULTS [GET /DR_result?start_time={start_time}&end_time={end_time}]
+<pre>
+For BEMS: They can only see their own dr bid result.
+For Aggregator: He/she can query all bid result for bems under his/her management (its executors).
+Get one result: By specifying an uuid in query paramter, response will only return one result.
+    -> When you are logged in as a BEMS, you can only query uuid within your bids, otherwise error.
+    -> For Aggregator, he/she can request any uuid unless the uuid is not found in database.
+</pre>
+
++ Request BEMS DR RESULTS
+    + Headers
+
+            API-version: 0.1
+            Authorization: `Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR
+
+    + Parameters
+        + start_time (required, string)
+        + end_time (required, string)
+
++ Response 200 (application/json)
+    + Attributes (array, fixed-type)
+        + (BIDRESULT)
+            + uuid: `36d87673-0daf-4ce2-917e-ec6d655d3c0a` (string) - uuid
+            + executor: `NCKU` (string) - BEMS name
+            + acceptor: `Carlab_BEMS` (string) - CEMS name
+            + start_time: `2020-11-11 11:00:00` (string) - DR start time
+            + end_time: `2020-11-11 12:00:00` (string) - DR end time
+            + volume: 40 (number) - bidding capacity
+            + price: 8 (number) - bidding price
+            + result: true (boolean) - bool
+            + rate: 0.11 (number) - 達成率
+            + blockchain_url: `https://ropsten.etherscan.io/tx/0xc94ec346cea143d8aab07e3a23a9f24031a9a9ae5b9717d99cf32ac0f57a920d` (string) - url
+        + (BIDRESULT)
+            + uuid: `515ae958-187a-4503-815f-379d728390b1` (string) - uuid
+            + executor: `NCKU` (string) - BEMS name
+            + acceptor: `Carlab_BEMS` (string) - CEMS name
+            + start_time: `2020-11-11 12:00:00` (string) - DR start time
+            + end_time: `2020-11-11 13:00:00` (string) - DR end time
+            + volume: 50 (number) - bidding capacity
+            + price: 6 (number) - bidding price
+            + result: false (boolean) - bool
+            + rate: 0 (number) - 達成率
+            + blockchain_url: `https://ropsten.etherscan.io/tx/0x07178bc6d022a826d7f85b64f00b77bf878d04519cfbdc6e33aacd802b191435` (string) - url
+
++ Response 400 (text/plain)
+     + body
+
+            error
+
++ Request Aggregator DR RESULTS
+    + Headers
+
+            API-version: 0.1
+            Authorization: `Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR
+
+    + Parameters
+        + start_time (required, string)
+        + end_time (required, string)
+
++ Response 200 (application/json)
+    + Attributes (array, fixed-type)
+        + (BIDRESULT)
+            + uuid: `36d87673-0daf-4ce2-917e-ec6d655d3c0a` (string) - bid uuid
+            + executor: `NCKU` (string) - Name of BEMS
+            + start_time: `2020-11-11 11:00:00` (string) - DR start time
+            + end_time: `2020-11-11 12:00:00` (string) - DR end time
+            + volume: 40 (number) - bidding capacity
+            + price: 8 (number) - bidding price
+            + result: true (boolean) - bool
+            + rate: 0.11 (number) - 達成率
+            + blockchain_url: `https://ropsten.etherscan.io/tx/0xc94ec346cea143d8aab07e3a23a9f24031a9a9ae5b9717d99cf32ac0f57a920d` (string) - url
+        + (BIDRESULT)
+            + uuid: `515ae958-187a-4503-815f-379d728390b1` (string) - bid uuid
+            + executor: `NCKU` (string) - Name of BEMS
+            + start_time: `2020-11-11 12:00:00` (string) - DR start time
+            + end_time: `2020-11-11 13:00:00` (string) - DR end time
+            + volume: 50 (number) - bidding capacity
+            + price: 6 (number) - bidding price
+            + result: false (boolean) - bool
+            + rate: 0 (number) - 達成率
+            + blockchain_url: `https://ropsten.etherscan.io/tx/0x07178bc6d022a826d7f85b64f00b77bf878d04519cfbdc6e33aacd802b191435` (string) - url
+        + (BIDRESULT)
+            + uuid: `ca45ecc1-13a1-4a93-b047-857be806b764` (string) - bid uuid
+            + executor: `Carlab_BEMS` (string) - Name of BEMS
+            + start_time: `2020-11-11 11:00:00` (string) - DR start time
+            + end_time: `2020-11-11 12:00:00` (string) - DR end time
+            + volume: 30 (number) - bidding capacity
+            + price: 8 (number) - bidding price
+            + result: true (boolean) - bool
+            + rate: 0.33 (number) - 達成率
+            + blockchain_url: `https://ropsten.etherscan.io/tx/0xc94ec346cea143d8aab07e3a23a9f24031a9a9ae5b9717d99cf32ac0f57a920d` (string) - url
+
++ Response 400 (text/plain)
+     + body
+
+            error
+
++ Request GET ONE RESULT
+    + Headers
+
+            API-version: 0.1
+            Authorization: `Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR
+
+    + Parameters
+        + uuid (required, string)
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + uuid: `fbb4ccc5-d4ea-489d-94ea-3f04cd48b17b` (string) - uuid
+        + executor: `NCKU` (string) - BEMS name
+        + acceptor: `Carlab_BEMS` (string) - CEMS name
+        + start_time: `2020-11-11 11:00:00` (string) - DR start time
+        + end_time: `2020-11-11 12:00:00` (string) - DR end time
+        + volume: 40 (number) - bidding capacity
+        + price: 8 (number) - bidding price
+        + result: true (boolean) - bool
+        + rate: 0.11 (number) - 達成率
+        + blockchain_url: `https://ropsten.etherscan.io/tx/0x07178bc6d022a826d7f85b64f00b77bf878d04519cfbdc6e33aacd802b191435` (string) - url
+
++ Response 400 (text/plain)
+     + body
+
+            error
+
+
+## Data Structures
+### BEMSBID
++ uuid: `fbb4ccc5-d4ea-489d-94ea-3f04cd48b17b` (string) - bid uuid
++ executor: `NCKU` (string) - Name of BEMS
++ start_time: `2020-11-11 11:00:00` (string) - DR start time
++ end_time: `2020-11-11 12:00:00` (string) - DR end time
++ volume: 40 (number) - bidding capacity
++ price: 8 (number) - bidding price
+
+### BIDRESULT
++ uuid: `fbb4ccc5-d4ea-489d-94ea-3f04cd48b17b` (string) - uuid
++ executor: `NCKU` (string) - BEMS name
++ acceptor: `Carlab_BEMS` (string) - CEMS name
++ start_time: `2020-11-11 11:00:00` (string) - DR start time
++ end_time: `2020-11-11 12:00:00` (string) - DR end time
++ volume: 40 (number) - bidding capacity
++ price: 8 (number) - bidding price
++ result: true (boolean) - bool
++ rate: 0.11 (number) - 達成率
++ blockchain_url: `https://ropsten.etherscan.io/tx/0x07178bc6d022a826d7f85b64f00b77bf878d04519cfbdc6e33aacd802b191435` (string) - url
