@@ -4,4 +4,4 @@
 ; W503 Line break occurred before a binary operator
 ignore = E501,E731,W503
 show-source = True
-exclude = .venv,.tox,dist,doc,build,*.egg,env.py
+exclude = .venv,.tox,dist,doc,build,*.egg,migrations
