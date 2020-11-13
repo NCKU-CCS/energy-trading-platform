@@ -13,9 +13,9 @@ API-version: 0.1
 Used to login platform.
 
 ### Login [POST]
-<pre>
+
 Login BEMS or CEMS to get Authentication Token, token can be used as role and identity.
-</pre>
+
 
 + Request (application/json)
     + Headers
@@ -42,18 +42,21 @@ Login BEMS or CEMS to get Authentication Token, token can be used as role and id
 Demand response operation API for both Aggregator (CEMS) and BEMS.
 
 ### GET BIDS [GET /DR_bid?start_time={start_time}&end_time={end_time}]
-<pre>
 For BEMS, they can only get bids submitted by themself.
--> Parameters: start_time, end_time
--> Description: getting bids that event times are from start_time to end_time
+
+* Parameters: start_time, end_time
+* Description: getting bids that event times are from start_time to end_time
 
 For Aggregator (CEMS) , they can get bids from bems which under its supervision.
--> Parameters: start_time, end_time
--> Description: getting bids that event times are from start_time to end_time
--> Note: Aggregator can get bids from all its executors. (Maybe more than 1 executors at a time)
-</pre>
 
-+ Request BEMS OR AGGREGATOR GET BIDS
+* Parameters: start_time, end_time
+* Description: getting bids that event times are from start_time to end_time
+
+Note:
+* Aggregator can get bids from all its executors. (Maybe more than 1 executors at a time)
+
++ Request
+
     + Headers
 
             API-version: 0.1
@@ -95,13 +98,12 @@ For Aggregator (CEMS) , they can get bids from bems which under its supervision.
 
 
 ### POST DR BID [POST /DR_bid]
-<pre>
 For BEMS: This route is to post dr request to Aggregator
+
 For Aggregator: This route is to accept and comfirm bems' submitted bids, so aggregator should provide
 uuids on those bids he/she wants to accept.
-</pre>
 
-+ Request BEMS POST BID (application/json)
++ Request (application/json)
     + Headers
 
             API-version: 0.1
@@ -114,6 +116,9 @@ uuids on those bids he/she wants to accept.
         + price: 8 (number) - bidding price
 
 + Response 200 (text/plain)
+
+    200 OK (BEMS POST BID)
+
     + body
 
             ok
@@ -124,7 +129,7 @@ uuids on those bids he/she wants to accept.
             error
 
 
-+ Request Aggregator POST BID (application/json)
++ Request (application/json)
     + Headers
 
             API-version: 0.1
@@ -136,6 +141,9 @@ uuids on those bids he/she wants to accept.
             - `ca45ecc1-13a1-4a93-b047-857be806b764` (string)
 
 + Response 200 (text/plain)
+
+    200 OK (Aggregator POST BID)
+
     + body
 
             ok
@@ -151,15 +159,17 @@ uuids on those bids he/she wants to accept.
 Demand response operation API for both Aggregator (CEMS) and BEMS.
 
 ### BEMS DR RESULTS [GET /DR_result?start_time={start_time}&end_time={end_time}]
-<pre>
-For BEMS: They can only see their own dr bid result.
-For Aggregator: He/she can query all bid result for bems under his/her management (its executors).
-Get one result: By specifying an uuid in query paramter, response will only return one result.
-    -> When you are logged in as a BEMS, you can only query uuid within your bids, otherwise error.
-    -> For Aggregator, he/she can request any uuid unless the uuid is not found in database.
-</pre>
 
-+ Request BEMS DR RESULTS
+For BEMS: They can only see their own dr bid result.
+
+For Aggregator: He/she can query all bid result for bems under his/her management (its executors).
+
+Get one result: By specifying an uuid in query paramter, response will only return one result.
+* When you are logged in as a BEMS, you can only query uuid within your bids, otherwise error.
+* For Aggregator, he/she can request any uuid unless the uuid is not found in database.
+
+
++ Request
     + Headers
 
             API-version: 0.1
@@ -170,6 +180,9 @@ Get one result: By specifying an uuid in query paramter, response will only retu
         + end_time: `2020-01-01 12:00 ` (required, string) - query end time (YYYY-MM-DD HH:mm)
 
 + Response 200 (application/json)
+
+    200 OK (BEMS DR RESULTS)
+
     + Attributes (array, fixed-type)
         + (BIDRESULT)
             + uuid: `36d87673-0daf-4ce2-917e-ec6d655d3c0a` (string) - uuid
@@ -199,7 +212,7 @@ Get one result: By specifying an uuid in query paramter, response will only retu
 
             error
 
-+ Request Aggregator DR RESULTS
++ Request
     + Headers
 
             API-version: 0.1
@@ -211,6 +224,9 @@ Get one result: By specifying an uuid in query paramter, response will only retu
         + end_time: `2020-01-01 12:00 ` (required, string) - query end time (YYYY-MM-DD HH:mm)
 
 + Response 200 (application/json)
+
+    200 OK (Aggregator DR RESULTS)
+
     + Attributes (array, fixed-type)
         + (BIDRESULT)
             + uuid: `36d87673-0daf-4ce2-917e-ec6d655d3c0a` (string) - bid uuid
@@ -248,7 +264,7 @@ Get one result: By specifying an uuid in query paramter, response will only retu
 
             error
 
-+ Request GET ONE RESULT
++ Request
     + Headers
 
             API-version: 0.1
@@ -258,6 +274,9 @@ Get one result: By specifying an uuid in query paramter, response will only retu
         + uuid: `fbb4ccc5-d4ea-489d-94ea-3f04cd48b17b` (required, string) - uuid of bid
 
 + Response 200 (application/json)
+
+    200 OK (GET ONE RESULT)
+
     + Attributes (object)
         + uuid: `fbb4ccc5-d4ea-489d-94ea-3f04cd48b17b` (string) - uuid
         + executor: `NCKU` (string) - BEMS name
