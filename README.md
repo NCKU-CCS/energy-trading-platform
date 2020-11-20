@@ -61,6 +61,11 @@ To make migration change:
 To apply migration changes to database:
 `python pt/manage.py db upgrade`
 
+To stamp existing database to certain revision version
+`python pt/manage.py db stamp {revision ID / head}`
+
+command reference: [flask-migrate](https://flask-migrate.readthedocs.io/en/latest/#command-reference)
+
 ### IOTA Tracker
 
 + Get Datas from IOTA and decrypt, based on address from database and tags from configs.
