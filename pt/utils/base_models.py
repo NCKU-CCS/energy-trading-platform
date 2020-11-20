@@ -9,7 +9,7 @@ from config import db, TZ
 
 # pylint: disable=W0223, W0613, R0201
 class UTCDatetime(types.TypeDecorator):
-    impl = types.DATETIME
+    impl = types.TIMESTAMP
 
     def process_bind_param(self, value, dialect):
         """change timezone before insert to db"""
