@@ -129,7 +129,7 @@ class DRBidResult(Resource):
     def get(self):
         logger.info(f"[Get DRBidResult Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n")
         args = self.get_parser.parse_args()
-        criteria = [DRBidModel.start_time >= args["start_time"], DRBidModel.end_time <= args["end_time"]]
+        criteria = [DRBidModel.start_time >= args["start_time"]]
         if not g.is_aggregator:
             # user can only get their bids
             criteria.append(DRBidModel.executor == g.account)
@@ -140,7 +140,7 @@ class DRBidResult(Resource):
                 "executor": bid.executor,
                 "acceptor": bid.acceptor,
                 "start_time": bid.start_time.strftime("%Y-%m-%d %H:%M:%S"),
-                "end_time": bid.end_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "end_time": bid.end_time.strftime("%Y-%m-%d %H:%M:%S") if bid.end_time else None,
                 "volume": bid.volume,
                 "price": bid.price,
                 "result": bid.result,
