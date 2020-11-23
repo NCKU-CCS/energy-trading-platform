@@ -17,9 +17,19 @@ class DRBid(Resource):
     def _set_get_parser(self):
         self.get_parser = reqparse.RequestParser()
         self.get_parser.add_argument(
-            "start_time", type=str, required=True, location="args", help="start_time is required"
+            "start_time",
+            type=lambda x: datetime.strptime(x, "%Y-%m-%d %H:%M:%S"),
+            required=True,
+            location="args",
+            help="start_time is required",
         )
-        self.get_parser.add_argument("end_time", type=str, required=True, location="args", help="end_time is required")
+        self.get_parser.add_argument(
+            "end_time",
+            type=lambda x: datetime.strptime(x, "%Y-%m-%d %H:%M:%S"),
+            required=True,
+            location="args",
+            help="end_time is required",
+        )
 
     def _set_user_post_parser(self):
         self.user_post_parser = reqparse.RequestParser()
@@ -33,10 +43,18 @@ class DRBid(Resource):
     def _set_aggregator_post_parser(self):
         self.aggregator_post_parser = reqparse.RequestParser()
         self.aggregator_post_parser.add_argument(
-            "start_time", type=str, required=True, location="json", help="start_time is required"
+            "start_time",
+            type=lambda x: datetime.strptime(x, "%Y-%m-%d %H:%M:%S"),
+            required=True,
+            location="json",
+            help="start_time is required",
         )
         self.aggregator_post_parser.add_argument(
-            "end_time", type=str, required=True, location="json", help="end_time is required"
+            "end_time",
+            type=lambda x: datetime.strptime(x, "%Y-%m-%d %H:%M:%S"),
+            required=True,
+            location="json",
+            help="end_time is required",
         )
         self.aggregator_post_parser.add_argument(
             "uuid", type=str, action="append", required=True, location="json", help="volume is required"
@@ -47,7 +65,7 @@ class DRBid(Resource):
     def get(self):
         logger.info(f"[Get DRBid Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n")
         args = self.get_parser.parse_args()
-        criteria = [DRBidModel.start_time >= args["start_time"], DRBidModel.end_time <= args["end_time"]]
+        criteria = [DRBidModel.start_time >= args["start_time"], DRBidModel.start_time <= args["end_time"]]
         if not g.is_aggregator:
             # user can only get their own bids
             criteria.append(DRBidModel.executor == g.account)
@@ -66,9 +84,10 @@ class DRBid(Resource):
             # aggregator choose bids to accept
             args = self.aggregator_post_parser.parse_args()
             uuids = args["uuid"]
-            start = datetime.strptime(args["start_time"], "%Y-%m-%d %H:%M:%S")
-            end = datetime.strptime(args["end_time"], "%Y-%m-%d %H:%M:%S")
-            success, failure = aggregator_accept(acceptor=g.account, uuids=uuids, start=start, end=end)
+            logger.info(f"[DRBid] start: {args['start_time']}, end:{args['end_time']}\nBids: {uuids}")
+            success, failure = aggregator_accept(
+                acceptor=g.account, uuids=uuids, start=args["start_time"], end=args["end_time"]
+            )
             logger.debug(f"[aggregator accept]\nsuccess: {success}\nfailure: {failure}")
             if success:
                 return "ok"
@@ -91,9 +110,19 @@ class DRBidResult(Resource):
     def _set_get_parser(self):
         self.get_parser = reqparse.RequestParser()
         self.get_parser.add_argument(
-            "start_time", type=str, required=True, location="args", help="start_time is required"
+            "start_time",
+            type=lambda x: datetime.strptime(x, "%Y-%m-%d %H:%M:%S"),
+            required=True,
+            location="args",
+            help="start_time is required",
         )
-        self.get_parser.add_argument("end_time", type=str, required=True, location="args", help="end_time is required")
+        self.get_parser.add_argument(
+            "end_time",
+            type=lambda x: datetime.strptime(x, "%Y-%m-%d %H:%M:%S"),
+            required=True,
+            location="args",
+            help="end_time is required",
+        )
 
     # pylint: disable=R0201
     @auth.login_required
