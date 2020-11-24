@@ -11,13 +11,8 @@ from Cryptodome.Hash import SHA256
 sys.path.insert(0, "../energy-trading-platform/pt")
 
 # pylint: disable=C0413
-from config import (
-    PLAT_CIPHER,
-    PLAT_SIGNER,
-    RANDOM_GENERATOR,
-    TAG_TEMPLATE,
-)  # noqa: E402
-from utils.utils import get_tx_hash, get_data  # noqa: E402
+from config import PLAT_CIPHER, PLAT_SIGNER, RANDOM_GENERATOR, TAG_TEMPLATE, API_URI, API_OPEN  # noqa: E402
+from utils.utils import get_tx_hash, get_data, check_nodes  # noqa: E402
 from endpoints.address.model import AMI, History  # noqa: E402
 from endpoints.powerdata.model import PowerData, Demand, ESS, EV, PV, WT  # noqa: E402
 
@@ -80,15 +75,11 @@ def get_decrypt_data_sign(receive_data):
         is_verify {bool} -- signature verify success or fail
     """
     # decrypt data
-    decrypt_data = PLAT_CIPHER.decrypt(
-        base64.b64decode(receive_data["data"]), RANDOM_GENERATOR
-    )
+    decrypt_data = PLAT_CIPHER.decrypt(base64.b64decode(receive_data["data"]), RANDOM_GENERATOR)
 
     # check signature
     # pylint: disable=E1102
-    is_verify = PLAT_SIGNER.verify(
-        SHA256.new(decrypt_data), base64.b64decode(receive_data["signature"])
-    )
+    is_verify = PLAT_SIGNER.verify(SHA256.new(decrypt_data), base64.b64decode(receive_data["signature"]))
     # pylint: enable=E1102
 
     return decrypt_data, is_verify
@@ -107,18 +98,12 @@ def add_fields(insert_data, address, receive_address):
     # python3.7+ can use datetime.fromisoformat(<isoformat>)
     # try-catch is to prevent if `second` is an interger
     try:
-        insert_data["updated_at"] = datetime.strptime(
-            insert_data["updated_at"], "%Y-%m-%dT%H:%M:%S.%f"
-        )
+        insert_data["updated_at"] = datetime.strptime(insert_data["updated_at"], "%Y-%m-%dT%H:%M:%S.%f")
     except ValueError:
-        insert_data["updated_at"] = datetime.strptime(
-            insert_data["updated_at"], "%Y-%m-%dT%H:%M:%S"
-        )
+        insert_data["updated_at"] = datetime.strptime(insert_data["updated_at"], "%Y-%m-%dT%H:%M:%S")
 
     # get upload data's data_time
-    data_time = (
-        insert_data["updated_at"].astimezone(timezone.utc).replace(tzinfo=None).date()
-    )
+    data_time = insert_data["updated_at"].astimezone(timezone.utc).replace(tzinfo=None).date()
 
     # get related history id
     history = History.query.filter_by(iota_address=address, time=data_time).first()
@@ -171,6 +156,9 @@ def insert_to_db(tag, insert_data):
         )
 
 
+# pylint: disable=R0914
+
+
 def main(utc_now=datetime.utcnow()):
     # get address and transaction hash from db
     addresses = (str(ami.iota_address) for ami in AMI.query.all())
@@ -178,10 +166,18 @@ def main(utc_now=datetime.utcnow()):
     # generate tags by utc time
     tags = [tag + chr(ord("A") + utc_now.hour) for tag in TAG_TEMPLATE]
 
+    # get available IOTA nodes
+    available_nodes = check_nodes(API_URI)
+    if available_nodes:
+        uri = available_nodes[0]
+    else:
+        uri = API_OPEN
+    logger.info(f"[IOTA] URI: {uri}")
+
     for address in addresses:
         for tag, db_data_type in zip(tags, DB_DATA_TYPE):
             # addresses -> Transaction Hash
-            transaction_hash = get_tx_hash(addresses=[address], tags=[tag])
+            transaction_hash = get_tx_hash(api_uri=uri, addresses=[address], tags=[tag])
             if not transaction_hash:
                 continue
 
@@ -193,13 +189,11 @@ def main(utc_now=datetime.utcnow()):
                 continue
 
             # Tx Hash -> message
-            messages = get_data(transactions)
+            messages = get_data(uri, transactions)
 
             for receive_address in messages:
                 # decrypt data and signature
-                decrypt_data, is_verify = get_decrypt_data_sign(
-                    messages[receive_address]
-                )
+                decrypt_data, is_verify = get_decrypt_data_sign(messages[receive_address])
 
                 # check signature
                 if not is_verify:
@@ -227,6 +221,9 @@ def main(utc_now=datetime.utcnow()):
 
                 # Insert to db
                 insert_to_db(tag, insert_data)
+
+
+# pylint: enable=R0914
 
 
 if __name__ == "__main__":

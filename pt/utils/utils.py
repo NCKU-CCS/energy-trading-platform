@@ -5,17 +5,15 @@ import iota
 from loguru import logger
 import requests
 
-from config import API_URI
 
-
-def get_tx_hash(addresses, tags):
-    api = iota.Iota(check_nodes(API_URI)[0])
+def get_tx_hash(api_uri, addresses, tags):
+    api = iota.Iota(api_uri)
     transaction_hash = api.find_transactions(addresses=addresses, tags=tags)['hashes']
     return transaction_hash
 
 
-def get_data(transaction_hash):
-    api = iota.Iota(check_nodes(API_URI)[0])
+def get_data(api_uri, transaction_hash):
+    api = iota.Iota(api_uri)
     # from transactions get trytes
     trytes = api.get_trytes(hashes=transaction_hash)['trytes']
     # trytes to string(json type)
@@ -31,8 +29,8 @@ def get_data(transaction_hash):
     return messages
 
 
-def is_confirmed(transaction_hash):
-    api = iota.Iota(check_nodes(API_URI)[0])
+def is_confirmed(api_uri, transaction_hash):
+    api = iota.Iota(api_uri)
     confirmed = bool(
         list(api.get_latest_inclusion([transaction_hash])['states'].values())[0]
     )

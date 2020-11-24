@@ -26,6 +26,7 @@ SEED = os.environ.get(
     "OLYBZRTBYZCJXCJR9WTSHTVXJ9DTWSREFAXIAFPPEAXJAWINDFAOPCSTGVHSJQ9DJRYOUPAEZVLZKWHTZ",
 )
 API_URI = os.environ.get('API_URI', 'https://nodes.thetangle.org:443').split(',')
+API_OPEN = os.environ.get('API_OPEN', 'https://nodes.thetangle.org:443')
 TAG_TEMPLATE = [
     "BEMS9HOMEPAGE9INFORMATION9",
     "BEMS9ESS9DISPLAY9",
