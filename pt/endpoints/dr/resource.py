@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask_restful import Resource, reqparse
 from loguru import logger
@@ -17,18 +17,11 @@ class DRBid(Resource):
     def _set_get_parser(self):
         self.get_parser = reqparse.RequestParser()
         self.get_parser.add_argument(
-            "start_time",
-            type=lambda x: datetime.strptime(x, "%Y-%m-%d %H:%M:%S"),
+            "date",
+            type=lambda x: datetime.strptime(x, "%Y-%m-%d"),
             required=True,
             location="args",
-            help="start_time is required",
-        )
-        self.get_parser.add_argument(
-            "end_time",
-            type=lambda x: datetime.strptime(x, "%Y-%m-%d %H:%M:%S"),
-            required=True,
-            location="args",
-            help="end_time is required",
+            help="date is required",
         )
 
     def _set_user_post_parser(self):
@@ -65,7 +58,7 @@ class DRBid(Resource):
     def get(self):
         logger.info(f"[Get DRBid Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n")
         args = self.get_parser.parse_args()
-        criteria = [DRBidModel.start_time >= args["start_time"], DRBidModel.start_time <= args["end_time"]]
+        criteria = [DRBidModel.start_time >= args["date"], DRBidModel.start_time < args["date"] + timedelta(days=1)]
         if not g.is_aggregator:
             # user can only get their own bids
             criteria.append(DRBidModel.executor == g.account)
