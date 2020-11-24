@@ -103,18 +103,11 @@ class DRBidResult(Resource):
     def _set_get_parser(self):
         self.get_parser = reqparse.RequestParser()
         self.get_parser.add_argument(
-            "start_time",
-            type=lambda x: datetime.strptime(x, "%Y-%m-%d %H:%M:%S"),
+            "date",
+            type=lambda x: datetime.strptime(x, "%Y-%m-%d"),
             required=True,
             location="args",
-            help="start_time is required",
-        )
-        self.get_parser.add_argument(
-            "end_time",
-            type=lambda x: datetime.strptime(x, "%Y-%m-%d %H:%M:%S"),
-            required=True,
-            location="args",
-            help="end_time is required",
+            help="date is required",
         )
 
     # pylint: disable=R0201
@@ -122,7 +115,7 @@ class DRBidResult(Resource):
     def get(self):
         logger.info(f"[Get DRBidResult Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n")
         args = self.get_parser.parse_args()
-        criteria = [DRBidModel.start_time >= args["start_time"]]
+        criteria = [DRBidModel.start_time >= args["date"], DRBidModel.start_time < args["date"] + timedelta(days=1)]
         if not g.is_aggregator:
             # user can only get their bids
             criteria.append(DRBidModel.executor == g.account)
