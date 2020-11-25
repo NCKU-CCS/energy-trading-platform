@@ -62,28 +62,23 @@ def aggregator_accept(acceptor: str, uuids: list, start: datetime, end: datetime
     success = list()
     failure = list()
     # GET ALL BIDS, if not accept -> reject
-    criteria = (DRBidModel.start_time >= tomorrow, DRBidModel.start_time < day_after_tomorrow)
+    criteria = (
+        DRBidModel.start_time >= tomorrow,
+        DRBidModel.start_time < day_after_tomorrow,
+        DRBidModel.uuid.in_(uuids),
+        DRBidModel.result.is_(None),
+    )
     bids = DRBidModel.query.filter(*criteria).all()
     for bid in bids:
         try:
-            if bid.uuid in uuids:
-                logger.debug(f"[aggregator accept] Accept {bid.uuid}")
-                # Accept bids
-                bid.acceptor = acceptor
-                bid.start_time = start
-                bid.end_time = end
-                bid.result = True
-                bid.status = "已得標"
-                DRBidModel.update(bid)
-            else:
-                logger.debug(f"[aggregator accept] Reject {bid.uuid}")
-                # Reject bids
-                bid.acceptor = None
-                bid.start_time = tomorrow
-                bid.end_time = None
-                bid.result = False
-                bid.status = "未得標"
-                DRBidModel.update(bid)
+            logger.debug(f"[aggregator accept] Accept {bid.uuid}")
+            # Accept bids
+            bid.acceptor = acceptor
+            bid.start_time = start
+            bid.end_time = end
+            bid.result = True
+            bid.status = "已得標"
+            DRBidModel.update(bid)
             success.append(bid.uuid)
         except Exception as error:
             logger.error(f"[aggregator accept] error: {error}")

@@ -67,11 +67,9 @@ class ETBaseMixin:
         db.session.delete(self)
         db.session.commit()
 
-    # pylint: disable=R0201
-    def rollback(self):
+    @staticmethod
+    def rollback():
         db.session.rollback()
-
-    # pylint: enable=R0201
 
     def __repr__(self):
         return self.uuid

@@ -84,14 +84,14 @@ class DRBid(Resource):
             logger.debug(f"[aggregator accept]\nsuccess: {success}\nfailure: {failure}")
             if success:
                 return "ok"
-            return "error"
+            return "error", 400
         # user add DR bids
         args = self.user_post_parser.parse_args()
         payload = {"executor": g.account, "volume": args["volume"], "price": args["price"]}
         status = user_add_bid(payload)
         if status:
             return "ok"
-        return "error"
+        return "error", 400
 
     # pylint: enable=R0201
 
