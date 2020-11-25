@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 
 from loguru import logger
 
@@ -28,10 +28,19 @@ class DRBidModel(db.Model, ETBaseMixin):
 
 
 def user_add_bid(bid: dict):
-    bid["status"] = "已投標"
-    # set start time to bid day (tomorrow)
-    bid["start_time"] = get_tomorrow()
+    base_time = time(10, 30)
+    time_now = datetime.now().time()
+    # set bid time
+    # before 10:30 | after 10:30
+    # bid tomorrow | bid day after tomorrow
+    tomorrow = get_tomorrow()
+    day_after_tomorrow = get_tomorrow(tomorrow)
+    if time_now < base_time:
+        bid["start_time"] = tomorrow
+    else:
+        bid["start_time"] = day_after_tomorrow
     logger.debug(f"[user add bid] add {bid}")
+    bid["status"] = "已投標"
     try:
         DRBidModel(**bid).add()
     except Exception as error:
