@@ -78,10 +78,9 @@ class DRBid(Resource):
             args = self.aggregator_post_parser.parse_args()
             uuids = args["uuid"]
             logger.info(f"[DRBid] start: {args['start_time']}, end:{args['end_time']}\nBids: {uuids}")
-            success, failure = aggregator_accept(
+            success = aggregator_accept(
                 acceptor=g.account, uuids=uuids, start=args["start_time"], end=args["end_time"]
             )
-            logger.debug(f"[aggregator accept]\nsuccess: {success}\nfailure: {failure}")
             if success:
                 return "ok"
             return "error", 400
