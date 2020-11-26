@@ -77,4 +77,3 @@ def convert_time_zone(time_object: datetime, from_tz, to_tz):
         .astimezone(to_tz)
         .replace(tzinfo=None)
     )
-
