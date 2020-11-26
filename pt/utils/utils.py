@@ -1,5 +1,6 @@
 import json
 from typing import List
+from datetime import datetime
 
 import iota
 from loguru import logger
@@ -67,3 +68,13 @@ def check_nodes(nodes: List[str], timeout: int = 5) -> List[str]:
         except requests.exceptions.ReadTimeout:
             logger.error(f"[CHECK NODES] Node timeout. URI: {node}")
     return available_nodes
+
+
+def convert_time_zone(time_object: datetime, from_tz, to_tz):
+    """Convert DateTime's Time Zone"""
+    return (
+        time_object.replace(tzinfo=from_tz)
+        .astimezone(to_tz)
+        .replace(tzinfo=None)
+    )
+

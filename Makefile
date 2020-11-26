@@ -18,21 +18,19 @@ commit:
 flake8:
 	pipenv run flake8
 
-
 pylint:
 	pipenv run pylint $(PKG) --ignore=tests
-
 
 black:
 	pipenv run black $(PKG) --skip-string-normalization
 
-
 lint: flake8 pylint
 
-
-build_docker:
+build:
 	docker build -t et_platform pt --no-cache
 
+run:
+	pipenv run python pt/app.py
 
 clean:
 	find . -type d -name '__pycache__' -delete

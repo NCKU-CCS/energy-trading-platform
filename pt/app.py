@@ -26,9 +26,7 @@ def create_app(config_mode):
         resp = make_response(resp)
         resp.headers["Access-Control-Allow-Origin"] = "*"
         resp.headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,OPTIONS"
-        resp.headers[
-            "Access-Control-Allow-Headers"
-        ] = "X-Requested-With, Content-Type, Authorization"
+        resp.headers["Access-Control-Allow-Headers"] = "X-Requested-With, Content-Type, Authorization"
         return resp
 
     # pylint: enable=W0612
@@ -71,6 +69,8 @@ def create_app(config_mode):
     api.add_resource(RESOURCES["bidsubmit"], "/bidsubmit")
     api.add_resource(RESOURCES["homepage"], "/homepage")
     api.add_resource(RESOURCES["bidstatus"], "/bidstatus")
+    api.add_resource(RESOURCES["DR_bid"], "/DR_bid")
+    api.add_resource(RESOURCES["DR_result"], "/DR_result")
     api.add_resource(RESOURCES["socketio"], "/socket_settlement")
 
     return app
