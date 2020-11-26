@@ -1,6 +1,5 @@
 import os
 
-import iota
 import pytz
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -26,12 +25,8 @@ SEED = os.environ.get(
     "SEED",
     "OLYBZRTBYZCJXCJR9WTSHTVXJ9DTWSREFAXIAFPPEAXJAWINDFAOPCSTGVHSJQ9DJRYOUPAEZVLZKWHTZ",
 )
-API = iota.Iota(
-    os.environ.get("API_URI_TRACKER", "https://nodes.thetangle.org:443"), SEED
-)
-API_TRACK = iota.Iota(
-    os.environ.get("API_URI_TRACKER", "https://nodes.thetangle.org:443")
-)
+API_URI = os.environ.get('API_URI', 'https://nodes.thetangle.org:443').split(',')
+API_OPEN = os.environ.get('API_OPEN', 'https://nodes.thetangle.org:443')
 TAG_TEMPLATE = [
     "BEMS9HOMEPAGE9INFORMATION9",
     "BEMS9ESS9DISPLAY9",

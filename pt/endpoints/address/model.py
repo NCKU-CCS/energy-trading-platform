@@ -1,6 +1,9 @@
+import iota
+
 from sqlalchemy.dialects.postgresql import UUID
 
-from config import db, API
+from config import db, API_URI, SEED
+from utils.utils import check_nodes
 
 # pylint: disable=W0611
 from utils.base_models import ETBaseMixin, UTCDate
@@ -44,8 +47,9 @@ def get_address(token, time):
 
 
 def renew(time):
+    api = iota.Iota(check_nodes(API_URI)[0], SEED)
     # Update Address
-    new_address = API.get_new_addresses(
+    new_address = api.get_new_addresses(
         index=int(time.strftime("%s")), count=AMI.query.count()
     )["addresses"]
     for amis in AMI.query.all():
