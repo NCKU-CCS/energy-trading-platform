@@ -1,4 +1,6 @@
 import json
+from datetime import datetime
+
 import iota
 
 from config import API_TRACK as API
@@ -30,3 +32,12 @@ def is_confirmed(transaction_hash):
         list(API.get_latest_inclusion([transaction_hash])['states'].values())[0]
     )
     return confirmed
+
+
+def convert_time_zone(time_object: datetime, from_tz, to_tz):
+    """Convert DateTime's Time Zone"""
+    return (
+        time_object.replace(tzinfo=from_tz)
+        .astimezone(to_tz)
+        .replace(tzinfo=None)
+    )

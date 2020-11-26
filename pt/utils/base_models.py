@@ -67,5 +67,9 @@ class ETBaseMixin:
         db.session.delete(self)
         db.session.commit()
 
+    @staticmethod
+    def rollback():
+        db.session.rollback()
+
     def __repr__(self):
         return self.uuid
