@@ -13,3 +13,5 @@ class User(db.Model, ETBaseMixin):
     address = db.Column(db.String(120))
     eth_address = db.Column(db.String(80))
     is_aggregator = db.Column(db.Boolean, unique=False, nullable=False, default=False)
+    eth_secret = db.Column(db.String(128))
+    contract_creator = db.Column(db.Boolean, unique=False, nullable=False, default=False)

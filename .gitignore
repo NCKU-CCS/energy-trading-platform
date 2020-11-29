@@ -135,3 +135,5 @@ db/
 # short key generator
 pt/shortkey.py
 
+# smart contract
+ABI.json
