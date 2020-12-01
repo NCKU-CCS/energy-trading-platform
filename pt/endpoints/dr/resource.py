@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime, timedelta
 
 from flask_restful import Resource, reqparse
@@ -50,7 +51,7 @@ class DRBid(Resource):
             help="end_time is required",
         )
         self.aggregator_post_parser.add_argument(
-            "uuid", type=str, action="append", required=True, location="json", help="volume is required"
+            "uuid", type=str, action="append", required=True, location="json", help="uuid is required"
         )
 
     # pylint: disable=R0201
@@ -78,9 +79,7 @@ class DRBid(Resource):
             args = self.aggregator_post_parser.parse_args()
             uuids = args["uuid"]
             logger.info(f"[DRBid] start: {args['start_time']}, end:{args['end_time']}\nBids: {uuids}")
-            success = aggregator_accept(
-                acceptor=g.account, uuids=uuids, start=args["start_time"], end=args["end_time"]
-            )
+            success = aggregator_accept(acceptor=g.account, uuids=uuids, start=args["start_time"], end=args["end_time"])
             if success:
                 return "ok"
             return "error", 400
@@ -102,11 +101,26 @@ class DRBidResult(Resource):
     def _set_get_parser(self):
         self.get_parser = reqparse.RequestParser()
         self.get_parser.add_argument(
-            "date",
+            "start_date",
             type=lambda x: datetime.strptime(x, "%Y-%m-%d"),
-            required=True,
+            required=False,
             location="args",
-            help="date is required",
+            help="start_date is invalid",
+        )
+        self.get_parser.add_argument(
+            "end_date",
+            type=lambda x: datetime.strptime(x, "%Y-%m-%d"),
+            required=False,
+            location="args",
+            help="end_date is invalid",
+        )
+        self.get_parser.add_argument(
+            "uuid",
+            type=lambda x: uuid.UUID(x, version=4),
+            action="append",
+            required=False,
+            location="args",
+            help="uuid is invalid",
         )
 
     # pylint: disable=R0201
@@ -114,7 +128,20 @@ class DRBidResult(Resource):
     def get(self):
         logger.info(f"[Get DRBidResult Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n")
         args = self.get_parser.parse_args()
-        criteria = [DRBidModel.start_time >= args["date"], DRBidModel.start_time < args["date"] + timedelta(days=1)]
+        if args["start_date"] and args["end_date"]:
+            logger.info(
+                f"[Get DRBidResult] Query by date\nstart date: {args['start_date']}, end date: {args['end_date']}"
+            )
+            criteria = [
+                DRBidModel.start_time >= args["start_date"],
+                DRBidModel.start_time < args["end_date"] + timedelta(days=1),
+            ]
+        elif args["uuid"]:
+            logger.info(f"[Get DRBidResult] Query by uuid\nuuids: {args['uuid']}")
+            criteria = [DRBidModel.uuid.in_(args["uuid"])]
+        else:
+            logger.error(f"[Get DRBidResult] No valid parameters")
+            return "parameter is required", 400
         if not g.is_aggregator:
             # user can only get their bids
             criteria.append(DRBidModel.executor == g.account)
