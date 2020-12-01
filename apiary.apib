@@ -631,7 +631,6 @@ Note:
             + volume: 30 (number) - bidding capacity
             + price: 8 (number) - bidding price
 
-
 + Response 400 (text/plain)
      + body
 
@@ -645,7 +644,7 @@ For BEMS: This route is to post DR request to Aggregator
 For Aggregator: This route is to accept and confirm bems' submitted bids, so aggregator should provide
 uuids on those bids he/she wants to accept.
 
-+ Request (application/json)
++ Request BEMS (application/json)
 
     BEMS Add DR
 
@@ -667,7 +666,7 @@ uuids on those bids he/she wants to accept.
         + price: 8 (number) - bidding price
 
 
-+ Request (application/json)
++ Request Aggregator (application/json)
 
     Aggregator Accept DR
 
@@ -819,8 +818,8 @@ For Aggregator: He/she can query all bid result for bems under his/her managemen
 curl https://et.udc-service.io:5000/DR_result?uuid=fbb4ccc5-d4ea-489d-94ea-3f04cd48b17b -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 </pre>
 
-Get one result: By specifying an uuid in query parameter, response will only return one result.
-* When you are logged in as a BEMS, you can only query uuid within your bids, otherwise error.
+Get DR results: By specifying uuids in query parameter, response will return same uuid result.
+* When you are logged in as a BEMS, you can only query uuid within your bids, otherwise return empty.
 * For Aggregator, he/she can request any uuid unless the uuid is not found in database.
 
 + Parameters
@@ -833,17 +832,8 @@ Get one result: By specifying an uuid in query parameter, response will only ret
             Authorization: `Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR
 
 + Response 200 (application/json)
-    + Attributes (object)
-        + uuid: `fbb4ccc5-d4ea-489d-94ea-3f04cd48b17b` (string) - uuid
-        + executor: `NCKU` (string) - BEMS name
-        + acceptor: `Carlab_BEMS` (string) - CEMS name
-        + start_time: `2020-11-11 11:00:00` (string) - DR start time
-        + end_time: `2020-11-11 12:00:00` (string) - DR end time
-        + volume: 40 (number) - bidding capacity
-        + price: 8 (number) - bidding price
-        + result: true (boolean) - bool
-        + rate: 0.11 (number) - 達成率
-        + blockchain_url: `https://ropsten.etherscan.io/tx/0x07178bc6d022a826d7f85b64f00b77bf878d04519cfbdc6e33aacd802b191435` (string) - url
+    + Attributes (array, fixed-type)
+        + (BIDRESULT)
 
 + Response 400 (text/plain)
      + body
