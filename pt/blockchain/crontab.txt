@@ -1,0 +1,2 @@
+# Everyday upload DR to smart contract (At 00:10）
+10 0 * * * /usr/bin/docker exec -it ET_PLATFORM /bin/sh -c "python3 blockchain/trigger.py dr_log"

@@ -140,7 +140,7 @@ class DRBidResult(Resource):
             logger.info(f"[Get DRBidResult] Query by uuid\nuuids: {args['uuid']}")
             criteria = [DRBidModel.uuid.in_(args["uuid"])]
         else:
-            logger.error(f"[Get DRBidResult] No valid parameters")
+            logger.error("[Get DRBidResult] No valid parameters")
             return "parameter is required", 400
         if not g.is_aggregator:
             # user can only get their bids

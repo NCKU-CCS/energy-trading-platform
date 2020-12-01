@@ -5,7 +5,7 @@ from loguru import logger
 from flask_script import Manager
 
 # pylint: disable=C0413
-sys.path.insert(0, "../energy-trading-platform/pt")
+sys.path.insert(0, os.environ.get('WORK_DIR', './'))  # WORK_DIR is for development
 from app import create_app  # noqa: E402
 from blockchain.contract import Contract  # noqa: E402
 from endpoints.user.model import User  # noqa: E402
@@ -52,6 +52,7 @@ def match():
     - Trigger match_bids from contract module by passing users and event time
     - Parsing result from contract module and update MatchResult
     """
+
 
 # Trigger at :00
 @MANAGER.command
