@@ -129,13 +129,18 @@ class DRBidResult(Resource):
         logger.info(f"[Get DRBidResult Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n")
         args = self.get_parser.parse_args()
         if args["start_date"] and args["end_date"]:
+            logger.info(
+                f"[Get DRBidResult] Query by date\nstart date: {args['start_date']}, end date: {args['end_date']}"
+            )
             criteria = [
                 DRBidModel.start_time >= args["start_date"],
                 DRBidModel.start_time < args["end_date"] + timedelta(days=1),
             ]
         elif args["uuid"]:
+            logger.info(f"[Get DRBidResult] Query by uuid\nuuids: {args['uuid']}")
             criteria = [DRBidModel.uuid.in_(args["uuid"])]
         else:
+            logger.error(f"[Get DRBidResult] No valid parameters")
             return "parameter is required", 400
         if not g.is_aggregator:
             # user can only get their bids

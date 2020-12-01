@@ -1,4 +1,4 @@
-FROM python:3.6.8
+FROM python:3.6.8-jessie
 
 # Install Pipenv
 RUN pip install pipenv==2018.11.26
