@@ -1,5 +1,5 @@
 FORMAT: 1A
-HOST:http://140.116.247.117:5000
+HOST:https://et.udc-service.io:5000
 
 # Energy Trading (ET) API Document
 
@@ -14,7 +14,7 @@ Used to login platform.
 
 ### Login [POST]
 <pre>
-curl http://140.116.247.117:5000/login -X POST -H "Content-Type: application/json" -d '{"account": "TestA1", "password": "TestA1"}'
+curl https://et.udc-service.io:5000/login -X POST -H "Content-Type: application/json" -d '{"account": "TestA1", "password": "TestA1"}'
 </pre>
 
 + Request (application/json)
@@ -41,7 +41,7 @@ User's information.
 
 ### User Info [GET]
 <pre>
-curl http://140.116.247.117:5000/user -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+curl https://et.udc-service.io:5000/user -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 </pre>
 
 + Request (application/json)
@@ -62,7 +62,7 @@ curl http://140.116.247.117:5000/user -X GET -H "Content-Type: application/json"
 
 ### Change Password [PUT]
 <pre>
-curl http://140.116.247.117:5000/user -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR" -d '{"original_passwd": "TestA1","new_passwd": "new_password"}'
+curl https://et.udc-service.io:5000/user -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR" -d '{"original_passwd": "TestA1","new_passwd": "new_password"}'
 </pre>
 
 + Request (application/json)
@@ -86,7 +86,7 @@ curl http://140.116.247.117:5000/user -X PUT -H "Content-Type: application/json"
 
 ### Create User [POST]
 <pre>
-curl http://140.116.247.117:5000/user -X POST -H "Content-Type: application/json"
+curl https://et.udc-service.io:5000/user -X POST -H "Content-Type: application/json"
   -d '{
         "account": "TestA1",
         "username": "TestA1_BEMS",
@@ -119,7 +119,7 @@ Get User's AMIs.
 
 ### AMIs [GET]
 <pre>
-curl http://140.116.247.117:5000/amis -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+curl https://et.udc-service.io:5000/amis -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 </pre>
 
 + Request (application/json)
@@ -141,7 +141,7 @@ Get latest ten system news.
 
 ### News [GET]
 <pre>
-curl http://140.116.247.117:5000/news -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+curl https://et.udc-service.io:5000/news -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 </pre>
 
 + Request (application/json)
@@ -163,7 +163,7 @@ Related to bidding page info.
 
 ### Bidding Status [GET /bidstatus]
 <pre>
-curl http://140.116.247.117:5000/bidstatus -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
+curl https://et.udc-service.io:5000/bidstatus -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
 </pre>
 
 Return the average bidding price and active participants in the active hour.
@@ -186,7 +186,7 @@ Related to bidding.
 
 ### Bidding Project [GET /bidsubmit{?per_page}{?page}{?bid_type}]
 <pre>
-curl http://140.116.247.117:5000/bidsubmit?per_page=10&page=5&bid_type=buy -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
+curl https://et.udc-service.io:5000/bidsubmit?per_page=10&page=5&bid_type=buy -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
 </pre>
 
 Return the bid content valid from the day (Today, current time).
@@ -213,7 +213,7 @@ Return the bid content valid from the day (Today, current time).
 
 ### Order [POST]
 <pre>
-curl http://140.116.247.117:5000/bidsubmit -X POST -H 'Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc' -H 'Content-Type: application/json' \
+curl https://et.udc-service.io:5000/bidsubmit -X POST -H 'Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc' -H 'Content-Type: application/json' \
   -d '{
     "bid_type": "buy",
     "start_time": "2019/10/29 18",
@@ -246,7 +246,7 @@ curl http://140.116.247.117:5000/bidsubmit -X POST -H 'Authorization: Bearer 3Ma
 
 ### Edit [PUT]
 <pre>
-curl http://140.116.247.117:5000/bidsubmit -X PUT -H 'Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc' -H 'Content-Type: application/json' \
+curl https://et.udc-service.io:5000/bidsubmit -X PUT -H 'Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc' -H 'Content-Type: application/json' \
   -d '{
     "id": "2048b3c9-0125-41fc-bef6-9b1e52bd825f",
     "bid_type": buy,
@@ -281,7 +281,7 @@ curl http://140.116.247.117:5000/bidsubmit -X PUT -H 'Authorization: Bearer 3MaT
 
 ### Remove [DELETE]
 <pre>
-curl http://140.116.247.117:5000/bidsubmit -X DELETE -H 'Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc' -H 'Content-Type: application/json' -d '{"id": "104fa450-c688-4f7f-8cca-fae7a18f2eb8"}'
+curl https://et.udc-service.io:5000/bidsubmit -X DELETE -H 'Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc' -H 'Content-Type: application/json' -d '{"id": "104fa450-c688-4f7f-8cca-fae7a18f2eb8"}'
 </pre>
 
 + Request (application/json)
@@ -309,7 +309,7 @@ Return information for home page.
 
 ### Home Page [GET]
 <pre>
-curl http://140.116.247.117:5000/homepage -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
+curl https://et.udc-service.io:5000/homepage -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
 </pre>
 
 Return detail information sets for home page which includes current execution info and 10 most recent succuessful bid results (if any).
@@ -339,7 +339,7 @@ Return match results.
 
 ### Match Result [GET]
 <pre>
-curl http://140.116.247.117:5000/matchresult -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
+curl https://et.udc-service.io:5000/matchresult -X GET -H "Content-Type: application/json" -H "Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc"
 </pre>
 
 Return details information sets of the user's bids.
@@ -361,7 +361,7 @@ Return participants in the transaction to paint schematic diagram.
 
 ### Participants [GET]
 <pre>
-curl http://140.116.247.117:5000/participant -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+curl https://et.udc-service.io:5000/participant -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 </pre>
 
 + Request (application/json)
@@ -382,7 +382,7 @@ Return Electricity History Usage.
 
 ### PowerData (Data Table Mode) [GET /power_info{?per_page}{?page}{?time}]
 <pre>
-curl http://140.116.247.117:5000/power_info?per_page=10&page=1&time=2020/02/14 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+curl https://et.udc-service.io:5000/power_info?per_page=10&page=1&time=2020/02/14 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 </pre>
 
 + Parameters
@@ -408,7 +408,7 @@ curl http://140.116.247.117:5000/power_info?per_page=10&page=1&time=2020/02/14 -
 
 ### PowerData (Data Chart Mode) [GET /power_info{?chart_date}]
 <pre>
-curl http://140.116.247.117:5000/power_info?chart_date=2020/01/13 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+curl https://et.udc-service.io:5000/power_info?chart_date=2020/01/13 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 </pre>
 
 Return past 7 days power information.
@@ -441,7 +441,7 @@ Return past 7 days power information.
 
 ### PowerData (Date Summary Mode) [GET /power_info{?summary_date}]
 <pre>
-curl http://140.116.247.117:5000/power_info?summary_date=2020/02/14 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+curl https://et.udc-service.io:5000/power_info?summary_date=2020/02/14 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
 </pre>
 
 + Parameters
@@ -572,3 +572,302 @@ NOT YET !!!!!!
 + Generate: `1.221` (number) - 產電
 + PV: `0.053` (number) - 太陽能
 + WT: `-0.578` (number) - 風能
+
+# Group DR
+
+## Demand Response Bids [/DR_bid]
+
+Demand response operation API for both Aggregator (CEMS) and BEMS.
+
+### GET DR BIDS [GET /DR_bid{?date}]
+<pre>
+curl https://et.udc-service.io:5000/DR_bid?date=2020-01-01 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+</pre>
+
+For BEMS, they can only get bids submitted by themselves.
+
+* Parameters: date
+* Description: getting bids that event times are from start_time to end_time
+
+For Aggregator (CEMS) , they can get bids from bems which under its supervision.
+
+* Parameters: date
+* Description: getting bids that event times are from start_time to end_time
+
+Note:
+* Aggregator can get bids from all its executors. (Maybe more than 1 executors at a time)
+
++ Parameters
+    + date: `2020-01-01` (required, string) - query date (YYYY-MM-DD)
+
++ Request
+
+    + Headers
+
+            API-version: 0.1
+            Authorization: `Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR
+
++ Response 200 (application/json)
+    + Attributes (array, fixed-type)
+        + (BEMSBID)
+            + uuid: `36d87673-0daf-4ce2-917e-ec6d655d3c0a` (string) - bid uuid
+            + executor: `NCKU` (string) - Name of BEMS
+            + start_time: `2020-11-11 11:00:00` (string) - DR start time
+            + end_time: `2020-11-11 12:00:00` (string) - DR end time
+            + volume: 40 (number) - bidding capacity
+            + price: 8 (number) - bidding price
+        + (BEMSBID)
+            + uuid: `515ae958-187a-4503-815f-379d728390b1` (string) - bid uuid
+            + executor: `NCKU` (string) - Name of BEMS
+            + start_time: `2020-11-11 12:00:00` (string) - DR start time
+            + end_time: `2020-11-11 13:00:00` (string) - DR end time
+            + volume: 50 (number) - bidding capacity
+            + price: 6 (number) - bidding price
+        + (BEMSBID)
+            + uuid: `ca45ecc1-13a1-4a93-b047-857be806b764` (string) - bid uuid
+            + executor: `Carlab_BEMS` (string) - Name of BEMS
+            + start_time: `2020-11-11 11:00:00` (string) - DR start time
+            + end_time: `2020-11-11 12:00:00` (string) - DR end time
+            + volume: 30 (number) - bidding capacity
+            + price: 8 (number) - bidding price
+
+
++ Response 400 (text/plain)
+     + body
+
+            error
+
+
+### POST DR BID [POST /DR_bid]
+
+For BEMS: This route is to post DR request to Aggregator
+
+For Aggregator: This route is to accept and confirm bems' submitted bids, so aggregator should provide
+uuids on those bids he/she wants to accept.
+
++ Request (application/json)
+
+    BEMS Add DR
+
+    <pre>
+    curl https://et.udc-service.io:5000/DR_bid -X POST -H 'Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc' -H 'Content-Type: application/json' \
+    -d '{
+        "value": 50,
+        "price": 8
+    }'
+    </pre>
+
+    + Headers
+
+            API-version: 0.1
+            Authorization: `Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR`
+
+    + Attributes
+        + volume: 50 (number) - bidding capacity
+        + price: 8 (number) - bidding price
+
+
++ Request (application/json)
+
+    Aggregator Accept DR
+
+    <pre>
+    curl https://et.udc-service.io:5000/DR_bid -X POST -H 'Authorization: Bearer 3MaTIcta709SxWZ88OkaLjKvNzgfFkxqr8WemUjeOKLZcImscV6WcziuFyfrbXjc' -H 'Content-Type: application/json' \
+    -d '{
+        "start_time": "2020-11-11 11:00:00",
+        "end_time": "2020-11-11 12:00:00",
+        "uuid": [
+            "36d87673-0daf-4ce2-917e-ec6d655d3c0a",
+            "ca45ecc1-13a1-4a93-b047-857be806b764"
+        ]
+    }'
+    </pre>
+
+    + Headers
+
+            API-version: 0.1
+            Authorization: `Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR`
+
+    + Attributes
+        + start_time: `2020-11-11 11:00:00` (string) - DR start time
+        + end_time: `2020-11-11 12:00:00` (string) - DR end time
+        + uuid (array, fixed-type)
+            - `36d87673-0daf-4ce2-917e-ec6d655d3c0a` (string)
+            - `ca45ecc1-13a1-4a93-b047-857be806b764` (string)
+
++ Response 200 (text/plain)
+    + body
+
+            ok
+
++ Response 400 (text/plain)
+    + body
+
+            error
+
+
+## Demand Response Result [/DR_result]
+
+Demand response operation API for both Aggregator (CEMS) and BEMS.
+
+### BEMS DR RESULTS BY DATE [GET /DR_result{?start_date}{?end_date}]
+<pre>
+curl https://et.udc-service.io:5000/DR_result?start_date=2020-01-01&end_date=2020-01-02 -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+</pre>
+
+For BEMS: They can only see their own DR bid result.
+
+For Aggregator: He/she can query all bid result for bems under his/her management (its executors).
+
++ Parameters
+    + start_date: `2020-01-01` (required, string) - query start time (YYYY-MM-DD)
+    + end_date: `2020-01-02` (required, string) - query end time (YYYY-MM-DD)
+
++ Request BEMS DR RESULTS
+    + Headers
+
+            API-version: 0.1
+            Authorization: `Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR
+
+    + Parameters
+        + start_date: `2020-01-01` (required, string) - query start time (YYYY-MM-DD)
+        + end_date: `2020-01-02` (required, string) - query end time (YYYY-MM-DD)
+
++ Response 200 (application/json)
+
+    200 OK (BEMS DR RESULTS)
+
+    + Attributes (array, fixed-type)
+        + (BIDRESULT)
+            + uuid: `36d87673-0daf-4ce2-917e-ec6d655d3c0a` (string) - uuid
+            + executor: `NCKU` (string) - BEMS name
+            + acceptor: `Carlab_BEMS` (string) - CEMS name
+            + start_time: `2020-11-11 11:00:00` (string) - DR start time
+            + end_time: `2020-11-11 12:00:00` (string) - DR end time
+            + volume: 40 (number) - bidding capacity
+            + price: 8 (number) - bidding price
+            + result: true (boolean) - bool
+            + rate: 0.11 (number) - 達成率
+            + blockchain_url: `https://ropsten.etherscan.io/tx/0xc94ec346cea143d8aab07e3a23a9f24031a9a9ae5b9717d99cf32ac0f57a920d` (string) - url
+        + (BIDRESULT)
+            + uuid: `515ae958-187a-4503-815f-379d728390b1` (string) - uuid
+            + executor: `NCKU` (string) - BEMS name
+            + acceptor: `Carlab_BEMS` (string) - CEMS name
+            + start_time: `2020-11-11 12:00:00` (string) - DR start time
+            + end_time: `2020-11-11 13:00:00` (string) - DR end time
+            + volume: 50 (number) - bidding capacity
+            + price: 6 (number) - bidding price
+            + result: false (boolean) - bool
+            + rate: 0 (number) - 達成率
+            + blockchain_url: `https://ropsten.etherscan.io/tx/0x07178bc6d022a826d7f85b64f00b77bf878d04519cfbdc6e33aacd802b191435` (string) - url
+
++ Request Aggregator DR RESULTS
+    + Headers
+
+            API-version: 0.1
+            Authorization: `Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR
+
+    + Parameters
+        + Parameters
+        + start_time: `2020-01-01 11:00` (required, string) - query start time (YYYY-MM-DD HH:mm)
+        + end_time: `2020-01-01 12:00` (required, string) - query end time (YYYY-MM-DD HH:mm)
+
++ Response 200 (application/json)
+
+    200 OK (Aggregator DR RESULTS)
+
+    + Attributes (array, fixed-type)
+        + (BIDRESULT)
+            + uuid: `36d87673-0daf-4ce2-917e-ec6d655d3c0a` (string) - bid uuid
+            + executor: `NCKU` (string) - Name of BEMS
+            + start_time: `2020-11-11 11:00:00` (string) - DR start time
+            + end_time: `2020-11-11 12:00:00` (string) - DR end time
+            + volume: 40 (number) - bidding capacity
+            + price: 8 (number) - bidding price
+            + result: true (boolean) - bool
+            + rate: 0.11 (number) - 達成率
+            + blockchain_url: `https://ropsten.etherscan.io/tx/0xc94ec346cea143d8aab07e3a23a9f24031a9a9ae5b9717d99cf32ac0f57a920d` (string) - url
+        + (BIDRESULT)
+            + uuid: `515ae958-187a-4503-815f-379d728390b1` (string) - bid uuid
+            + executor: `NCKU` (string) - Name of BEMS
+            + start_time: `2020-11-11 12:00:00` (string) - DR start time
+            + end_time: `2020-11-11 13:00:00` (string) - DR end time
+            + volume: 50 (number) - bidding capacity
+            + price: 6 (number) - bidding price
+            + result: false (boolean) - bool
+            + rate: 0 (number) - 達成率
+            + blockchain_url: `https://ropsten.etherscan.io/tx/0x07178bc6d022a826d7f85b64f00b77bf878d04519cfbdc6e33aacd802b191435` (string) - url
+        + (BIDRESULT)
+            + uuid: `ca45ecc1-13a1-4a93-b047-857be806b764` (string) - bid uuid
+            + executor: `Carlab_BEMS` (string) - Name of BEMS
+            + start_time: `2020-11-11 11:00:00` (string) - DR start time
+            + end_time: `2020-11-11 12:00:00` (string) - DR end time
+            + volume: 30 (number) - bidding capacity
+            + price: 8 (number) - bidding price
+            + result: true (boolean) - bool
+            + rate: 0.33 (number) - 達成率
+            + blockchain_url: `https://ropsten.etherscan.io/tx/0xc94ec346cea143d8aab07e3a23a9f24031a9a9ae5b9717d99cf32ac0f57a920d` (string) - url
+
++ Response 400 (text/plain)
+     + body
+
+            error
+
+
+### BEMS DR RESULTS BY UUID [GET /DR_result{?uuid}]
+<pre>
+curl https://et.udc-service.io:5000/DR_result?uuid=fbb4ccc5-d4ea-489d-94ea-3f04cd48b17b -X GET -H "Content-Type: application/json" -H "Authorization: Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR"
+</pre>
+
+Get one result: By specifying an uuid in query parameter, response will only return one result.
+* When you are logged in as a BEMS, you can only query uuid within your bids, otherwise error.
+* For Aggregator, he/she can request any uuid unless the uuid is not found in database.
+
++ Parameters
+    + uuid: `fbb4ccc5-d4ea-489d-94ea-3f04cd48b17b` (required, string) - uuid of bid
+
++ Request
+    + Headers
+
+            API-version: 0.1
+            Authorization: `Bearer OXBiogjCfdKb7m9CEOPhpbjjv0n5OtfltzgMJbSxbP7jVFY8XUNzHqkGidDumQSR
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + uuid: `fbb4ccc5-d4ea-489d-94ea-3f04cd48b17b` (string) - uuid
+        + executor: `NCKU` (string) - BEMS name
+        + acceptor: `Carlab_BEMS` (string) - CEMS name
+        + start_time: `2020-11-11 11:00:00` (string) - DR start time
+        + end_time: `2020-11-11 12:00:00` (string) - DR end time
+        + volume: 40 (number) - bidding capacity
+        + price: 8 (number) - bidding price
+        + result: true (boolean) - bool
+        + rate: 0.11 (number) - 達成率
+        + blockchain_url: `https://ropsten.etherscan.io/tx/0x07178bc6d022a826d7f85b64f00b77bf878d04519cfbdc6e33aacd802b191435` (string) - url
+
++ Response 400 (text/plain)
+     + body
+
+            error
+
+
+## Data Structures
+### BEMSBID
++ uuid: `fbb4ccc5-d4ea-489d-94ea-3f04cd48b17b` (string) - bid uuid
++ executor: `NCKU` (string) - Name of BEMS
++ start_time: `2020-11-11 11:00:00` (string) - DR start time
++ end_time: `2020-11-11 12:00:00` (string) - DR end time
++ volume: 40 (number) - bidding capacity
++ price: 8 (number) - bidding price
+
+### BIDRESULT
++ uuid: `fbb4ccc5-d4ea-489d-94ea-3f04cd48b17b` (string) - uuid
++ executor: `NCKU` (string) - BEMS name
++ acceptor: `Carlab_BEMS` (string) - CEMS name
++ start_time: `2020-11-11 11:00:00` (string) - DR start time
++ end_time: `2020-11-11 12:00:00` (string) - DR end time
++ volume: 40 (number) - bidding capacity
++ price: 8 (number) - bidding price
++ result: true (boolean) - bool
++ rate: 0.11 (number) - 達成率
++ blockchain_url: `https://ropsten.etherscan.io/tx/0x07178bc6d022a826d7f85b64f00b77bf878d04519cfbdc6e33aacd802b191435` (string) - url
