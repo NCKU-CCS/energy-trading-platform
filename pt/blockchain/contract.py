@@ -62,7 +62,7 @@ class Contract():
         signed = self.web3.eth.account.signTransaction(tx_hash, self.private_key)
         transaction = self.web3.toHex(self.web3.eth.sendRawTransaction(signed.rawTransaction))
         receipt = self.web3.eth.waitForTransactionReceipt(transaction)
-        return self.contract.events.bid_log().processReceipt(receipt)
+        return json.loads(Web3.toJSON(self.contract.events.bid_log().processReceipt(receipt)))
 
     def match_bids(self, time, values, prices, buyers, sellers):
         nonce = self.web3.eth.getTransactionCount(self.creator_addr)
@@ -83,7 +83,7 @@ class Contract():
         signed = self.web3.eth.account.signTransaction(tx_hash, self.private_key)
         transaction = self.web3.toHex(self.web3.eth.sendRawTransaction(signed.rawTransaction))
         receipt = self.web3.eth.waitForTransactionReceipt(transaction)
-        return self.contract.events.matched_log().processReceipt(receipt)
+        return json.loads(Web3.toJSON(self.contract.events.matched_log().processReceipt(receipt)))
 
     def settlement(self, settlement):
         nonce = self.web3.eth.getTransactionCount(self.creator_addr)
@@ -97,7 +97,7 @@ class Contract():
         signed = self.web3.eth.account.signTransaction(tx_hash, self.private_key)
         transaction = self.web3.toHex(self.web3.eth.sendRawTransaction(signed.rawTransaction))
         receipt = self.web3.eth.waitForTransactionReceipt(transaction)
-        return self.contract.events.matched_log().processReceipt(receipt)
+        return json.loads(Web3.toJSON(self.contract.events.matched_log().processReceipt(receipt)))
 
     def dr_log(self, data_str):
 
@@ -112,6 +112,6 @@ class Contract():
         signed = self.web3.eth.account.signTransaction(tx_hash, self.private_key)
         transaction = self.web3.toHex(self.web3.eth.sendRawTransaction(signed.rawTransaction))
         receipt = self.web3.eth.waitForTransactionReceipt(transaction)
-        return self.contract.events.dr_log().processReceipt(receipt)
+        return json.loads(Web3.toJSON(self.contract.events.dr_log().processReceipt(receipt)))
 
 # pylint: enable=E1101
