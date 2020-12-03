@@ -16,7 +16,9 @@ Contract method invocation:
 
 import json
 
+from loguru import logger
 from web3 import Web3
+from web3.exceptions import TimeExhausted
 
 from utils.utils import SecretCrypto
 from config import INFURA_PROJECT_ID, CONTRACT_ADDRESS, ABI_PATH, AES_KEY
@@ -61,8 +63,12 @@ class Contract():
         })
         signed = self.web3.eth.account.signTransaction(tx_hash, self.private_key)
         transaction = self.web3.toHex(self.web3.eth.sendRawTransaction(signed.rawTransaction))
-        receipt = self.web3.eth.waitForTransactionReceipt(transaction)
-        return json.loads(Web3.toJSON(self.contract.events.bid_log().processReceipt(receipt)))
+
+        try:
+            receipt = self.web3.eth.waitForTransactionReceipt(transaction)
+            return json.loads(Web3.toJSON(self.contract.events.bid_log().processReceipt(receipt)))
+        except TimeExhausted as error:
+            logger.error(f"[Contract Bid] unable to get transaction receipt.\n Error: {error}")
 
     def match_bids(self, time, values, prices, buyers, sellers):
         nonce = self.web3.eth.getTransactionCount(self.creator_addr)
@@ -82,8 +88,12 @@ class Contract():
         })
         signed = self.web3.eth.account.signTransaction(tx_hash, self.private_key)
         transaction = self.web3.toHex(self.web3.eth.sendRawTransaction(signed.rawTransaction))
-        receipt = self.web3.eth.waitForTransactionReceipt(transaction)
-        return json.loads(Web3.toJSON(self.contract.events.matched_log().processReceipt(receipt)))
+
+        try:
+            receipt = self.web3.eth.waitForTransactionReceipt(transaction)
+            return json.loads(Web3.toJSON(self.contract.events.matched_log().processReceipt(receipt)))
+        except TimeExhausted as error:
+            logger.error(f"[Contract Match Bids] unable to get transaction receipt.\n Error: {error}")
 
     def settlement(self, settlement):
         nonce = self.web3.eth.getTransactionCount(self.creator_addr)
@@ -96,8 +106,12 @@ class Contract():
         })
         signed = self.web3.eth.account.signTransaction(tx_hash, self.private_key)
         transaction = self.web3.toHex(self.web3.eth.sendRawTransaction(signed.rawTransaction))
-        receipt = self.web3.eth.waitForTransactionReceipt(transaction)
-        return json.loads(Web3.toJSON(self.contract.events.matched_log().processReceipt(receipt)))
+
+        try:
+            receipt = self.web3.eth.waitForTransactionReceipt(transaction)
+            return json.loads(Web3.toJSON(self.contract.events.matched_log().processReceipt(receipt)))
+        except TimeExhausted as error:
+            logger.error(f"[Contract Settlement] unable to get transaction receipt.\n Error: {error}")
 
     def dr_log(self, data_str):
 
@@ -111,7 +125,11 @@ class Contract():
         })
         signed = self.web3.eth.account.signTransaction(tx_hash, self.private_key)
         transaction = self.web3.toHex(self.web3.eth.sendRawTransaction(signed.rawTransaction))
-        receipt = self.web3.eth.waitForTransactionReceipt(transaction)
-        return json.loads(Web3.toJSON(self.contract.events.dr_log().processReceipt(receipt)))
+
+        try:
+            receipt = self.web3.eth.waitForTransactionReceipt(transaction)
+            return json.loads(Web3.toJSON(self.contract.events.dr_log().processReceipt(receipt)))
+        except TimeExhausted as error:
+            logger.error(f"[Contract DR Log] unable to get transaction receipt.\n Error: {error}")
 
 # pylint: enable=E1101

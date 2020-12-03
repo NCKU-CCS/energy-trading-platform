@@ -96,14 +96,15 @@ def dr_log():
                 for col in wanted_columns
             ]
         )
-        logger.info(f"[DR BID LOG]\n {log_text}")
+        logger.info(f"[DR Bid Log]\n {log_text}")
 
         # 3. call for transaction
         contract = Contract(*get_contract_creator())
         result = contract.dr_log(log_text)
-        tx_hash = result[0]["transactionHash"]
-        bid.blockchain_url = f"https://ropsten.etherscan.io/tx/{tx_hash}"
-        DRBidModel.update(bid)
+        if result:
+            tx_hash = result[0]["transactionHash"]
+            bid.blockchain_url = f"https://ropsten.etherscan.io/tx/{tx_hash}"
+            DRBidModel.update(bid)
 
 
 if __name__ == "__main__":
