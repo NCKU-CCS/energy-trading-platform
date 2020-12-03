@@ -55,7 +55,7 @@ def aggregator_accept(acceptor: str, uuids: list, start: datetime, end: datetime
     day_after_tomorrow = get_tomorrow(tomorrow)
     # check time available
     if not ((tomorrow <= start <= day_after_tomorrow) and (tomorrow <= end <= day_after_tomorrow)):
-        logger.error(f"[aggregator accept] start, end time invalid")
+        logger.error("[aggregator accept] start, end time invalid")
         logger.debug(f"[aggregator accept] start time: {tomorrow <= start <= day_after_tomorrow}")
         logger.debug(f"[aggregator accept] end time: {tomorrow <= end <= day_after_tomorrow}")
         return False

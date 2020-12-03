@@ -24,9 +24,7 @@ def get_data(api_uri, transaction_hash):
     for tx_hash, message in zip(transaction_hash, trytes):
         try:
             transaction = iota.Transaction.from_tryte_string(message)
-            messages[tx_hash] = json.loads(
-                transaction.signature_message_fragment.decode()
-            )
+            messages[tx_hash] = json.loads(transaction.signature_message_fragment.decode())
         except json.decoder.JSONDecodeError:
             messages[tx_hash] = 'error'
     return messages
@@ -81,9 +79,9 @@ def convert_time_zone(time_object: datetime, from_tz, to_tz):
     )
 
 
-class SecretCrypto():
+class SecretCrypto:
     def __init__(self, key):
-        self.key = key
+        self.key = bytes(key, encoding='utf-8')
         self.mode = AES.MODE_CBC
 
     def encrypt(self, text):
