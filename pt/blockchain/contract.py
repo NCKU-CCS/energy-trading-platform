@@ -33,7 +33,7 @@ class Contract():
             abi = json.load(json_file)
 
         # project infura node
-        infura_url = f'https://ropsten.infura.io/v3/{INFURA_PROJECT_ID}'
+        infura_url = f"https://ropsten.infura.io/v3/{INFURA_PROJECT_ID}"
 
         #  establish infura node connection
         self.web3 = Web3(Web3.HTTPProvider(infura_url))
@@ -56,8 +56,8 @@ class Contract():
         ).buildTransaction({
             "from": self.creator_addr,
             "nonce": nonce,
-            'gas': 5000000,
-            'gasPrice': self.web3.toWei('1', 'gwei')
+            "gas": 5000000,
+            "gasPrice": self.web3.toWei("1", "gwei")
         })
         signed = self.web3.eth.account.signTransaction(tx_hash, self.private_key)
         transaction = self.web3.toHex(self.web3.eth.sendRawTransaction(signed.rawTransaction))
@@ -77,8 +77,8 @@ class Contract():
         ).buildTransaction({
             "from": self.creator_addr,
             "nonce": nonce,
-            'gas': 7000000,
-            'gasPrice': self.web3.toWei('1', 'gwei')
+            "gas": 7000000,
+            "gasPrice": self.web3.toWei("1", "gwei")
         })
         signed = self.web3.eth.account.signTransaction(tx_hash, self.private_key)
         transaction = self.web3.toHex(self.web3.eth.sendRawTransaction(signed.rawTransaction))
@@ -91,8 +91,8 @@ class Contract():
         tx_hash = self.contract.functions.settlement(*settlement).buildTransaction({
             "from": self.creator_addr,
             "nonce": nonce,
-            'gas': 7000000,
-            'gasPrice': self.web3.toWei('1', 'gwei')
+            "gas": 7000000,
+            "gasPrice": self.web3.toWei("1", "gwei")
         })
         signed = self.web3.eth.account.signTransaction(tx_hash, self.private_key)
         transaction = self.web3.toHex(self.web3.eth.sendRawTransaction(signed.rawTransaction))
@@ -106,8 +106,8 @@ class Contract():
         tx_hash = self.contract.functions.DR_result(data_str).buildTransaction({
             "from": self.creator_addr,
             "nonce": nonce,
-            'gas': 7000000,
-            'gasPrice': self.web3.toWei('1', 'gwei')
+            "gas": 7000000,
+            "gasPrice": self.web3.toWei("1", "gwei")
         })
         signed = self.web3.eth.account.signTransaction(tx_hash, self.private_key)
         transaction = self.web3.toHex(self.web3.eth.sendRawTransaction(signed.rawTransaction))

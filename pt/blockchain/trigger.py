@@ -5,15 +5,16 @@ from loguru import logger
 from flask_script import Manager
 
 # pylint: disable=C0413
-sys.path.insert(0, os.environ.get('WORK_DIR', './'))  # WORK_DIR is for development
+sys.path.insert(0, os.environ.get("WORK_DIR", "./"))  # WORK_DIR is for development
 from app import create_app  # noqa: E402
 from blockchain.contract import Contract  # noqa: E402
 from endpoints.user.model import User  # noqa: E402
 from endpoints.dr.model import DRBidModel  # noqa: E402
+
 # pylint: enable=C0413
 
 
-CONFIG = os.environ.get('APP_SETTINGS', 'development')
+CONFIG = os.environ.get("APP_SETTINGS", "development")
 APP = create_app(CONFIG)
 MANAGER = Manager(APP)
 
@@ -21,15 +22,13 @@ MANAGER = Manager(APP)
 def get_contract_creator():
     creator = User.query.filter_by(contract_creator=True).first()
     if creator:
-        logger.info(
-            f"[Get User Request]\nCreator Address:{creator.eth_address}\nEncrypted secret:{creator.eth_secret}"
-        )
+        logger.info(f"[Get User Request]\nCreator Address:{creator.eth_address}\nEncrypted secret:{creator.eth_secret}")
         return creator.eth_address, creator.eth_secret
     raise LookupError("Sorry, no contractor creator in the database.")
 
 
 @MANAGER.command
-def bid():
+def bidsubmit():
     """
     Implementation of triggering bid_submit to contract, trigger on 40th minute every hour
 
@@ -86,40 +85,23 @@ def dr_log():
     """
 
     # 1. gather dr bids
-    dr_bids = (
-        DRBidModel.query.filter_by(blockchain_url=None)
-        .order_by(DRBidModel.start_time)
-        .all()
-    )
+    dr_bids = DRBidModel.query.filter_by(blockchain_url=None).order_by(DRBidModel.start_time).all()
 
+    wanted_columns = ["executor", "acceptor", "start_time", "end_time", "volume", "price", "result"]
     for bid in dr_bids:
         # 2. transform dict to string
-        executor = f"executor: {bid.executor}"
-        acceptor = f"acceptor: {bid.acceptor}"
-        start_time = f"start_time: {bid.start_time.strftime('%Y-%m-%d %H:%M:%S')}"
-        end_time = f"end_time: {bid.end_time.strftime('%Y-%m-%d %H:%M:%S')}"
-        volume = f"volume: {bid.volume}"
-        price = f"price: {bid.price}"
-        result = f"result: {bid.result}"
-
-        log_text = "".join((
-            f"{executor:32}",
-            f"{acceptor:32}",
-            f"{start_time:32}",
-            f"{end_time:32}",
-            f"{volume:32}",
-            f"{price:32}",
-            f"{result:32}",
-        ))
-
-        logger.info(
-            f"[DR BID LOG]\n {log_text}"
+        log_text = "".join(
+            [
+                f"{f'{col}: {bid.__dict__[col]}':32}"
+                for col in wanted_columns
+            ]
         )
+        logger.info(f"[DR BID LOG]\n {log_text}")
 
         # 3. call for transaction
         contract = Contract(*get_contract_creator())
         result = contract.dr_log(log_text)
-        tx_hash = result[0]['transactionHash']
+        tx_hash = result[0]["transactionHash"]
         bid.blockchain_url = f"https://ropsten.etherscan.io/tx/{tx_hash}"
         DRBidModel.update(bid)
 
