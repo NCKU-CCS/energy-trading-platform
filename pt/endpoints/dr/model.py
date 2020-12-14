@@ -33,7 +33,7 @@ def user_add_bid(bid: dict):
     # set bid time
     # before 10:30 | after 10:30
     # bid tomorrow | bid day after tomorrow
-    tomorrow = get_tomorrow()
+    tomorrow = get_tomorrow(datetime.today())
     day_after_tomorrow = get_tomorrow(tomorrow)
     if time_now < base_time:
         bid["start_time"] = tomorrow
@@ -51,7 +51,7 @@ def user_add_bid(bid: dict):
 
 
 def aggregator_accept(acceptor: str, uuids: list, start: datetime, end: datetime):
-    tomorrow = get_tomorrow()
+    tomorrow = get_tomorrow(datetime.today())
     day_after_tomorrow = get_tomorrow(tomorrow)
     # check time available
     if not ((tomorrow <= start <= day_after_tomorrow) and (tomorrow <= end <= day_after_tomorrow)):
@@ -84,7 +84,7 @@ def aggregator_accept(acceptor: str, uuids: list, start: datetime, end: datetime
     return True
 
 
-def get_tomorrow(today: datetime = datetime.today()):
+def get_tomorrow(today: datetime):
     tomorrow = today + timedelta(days=1)
     return get_start_of_day(tomorrow)
 
