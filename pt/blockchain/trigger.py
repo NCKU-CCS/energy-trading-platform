@@ -1,5 +1,6 @@
 import os
 import sys
+from datetime import datetime
 
 from loguru import logger
 from flask_script import Manager
@@ -76,16 +77,67 @@ def done_settlement():
 
 
 @MANAGER.command
-def dr_log():
+def denied_dr_upload():
     """
-    Implementation of logging DR_bids to ethereum smart contract
+    Implementation of logging not accepted DR_bids to ethereum smart contract
 
     Trigger time:
-    - 00:10
+    - every day at 00:10
     """
 
     # 1. gather dr bids
-    dr_bids = DRBidModel.query.filter_by(blockchain_url=None).order_by(DRBidModel.start_time).all()
+    dr_bids = (
+        DRBidModel.query
+        .filter(
+            DRBidModel.blockchain_url is None,
+            DRBidModel.result is None,
+            DRBidModel.start_time < datetime.combine(datetime.now().date(), datetime.min.time())
+        )
+        .order_by(DRBidModel.start_time)
+        .all()
+    )
+
+    wanted_columns = ["executor", "acceptor", "start_time", "end_time", "volume", "price", "result"]
+    for bid in dr_bids:
+        # 2. transform dict to string
+        log_text = "".join(
+            [
+                f"{f'{col}: {bid.__dict__[col]}':32}"
+                for col in wanted_columns
+            ]
+        )
+        logger.info(f"[DR Bid Log]\n {log_text}")
+
+        # 3. call for transaction
+        contract = Contract(*get_contract_creator())
+        result = contract.dr_log(log_text)
+        if result:
+            tx_hash = result[0]["transactionHash"]
+            bid.blockchain_url = f"https://ropsten.etherscan.io/tx/{tx_hash}"
+            bid.result = False  # set result to False
+            DRBidModel.update(bid)
+
+
+@MANAGER.command
+def accepted_dr_upload():
+    """
+    Implementation of logging accepted DR_bids to ethereum smart contract
+
+    Trigger time:
+    - every minute
+    """
+
+    # 1. gather dr bids
+    dr_bids = (
+        DRBidModel.query
+        .filter(
+            DRBidModel.blockchain_url is None,
+            DRBidModel.result is True,
+            DRBidModel.start_time >= datetime.combine(datetime.now().date(), datetime.min.time())
+        )
+        .order_by(DRBidModel.start_time)
+        .all()
+    )
 
     wanted_columns = ["executor", "acceptor", "start_time", "end_time", "volume", "price", "result"]
     for bid in dr_bids:
