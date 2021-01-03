@@ -10,7 +10,6 @@ sys.path.insert(0, os.environ.get("WORK_DIR", "./"))  # WORK_DIR is for developm
 from app import create_app  # noqa: E402
 from blockchain.contract import Contract  # noqa: E402
 from blockchain.helper import get_contract_creator, get_event_time  # noqa: E402
-from endpoints.user.model import User  # noqa: E402
 from endpoints.dr.model import DRBidModel  # noqa: E402
 from endpoints.bid.model import BidSubmit, MatchResult, Tenders  # noqa: E402
 
@@ -46,7 +45,7 @@ def bidsubmit():
 
         # get tenders_id and user_id
         for tender in Tenders.query.filter_by(start_time=start_time, bid_type=bid_type).all():
-            user = User.query.filter_by(uuid=tender.user_id).first()
+            user = tender.user
 
             # Bidsubmits for buy/sell
             bidsubmits = (
