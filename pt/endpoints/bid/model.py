@@ -49,7 +49,6 @@ def add_bidsubmit(bid_data, user_id):
         "bid_type": bid_data["bid_type"],
         "start_time": bid_data["start_time"],
         "end_time": bid_data["end_time"],
-        "status": "投標中",
         "user_id": user_id,
     }
     bid_data["tenders_id"] = get_tender_id(tender_data)

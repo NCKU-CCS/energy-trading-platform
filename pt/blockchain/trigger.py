@@ -9,8 +9,9 @@ from flask_script import Manager
 sys.path.insert(0, os.environ.get("WORK_DIR", "./"))  # WORK_DIR is for development
 from app import create_app  # noqa: E402
 from blockchain.contract import Contract  # noqa: E402
-from blockchain.helper import get_contract_creator  # noqa: E402
+from blockchain.helper import get_contract_creator, get_event_time  # noqa: E402
 from endpoints.dr.model import DRBidModel  # noqa: E402
+from endpoints.bid.model import BidSubmit, Tenders  # noqa: E402
 
 # pylint: enable=C0413
 
@@ -34,6 +35,49 @@ def bidsubmit():
     - Push bidsubmit to blockchain
     - Change status to Matchresults
     """
+
+    # Get event time
+    start_time, _, event_time_str = get_event_time(datetime.now())
+
+    # Query for bidsubmit, by buy and sell
+    for bid_type, ordered_field in [('buy', BidSubmit.price.desc()), ('sell', BidSubmit.price.asc())]:
+        logger.info(f"[BID SUBMITS]\n {bid_type}, {ordered_field}")
+
+        # get tenders_id and user_id
+        for tender in Tenders.query.filter_by(start_time=start_time, bid_type=bid_type).all():
+            user = tender.user
+
+            # Bidsubmits for buy/sell
+            bidsubmits = (
+                BidSubmit.query.filter_by(tenders_id=tender.uuid).order_by(ordered_field).all()
+            )
+
+            # Transform bidsubmits to eth_addr -> {buy -> list, sell -> list}, in appropriate order
+            volumes, prices = [], []
+            for bid in bidsubmits:
+                volumes.append(int(bid.value))
+                prices.append(int(bid.price))
+            logger.info(f"[BID INFO]\n eth_addr: {user.eth_address}\nvolumes: {volumes}\nprices: {prices}\n")
+
+            logger.info(f"USER ID: {user.uuid}")
+            contract = Contract(*get_contract_creator())
+            result = contract.bid(
+                user.eth_address,
+                event_time_str,
+                bid_type,
+                volumes,
+                prices
+            )
+            logger.info(f"Contract Transaction Result: {result}")
+
+            if result:
+                tx_hash = result[0]["transactionHash"]
+                for bid in bidsubmits:
+                    bid.status = "已投標"
+                    bid.win: 0
+                    bid.transaction_hash = tx_hash
+                    bid.upload_time = datetime.now()
+                    BidSubmit.update(bid)
 
 
 @MANAGER.command
