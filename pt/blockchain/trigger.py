@@ -89,8 +89,8 @@ def denied_dr_upload():
     dr_bids = (
         DRBidModel.query
         .filter(
-            DRBidModel.blockchain_url is None,
-            DRBidModel.result is None,
+            DRBidModel.blockchain_url.is_(None),
+            DRBidModel.result.is_(None),
             DRBidModel.start_time < datetime.combine(datetime.now().date(), datetime.min.time())
         )
         .order_by(DRBidModel.start_time)
@@ -131,8 +131,8 @@ def accepted_dr_upload():
     dr_bids = (
         DRBidModel.query
         .filter(
-            DRBidModel.blockchain_url is None,
-            DRBidModel.result is True,
+            DRBidModel.blockchain_url.is_(None),
+            DRBidModel.result.is_(True),
             DRBidModel.start_time >= datetime.combine(datetime.now().date(), datetime.min.time())
         )
         .order_by(DRBidModel.start_time)
