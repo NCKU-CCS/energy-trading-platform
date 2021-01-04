@@ -9,8 +9,9 @@ from flask_script import Manager
 sys.path.insert(0, os.environ.get("WORK_DIR", "./"))  # WORK_DIR is for development
 from app import create_app  # noqa: E402
 from blockchain.contract import Contract  # noqa: E402
-from endpoints.user.model import User  # noqa: E402
+from blockchain.helper import get_contract_creator, get_event_time  # noqa: E402
 from endpoints.dr.model import DRBidModel  # noqa: E402
+from endpoints.bid.model import BidSubmit, MatchResult, Tenders  # noqa: E402
 
 # pylint: enable=C0413
 
@@ -20,21 +21,13 @@ APP = create_app(CONFIG)
 MANAGER = Manager(APP)
 
 
-def get_contract_creator():
-    creator = User.query.filter_by(contract_creator=True).first()
-    if creator:
-        logger.info(f"[Get User Request]\nCreator Address:{creator.eth_address}\nEncrypted secret:{creator.eth_secret}")
-        return creator.eth_address, creator.eth_secret
-    raise LookupError("Sorry, no contractor creator in the database.")
-
-
 @MANAGER.command
 def bidsubmit():
     """
     Implementation of triggering bid_submit to contract, trigger on 40th minute every hour
 
     Trigger time:
-    - hh:40
+    - every hour at :40
 
     Steps:
     - Get event time ( and corresponding datetime string )
@@ -42,6 +35,56 @@ def bidsubmit():
     - Push bidsubmit to blockchain
     - Change status to Matchresults
     """
+
+    # Get event time
+    start_time, end_time, event_time_str = get_event_time(datetime.now())
+
+    # Query for bidsubmit, by buy and sell
+    for bid_type, ordered_field in [('buy', BidSubmit.price.desc()), ('sell', BidSubmit.price.asc())]:
+        logger.info(f"[BID SUBMITS]\n {bid_type}, {ordered_field}")
+
+        # get tenders_id and user_id
+        for tender in Tenders.query.filter_by(start_time=start_time, bid_type=bid_type).all():
+            user = tender.user
+
+            # Bidsubmits for buy/sell
+            bidsubmits = (
+                BidSubmit.query.filter_by(tenders_id=tender.uuid).order_by(ordered_field).all()
+            )
+
+            # Transform bidsubmits to eth_addr -> {buy -> list, sell -> list}, in appropriate order
+            volumes, prices = [], []
+            for bid in bidsubmits:
+                volumes.append(int(bid.value))
+                prices.append(int(bid.price))
+            logger.info(f"[BID INFO]\n eth_addr: {user.eth_address}\nvolumes: {volumes}\nprices: {prices}\n")
+
+            logger.info(f"USER ID: {user.uuid}")
+            contract = Contract(*get_contract_creator())
+            result = contract.bid(
+                user.eth_address,
+                event_time_str,
+                bid_type,
+                volumes,
+                prices
+            )
+            logger.info(f"Contract Transaction Result: {result}")
+
+            if result:
+                tx_hash = result[0]["transactionHash"]
+                data = {
+                    "bid_type": bid_type,  # sell or buy
+                    "start_time": start_time,
+                    "end_time": end_time,
+                    "status": "已投標",
+                    "win": 0,
+                    "bid_value": round(sum(volumes) / len(volumes), 2),
+                    "bid_price": round(sum(prices) / len(prices), 2),
+                    "transaction_hash": tx_hash,
+                    "upload": datetime.now(),
+                    "tenders_id": tender.uuid,
+                }
+                MatchResult(**data).add()
 
 
 @MANAGER.command
