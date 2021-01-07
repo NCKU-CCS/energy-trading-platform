@@ -66,19 +66,22 @@ To stamp existing database to certain revision version
 
 command reference: [flask-migrate](https://flask-migrate.readthedocs.io/en/latest/#command-reference)
 
+### Cronjobs
+
+Some scripts need to be triggered based on time.
+We use crontab to run the script inside container and log in to docker log.
+
+[crontab.txt](./crontab.txt)
+
+*Crontab doesn't know PATH at runtime, use full path or set PATH in crontab.
+
 ### IOTA Tracker
 
 + Get Datas from IOTA and decrypt, based on address from database and tags from configs.
 
-    `pipenv run python pt/iota_tracker.py`
-
 #### Run with Crontab
 
-+ Run IOTA Tracker every minutes and save logs
-
-    `* * * * * cd /home/user/energy-trading-platform && /usr/local/bin/pipenv run python pt/scripts/iota_tracker.py >> /home/user/et_logs/`date +\%Y-\%m-\%d`.log 2>&1`
-
-*Crontab doesn't know PATH at runtime, direct use pipenv's binary file to execute.
++ Run IOTA Tracker every 5 minutes and save logs
 
 ## [GET] address
 
