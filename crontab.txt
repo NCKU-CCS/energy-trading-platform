@@ -5,4 +5,4 @@
 40 * * * * /usr/bin/docker exec -it ET_PLATFORM /bin/sh -c "python3 blockchain/trigger.py bidsubmit"
 
 # IOTA Tracker
-*/5 * * * * /usr/bin/docker exec ET_PLATFORM_TEST /bin/sh -c "python3 scripts/iota_tracker.py > /proc/1/fd/1 2>&1"
+*/5 * * * * /usr/bin/docker exec ET_PLATFORM /bin/sh -c "python3 scripts/iota_tracker.py > /proc/1/fd/1 2>&1"
