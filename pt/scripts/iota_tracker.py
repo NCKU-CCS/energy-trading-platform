@@ -8,7 +8,7 @@ import sqlalchemy.exc
 from loguru import logger
 from Cryptodome.Hash import SHA256
 
-sys.path.insert(0, "../energy-trading-platform/pt")
+sys.path.insert(0, "./")
 
 # pylint: disable=C0413
 from config import PLAT_CIPHER, PLAT_SIGNER, RANDOM_GENERATOR, TAG_TEMPLATE, API_URI, API_OPEN  # noqa: E402
