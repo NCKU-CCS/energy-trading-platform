@@ -9,7 +9,7 @@ from flask_script import Manager
 sys.path.insert(0, os.environ.get("WORK_DIR", "./"))  # WORK_DIR is for development
 from app import create_app  # noqa: E402
 from blockchain.contract import Contract  # noqa: E402
-from endpoints.user.model import User  # noqa: E402
+from blockchain.helper import get_contract_creator  # noqa: E402
 from endpoints.dr.model import DRBidModel  # noqa: E402
 
 # pylint: enable=C0413
@@ -18,14 +18,6 @@ from endpoints.dr.model import DRBidModel  # noqa: E402
 CONFIG = os.environ.get("APP_SETTINGS", "development")
 APP = create_app(CONFIG)
 MANAGER = Manager(APP)
-
-
-def get_contract_creator():
-    creator = User.query.filter_by(contract_creator=True).first()
-    if creator:
-        logger.info(f"[Get User Request]\nCreator Address:{creator.eth_address}\nEncrypted secret:{creator.eth_secret}")
-        return creator.eth_address, creator.eth_secret
-    raise LookupError("Sorry, no contractor creator in the database.")
 
 
 @MANAGER.command
@@ -50,7 +42,7 @@ def match():
     Implementation of triggering bid_match to contract, trigger on 45th minute every hour
 
     Trigger time:
-    - hh:45
+    - every hour at hh:45
 
     Steps:
     - Getting users who had bid for the upcoming event time
