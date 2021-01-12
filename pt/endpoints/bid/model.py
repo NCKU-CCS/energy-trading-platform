@@ -63,8 +63,8 @@ def edit_bidsubmit(bid_data, user_id):
     target.bid_type = bid_data["bid_type"]
     target.start_time = bid_data["start_time"]
     target.end_time = bid_data["end_time"]
-    target.bid_value = bid_data["value"]
-    target.bid_price = bid_data["price"]
+    target.value = bid_data["value"]
+    target.price = bid_data["price"]
     target.upload_time = datetime.today()
     tender_data = {
         "bid_type": bid_data["bid_type"],
