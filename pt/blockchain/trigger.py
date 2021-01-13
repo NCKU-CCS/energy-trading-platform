@@ -1,6 +1,6 @@
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from loguru import logger
 from flask_script import Manager
@@ -56,7 +56,9 @@ def bidsubmit():
 
             # Bidsubmits for buy/sell
             bidsubmits = (
-                BidSubmit.query.filter_by(tenders_id=tender.uuid).order_by(ordered_field).all()
+                BidSubmit.query.filter_by(tenders_id=tender.uuid, status="投標中")
+                .order_by(ordered_field)
+                .all()
             )
 
             # Transform bidsubmits to eth_addr -> {buy -> list, sell -> list}, in appropriate order
@@ -144,12 +146,50 @@ def execution_and_settlement():
     - hh:00
     """
 
+    # Bidsubmits to execute
+    execution_time = datetime.now()
+    bids = (
+        BidSubmit.query.filter_by(status="已得標").filter(
+            BidSubmit.start_time <= execution_time,
+            BidSubmit.end_time > execution_time,
+        )
+        .all()
+    )
+    for bid in bids:
+        bid.status = "執行中"
+        bid.update()
+
+    # Bidsubmits to set settling
+    settlement_time = execution_time - timedelta(hours=1)
+    bids = (
+        BidSubmit.query.filter_by(status="執行中").filter(
+            BidSubmit.start_time <= settlement_time,
+            BidSubmit.end_time > settlement_time,
+        )
+        .all()
+    )
+    for bid in bids:
+        bid.status = "結算中"
+        bid.update()
 
 @MANAGER.command
 def done_settlement():
     """
     Implementation of changing MatchResult from in-settlement to done-settlement
     """
+
+    # Bidsubmits to set settling
+    settlement_time = datetime.now() - timedelta(hours=1)
+    bids = (
+        BidSubmit.query.filter_by(status="結算中").filter(
+            BidSubmit.start_time <= settlement_time,
+            BidSubmit.end_time > settlement_time,
+        )
+        .all()
+    )
+    for bid in bids:
+        bid.status = "已結算"
+        bid.update()
 
 
 @MANAGER.command
