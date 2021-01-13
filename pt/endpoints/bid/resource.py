@@ -7,7 +7,7 @@ from loguru import logger
 
 from config import db
 from utils.oauth import auth, g
-from .model import Tenders, MatchResult, BidSubmit, add_bidsubmit, edit_bidsubmit
+from .model import Tenders, BidSubmit, add_bidsubmit, edit_bidsubmit
 
 
 class HomePageResource(Resource):
@@ -25,9 +25,9 @@ class HomePageResource(Resource):
         }
         # matched bids are status in one of the ['已得標', '執行中', '結算中', '已結算']
         if g.uuid in [tender.user_id for tender in Tenders.query.all()]:
-            results = MatchResult.query.filter(
-                MatchResult.status.in_(["已得標", "執行中", "結算中", "已結算"]),
-                MatchResult.tenders_id.in_(
+            results = BidSubmit.query.filter(
+                BidSubmit.status.in_(["已得標", "執行中", "結算中", "已結算"]),
+                BidSubmit.tenders_id.in_(
                     [
                         tender.uuid
                         for tender in Tenders.query.filter_by(user_id=g.uuid).all()
@@ -37,9 +37,9 @@ class HomePageResource(Resource):
             # check current time execution info by further filter the `results` query
             current_time = datetime.now()
             executing_bids = results.filter(
-                MatchResult.start_time <= current_time,
-                MatchResult.end_time > current_time,
-                MatchResult.status == "執行中",
+                BidSubmit.start_time <= current_time,
+                BidSubmit.end_time > current_time,
+                BidSubmit.status == "執行中",
             )
             # if `buy` happening, update data object
             buy_bids = executing_bids.filter_by(bid_type="buy").all()
@@ -67,7 +67,7 @@ class HomePageResource(Resource):
                     "price": result.win_value,
                     "volume": result.win_price,
                 }
-                for result in results.order_by(MatchResult.start_time.desc())
+                for result in results.order_by(BidSubmit.start_time.desc())
                 .limit(10)
                 .all()
             ]
@@ -84,6 +84,9 @@ class MatchResultsResource(Resource):
         logger.info(
             f"[Get MatchResults Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n"
         )
+
+        # Query three recent days
+        last_three_day = datetime.combine((datetime.now() - timedelta(days=3)).date(), datetime.min.time())
         if g.uuid in [tender.user_id for tender in Tenders.query.all()]:
             bids = [
                 {
@@ -94,25 +97,29 @@ class MatchResultsResource(Resource):
                     "win": message.win,
                     "status": message.status,
                     "transaction_hash": message.transaction_hash,
-                    "upload": message.upload,
+                    "upload": message.upload_time,
                     "counterpart": {
                         "name": message.counterpart_name,
                         "address": message.counterpart_address,
                     },
-                    "bids": {"price": message.bid_price, "value": message.win_value},
-                    "wins": {"price": message.bid_price, "value": message.win_value},
+                    "bids": {"price": message.price, "value": message.value},
+                    "wins": {"price": message.win_price, "value": message.win_value},
                     "achievement": message.achievement,
                     "settlement": message.settlement,
                 }
-                for message in MatchResult.query.filter(
-                    MatchResult.tenders_id.in_(
+                for message in BidSubmit.query.filter(
+                    BidSubmit.tenders_id.in_(
                         [
                             tender.uuid
-                            for tender in Tenders.query.filter_by(user_id=g.uuid).all()
+                            for tender in Tenders.query.filter(
+                                Tenders.user_id == g.uuid,
+                                Tenders.start_time >= datetime.combine(last_three_day.date(), datetime.min.time())
+                            ).all()
                         ]
-                    )
+                    ),
+                    BidSubmit.status != "NULL",
                 )
-                .order_by(MatchResult.start_time.desc())
+                .order_by(BidSubmit.start_time.desc())
                 .all()
             ]
         else:
