@@ -235,7 +235,6 @@ def update_bidsubmit(buy, sell, tx_hash, value, price):
 def generate_denied_matchresult(start_time, tx_hash):
     matchresults = (
         BidSubmit.query.filter_by(start_time=start_time, status="已投標")
-        .filter(BidSubmit.win != 1)
         .all()
     )
 

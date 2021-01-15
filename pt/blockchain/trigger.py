@@ -19,6 +19,8 @@ from blockchain.helper import (
 )  # noqa: E402
 from endpoints.dr.model import DRBidModel  # noqa: E402
 from endpoints.bid.model import BidSubmit, Tenders  # noqa: E402
+from scripts.test_settlement import simulate_achievement  # noqa: E402
+from utils.socketio import socketio  # noqa: E402
 
 # pylint: enable=C0413
 
@@ -172,6 +174,7 @@ def execution_and_settlement():
         bid.status = "結算中"
         bid.update()
 
+
 @MANAGER.command
 def done_settlement():
     """
@@ -273,6 +276,44 @@ def accepted_dr_upload():
             tx_hash = result[0]["transactionHash"]
             bid.blockchain_url = f"https://ropsten.etherscan.io/tx/{tx_hash}"
             DRBidModel.update(bid)
+
+
+@MANAGER.command
+def update_achievement():
+    """
+    Implementation of calculating achievement of the execution event
+
+    Trigger time:
+    - every 5 minute
+    """
+
+    # emit socket io event
+    # simulation then emit
+    socketio.emit("transaction", simulate_achievement())
+    logger.info("[Emit Settlement Transactions]\nMessage sent")
+
+    # IMPLEMENT ME: true achievement calculation
+    # socketio.emit("transaction", `TRUE CALCULATION HERE`)
+    # logger.info("[Emit Settlement Transactions]\nMessage sent")
+
+
+@MANAGER.command
+def settlement():
+    """
+    Implementation of logging settlement of transaction to smart contract
+
+    Trigger time:
+    - :10 at that hour
+    """
+
+    # emit socket io event
+    # simulation then emit
+    socketio.emit("transaction", simulate_achievement())
+    logger.info("[Emit Settlement Transactions]\nMessage sent")
+
+    # IMPLEMENT ME: true achievement calculation
+    # socketio.emit("transaction", `TRUE CALCULATION HERE`)
+    # logger.info("[Emit Settlement Transactions]\nMessage sent")
 
 
 if __name__ == "__main__":
