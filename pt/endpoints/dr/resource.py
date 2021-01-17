@@ -6,7 +6,7 @@ from loguru import logger
 
 from utils.oauth import auth, g
 
-from .model import DRBidModel, aggregator_accept, user_add_bid
+from .model import DRBidModel, aggregator_accept, user_add_bid, get_counterpart
 
 
 class DRBid(Resource):
@@ -142,15 +142,27 @@ class DRBidResult(Resource):
         else:
             logger.error("[Get DRBidResult] No valid parameters")
             return "parameter is required", 400
+
         if not g.is_aggregator:
             # user can only get their bids
             criteria.append(DRBidModel.executor == g.account)
+
         dr_bids = DRBidModel.query.filter(*criteria).order_by(DRBidModel.start_time).all()
         return [
             {
                 "uuid": bid.uuid,
                 "executor": bid.executor,
                 "acceptor": bid.acceptor,
+                "counterpart_name": (
+                    get_counterpart(bid.executor).username
+                    if g.is_aggregator
+                    else get_counterpart(bid.acceptor).username
+                ),
+                "counterpart_address": (
+                    get_counterpart(bid.executor).address
+                    if g.is_aggregator
+                    else get_counterpart(bid.acceptor).address
+                ),
                 "start_time": bid.start_time.strftime("%Y-%m-%d %H:%M:%S"),
                 "end_time": bid.end_time.strftime("%Y-%m-%d %H:%M:%S") if bid.end_time else None,
                 "volume": bid.volume,
