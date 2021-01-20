@@ -74,7 +74,7 @@ def bidsubmit():
                 tx_hash = result[0]["transactionHash"]
                 for bid in bidsubmits:
                     bid.status = "已投標"
-                    bid.win: 0
+                    bid.win = 0
                     bid.transaction_hash = tx_hash
                     bid.upload_time = datetime.now()
                     BidSubmit.update(bid)
