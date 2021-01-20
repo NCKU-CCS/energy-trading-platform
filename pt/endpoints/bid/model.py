@@ -22,37 +22,24 @@ class Tenders(db.Model, ETBaseMixin):
     user = db.relationship("User")
 
 
-class MatchResult(db.Model, ETBaseMixin):
-    __tablename__ = "matchresult"
-    bid_type = db.Column(db.String(40))  # sell or buy
-    start_time = db.Column(UTCDatetime, unique=False, nullable=False)
-    end_time = db.Column(UTCDatetime, unique=False, nullable=False)
-    win = db.Column(db.Integer, nullable=False)
-    status = db.Column(db.String(40))
-    counterpart_name = db.Column(db.String(80))
-    counterpart_address = db.Column(db.String(120))
-    bid_value = db.Column(db.Float)
-    bid_price = db.Column(db.Float)
-    win_value = db.Column(db.Float)
-    win_price = db.Column(db.Float)
-    achievement = db.Column(db.Float)
-    settlement = db.Column(db.Float)
-    transaction_hash = db.Column(db.String(80))
-    upload = db.Column(UTCDatetime, unique=False, nullable=False)
-    # ForeignKey to Tenders
-    tenders_id = db.Column(UUID(), db.ForeignKey("tenders.uuid"), nullable=False)
-    tenders = db.relationship("Tenders")
-
-
 class BidSubmit(db.Model, ETBaseMixin):
     __tablename__ = "bidsubmit"
     bid_type = db.Column(db.String(40))  # sell or buy
     start_time = db.Column(UTCDatetime, unique=False, nullable=False)
     end_time = db.Column(UTCDatetime, unique=False, nullable=False)
+    win = db.Column(db.Integer)
+    status = db.Column(db.String(40))
+    counterpart_name = db.Column(db.String(80))
+    counterpart_address = db.Column(db.String(120))
     value = db.Column(db.Float)
     price = db.Column(db.Float)
+    win_value = db.Column(db.Float)
+    win_price = db.Column(db.Float)
+    achievement = db.Column(db.Float)
+    settlement = db.Column(db.Float)
+    transaction_hash = db.Column(db.String(80))
     upload_time = db.Column(UTCDatetime, unique=False, nullable=False)
-    # ForeignKey to Bid
+    # ForeignKey to Tenders
     tenders_id = db.Column(UUID(), db.ForeignKey("tenders.uuid"), nullable=False)
     tenders = db.relationship("Tenders")
 
@@ -66,6 +53,7 @@ def add_bidsubmit(bid_data, user_id):
     }
     bid_data["tenders_id"] = get_tender_id(tender_data)
     bid_data["upload_time"] = datetime.today()
+    bid_data["status"] = "投標中"
     BidSubmit(**bid_data).add()
     return True
 
