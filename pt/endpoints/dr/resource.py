@@ -6,7 +6,7 @@ from loguru import logger
 
 from utils.oauth import auth, g
 
-from .model import DRBidModel, aggregator_accept, user_add_bid, get_counterpart
+from .model import DRBidModel, aggregator_accept, user_add_bid, get_user_by_account
 
 
 class DRBid(Resource):
@@ -154,14 +154,14 @@ class DRBidResult(Resource):
                 "executor": bid.executor,
                 "acceptor": bid.acceptor,
                 "counterpart_name": (
-                    get_counterpart(bid.executor).username
+                    get_user_by_account(bid.executor).username
                     if g.is_aggregator
-                    else get_counterpart(bid.acceptor).username
+                    else get_user_by_account(bid.acceptor).username
                 ),
                 "counterpart_address": (
-                    get_counterpart(bid.executor).address
+                    get_user_by_account(bid.executor).address
                     if g.is_aggregator
-                    else get_counterpart(bid.acceptor).address
+                    else get_user_by_account(bid.acceptor).address
                 ),
                 "start_time": bid.start_time.strftime("%Y-%m-%d %H:%M:%S"),
                 "end_time": bid.end_time.strftime("%Y-%m-%d %H:%M:%S") if bid.end_time else None,
