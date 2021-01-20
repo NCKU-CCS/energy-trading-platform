@@ -11,7 +11,7 @@ from app import create_app  # noqa: E402
 from blockchain.contract import Contract  # noqa: E402
 from blockchain.helper import get_contract_creator, get_event_time  # noqa: E402
 from endpoints.dr.model import DRBidModel  # noqa: E402
-from endpoints.bid.model import BidSubmit, MatchResult, Tenders  # noqa: E402
+from endpoints.bid.model import BidSubmit, Tenders  # noqa: E402
 
 # pylint: enable=C0413
 
@@ -37,7 +37,7 @@ def bidsubmit():
     """
 
     # Get event time
-    start_time, end_time, event_time_str = get_event_time(datetime.now())
+    start_time, _, event_time_str = get_event_time(datetime.now())
 
     # Query for bidsubmit, by buy and sell
     for bid_type, ordered_field in [('buy', BidSubmit.price.desc()), ('sell', BidSubmit.price.asc())]:
@@ -72,19 +72,12 @@ def bidsubmit():
 
             if result:
                 tx_hash = result[0]["transactionHash"]
-                data = {
-                    "bid_type": bid_type,  # sell or buy
-                    "start_time": start_time,
-                    "end_time": end_time,
-                    "status": "已投標",
-                    "win": 0,
-                    "bid_value": round(sum(volumes) / len(volumes), 2),
-                    "bid_price": round(sum(prices) / len(prices), 2),
-                    "transaction_hash": tx_hash,
-                    "upload": datetime.now(),
-                    "tenders_id": tender.uuid,
-                }
-                MatchResult(**data).add()
+                for bid in bidsubmits:
+                    bid.status = "已投標"
+                    bid.win = 0
+                    bid.transaction_hash = tx_hash
+                    bid.upload_time = datetime.now()
+                    BidSubmit.update(bid)
 
 
 @MANAGER.command
@@ -93,7 +86,7 @@ def match():
     Implementation of triggering bid_match to contract, trigger on 45th minute every hour
 
     Trigger time:
-    - hh:45
+    - every hour at hh:45
 
     Steps:
     - Getting users who had bid for the upcoming event time
