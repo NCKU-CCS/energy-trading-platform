@@ -91,10 +91,10 @@ def accumulate_bids(buy_bids, sell_bids):
     """
 
     for i in range(1, len(sell_bids)):
-        sell_bids[i][0] = sum((sell_bids[i - 1][0], sell_bids[i][0]))
+        sell_bids[i][0] += sell_bids[i - 1][0]
 
     for i in range(1, len(buy_bids)):
-        buy_bids[i][0] = sum((buy_bids[i - 1][0], buy_bids[i][0]))
+        buy_bids[i][0] += buy_bids[i - 1][0]
 
     return buy_bids, sell_bids
 
@@ -176,6 +176,7 @@ def generate_success_matchresult(start_time, tx_hash, win_value, win_price):
             data = buy_bidsubmits[-1].__dict__
             if data.pop("uuid", None):
                 data.pop("_sa_instance_state", None)
+                data["value"] -= sell_volume
                 buy_bidsubmits[-1] = BidSubmit.add(**data)
 
             # sell allocated, pop the bid from behind
@@ -195,6 +196,7 @@ def generate_success_matchresult(start_time, tx_hash, win_value, win_price):
             data = sell_bidsubmits[-1].__dict__
             if data.pop("uuid", None):
                 data.pop("_sa_instance_state", None)
+                data["value"] -= buy_volume
                 sell_bidsubmits[-1] = BidSubmit.add(**data)
             buy_bidsubmits.pop()
 
@@ -216,7 +218,7 @@ def update_bidsubmit(buy, sell, tx_hash, value, price):
     buy.upload_time = datetime.now()
     buy.update()
 
-    # buy_bidsubmit
+    # sell_bidsubmit
     sell.win = 1
     sell.status = "已得標"
     sell.counterpart_name = buyer.username
