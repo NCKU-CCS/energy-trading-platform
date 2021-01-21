@@ -91,3 +91,7 @@ def get_tomorrow(today: datetime):
 
 def get_start_of_day(day: datetime):
     return datetime.combine(day.date(), datetime.min.time())
+
+
+def get_user_by_account(account: str):
+    return User.query.filter_by(account=account).first()
