@@ -49,13 +49,13 @@ def get_bidsubmits(start_time):
 
         # get tenders_id and user_id
         bidsubmits = (
-            BidSubmit.query.filter_by(start_time=start_time, bid_type=bid_type)
+            BidSubmit.query.filter_by(start_time=start_time, bid_type=bid_type, status="已投標")
             .order_by(ordered_field)
             .all()
         )
 
         biddings = (
-            [[bidsubmit.value, bidsubmit.price, bidsubmit.tenders_id] for bidsubmit in bidsubmits]
+            [[bidsubmit.value, bidsubmit.price] for bidsubmit in bidsubmits]
         )
         bids[bid_type] = biddings
     return bids["buy"], bids["sell"]
@@ -72,7 +72,7 @@ def get_matched_bidsubmits(start_time, win_price):
 
         # get tenders_id and user_id
         bidsubmits = (
-            BidSubmit.query.filter_by(start_time=start_time, bid_type=bid_type)
+            BidSubmit.query.filter_by(start_time=start_time, bid_type=bid_type, status="已投標")
             .filter(filter_price)
             .order_by(ordered_field)
             .all()
@@ -86,8 +86,8 @@ def accumulate_bids(buy_bids, sell_bids):
     Description:
         Accumulate buys and sells volume value for demand-supply list
     Arguments:
-        buy_bids - buyers' bidsubmits. Index:(volume, price, buyer)
-        sell_bids - sellers' bidsubmits. Index:(volume, price, seller)
+        buy_bids - buyers' bidsubmits. Index:(volume, price)
+        sell_bids - sellers' bidsubmits. Index:(volume, price)
     """
 
     for i in range(1, len(sell_bids)):
@@ -104,8 +104,8 @@ def get_base_volumes(buy_bids, sell_bids):
     Description:
         Get the base volumes for all the buys and sells.
     Arguments:
-        buy_bids - buyers' bidsubmits. Index:(volume, price, buyer)
-        sell_bids - sellers' bidsubmits. Index:(volume, price, seller)
+        buy_bids - buyers' bidsubmits. Index:(volume, price)
+        sell_bids - sellers' bidsubmits. Index:(volume, price)
     """
 
     set_buy = {buy[0] for buy in buy_bids}
@@ -120,13 +120,13 @@ def get_matched_point(buy_bids, sell_bids):
     Description:
         Make buys and sells have same volume axis (base on `get_base_volumes`)
     Arguments:
-        buy_bids - buyers' bidsubmits. Index:(volume, price, buyer)
-        sell_bids - sellers' bidsubmits. Index:(volume, price, seller)
+        buy_bids - buyers' bidsubmits. Index:(volume, price)
+        sell_bids - sellers' bidsubmits. Index:(volume, price)
     """
 
     base_volumes = get_base_volumes(*accumulate_bids(buy_bids, sell_bids))
-    buy_bids.insert(0, [0, 0, 0])
-    sell_bids.insert(0, [0, 0, 0])
+    buy_bids.insert(0, [0, 0])
+    sell_bids.insert(0, [0, 0])
 
     matched_price = 0
     matched_volume = 0
@@ -234,8 +234,7 @@ def update_bidsubmit(buy, sell, tx_hash, value, price):
 
 def generate_denied_matchresult(start_time, tx_hash):
     matchresults = (
-        BidSubmit.query.filter_by(start_time=start_time)
-        .filter(BidSubmit.win != 1)
+        BidSubmit.query.filter_by(start_time=start_time, status="已投標")
         .all()
     )
 

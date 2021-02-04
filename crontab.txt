@@ -1,9 +1,12 @@
 # Blockchain
 # Everyday upload DR to smart contract (At 00:10）
-* * * * * /usr/bin/docker exec -it ET_PLATFORM /bin/sh -c "python3 blockchain/trigger.py accepted_dr_upload > /proc/1/fd/1 2>&1"
-10 0 * * * /usr/bin/docker exec -it ET_PLATFORM /bin/sh -c "python3 blockchain/trigger.py denied_dr_upload > /proc/1/fd/1 2>&1"
-40 * * * * /usr/bin/docker exec -it ET_PLATFORM /bin/sh -c "python3 blockchain/trigger.py bidsubmit > /proc/1/fd/1 2>&1"
-45 * * * * /usr/bin/docker exec -it ET_PLATFORM /bin/sh -c "python3 blockchain/trigger.py match > /proc/1/fd/1 2>&1"
+* * * * * /usr/bin/docker exec -it ET_PLATFORM /bin/sh -c "python3 manage.py trigger accepted_dr_upload > /proc/1/fd/1 2>&1"
+10 0 * * * /usr/bin/docker exec -it ET_PLATFORM /bin/sh -c "python3 manage.py trigger denied_dr_upload > /proc/1/fd/1 2>&1"
+* * * * * /usr/bin/docker exec -it ET_PLATFORM /bin/sh -c "python3 manage.py trigger execution_settlement > /proc/1/fd/1 2>&1"
+* * * * * /usr/bin/docker exec -it ET_PLATFORM /bin/sh -c "python3 manage.py trigger done_settlement > /proc/1/fd/1 2>&1"
+10 * * * * /usr/bin/docker exec -it ET_PLATFORM /bin/sh -c "python3 manage.py trigger settlement > /proc/1/fd/1 2>&1"
+40 * * * * /usr/bin/docker exec -it ET_PLATFORM /bin/sh -c "python3 manage.py trigger bidsubmit > /proc/1/fd/1 2>&1"
+45 * * * * /usr/bin/docker exec -it ET_PLATFORM /bin/sh -c "python3 manage.py trigger match > /proc/1/fd/1 2>&1"
 
 # IOTA Tracker
 */5 * * * * /usr/bin/docker exec ET_PLATFORM /bin/sh -c "python3 scripts/iota_tracker.py > /proc/1/fd/1 2>&1"
