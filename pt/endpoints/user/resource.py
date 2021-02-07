@@ -1,6 +1,6 @@
 import secrets
 
-from flask import jsonify, request, make_response
+from flask import jsonify, make_response
 from flask_restful import Resource, reqparse
 from werkzeug.security import generate_password_hash, check_password_hash
 from loguru import logger
@@ -14,6 +14,8 @@ class UserResource(Resource):
     def __init__(self):
         # User Change Password
         self._set_put_parser()
+        # User Create Account
+        self._set_post_parser()
 
     def _set_put_parser(self):
         self.put_parser = reqparse.RequestParser()
@@ -32,6 +34,37 @@ class UserResource(Resource):
             help="Reset password: new_passwd is required",
         )
 
+    def _set_post_parser(self):
+        self.post_parser = reqparse.RequestParser()
+        self.post_parser.add_argument(
+            "account",
+            type=str,
+            required=True,
+            location="json",
+            help="Create user: account is required",
+        )
+        self.post_parser.add_argument(
+            "password",
+            type=str,
+            required=True,
+            location="json",
+            help="Create user: password is required",
+        )
+        self.post_parser.add_argument(
+            "username",
+            type=str,
+            required=True,
+            location="json",
+            help="Create user: username is required",
+        )
+        self.post_parser.add_argument(
+            "role",
+            type=str,
+            required=True,
+            location="json",
+            help="Create user: role is required",
+        )
+
     # pylint: disable=R0201
     @auth.login_required
     def get(self):
@@ -45,7 +78,7 @@ class UserResource(Resource):
                 "balance": user.balance,
                 "address": user.address,
                 "eth_address": user.eth_address,
-                "is_aggregator": user.is_aggregator,
+                "role": user.role,
             }
         )
         return response
@@ -72,13 +105,13 @@ class UserResource(Resource):
 
     # pylint: disable=R0201
     def post(self):
-        data = request.get_json()
-        user = User.query.filter_by(account=data["account"]).first()
+        args = self.post_parser.parse_args()
+        user = User.query.filter_by(account=args["account"]).first()
         if user:
             return make_response(jsonify({"error": "Account already exists"}), 409)
-        data["password"] = generate_password_hash(data["password"])
-        data["tag"] = secrets.token_hex()
-        User(**data).add()
+        args["password"] = generate_password_hash(args["password"])
+        args["tag"] = secrets.token_hex()
+        User(**args).add()
         return make_response(jsonify({"message": "Account created"}), 201)
 
     # pylint: enable=R0201
@@ -115,20 +148,20 @@ class LoginResource(Resource):
                 g.username = user.username
                 g.uuid = user.uuid
                 g.tag = user.tag
-                g.is_aggregator = user.is_aggregator
+                g.role = user.role
             else:
                 return make_response(jsonify({"error": "Unauthorized access"}), 401)
         else:
             return make_response(jsonify({"error": "Unauthorized access"}), 401)
         logger.info(
-            f"[Post Login Request]\nUser Account:{g.username}\nUUID:{g.uuid}\nIs_Aggregator:{g.is_aggregator}\n"
+            f"[Post Login Request]\nUser Account:{g.username}\nUUID:{g.uuid}\nRole:{g.role}\n"
         )
         short_lived_token = serializer.dumps(g.tag).decode("utf-8")
         response = jsonify(
             {
                 "id": g.uuid,
                 "bearer": short_lived_token,
-                "is_aggregator": g.is_aggregator,
+                "role": g.role,
             }
         )
         return response

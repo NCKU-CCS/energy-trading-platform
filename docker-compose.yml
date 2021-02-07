@@ -17,6 +17,7 @@ services:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_ACCOUNT}
       POSTGRES_PASSWORD: ${DB_PASSWD}
+    env_file: ./.env
   et-platform:
     image: et_platform:latest
     container_name: ET_PLATFORM
