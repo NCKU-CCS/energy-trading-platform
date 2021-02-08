@@ -60,7 +60,7 @@ class DRBid(Resource):
         logger.info(f"[Get DRBid Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n")
         args = self.get_parser.parse_args()
         criteria = [DRBidModel.start_time >= args["date"], DRBidModel.start_time < args["date"] + timedelta(days=1)]
-        if g.role != 'aggregator':
+        if g.role != "aggregator":
             # user can only get their own bids
             criteria.append(DRBidModel.executor == g.account)
         dr_bids = DRBidModel.query.filter(*criteria).order_by(DRBidModel.start_time).all()
@@ -155,12 +155,12 @@ class DRBidResult(Resource):
                 "acceptor": bid.acceptor,
                 "counterpart_name": (
                     get_user_by_account(bid.executor).username
-                    if g.role == 'aggregator'
+                    if g.role == "aggregator"
                     else get_user_by_account(bid.acceptor).username
                 ),
                 "counterpart_address": (
                     get_user_by_account(bid.executor).address
-                    if g.role == 'aggregator'
+                    if g.role == "aggregator"
                     else get_user_by_account(bid.acceptor).address
                 ),
                 "start_time": bid.start_time.strftime("%Y-%m-%d %H:%M:%S"),
