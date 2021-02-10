@@ -8,7 +8,7 @@ services:
     volumes:
       - ${POSTGRES_DATA_DIR}:/var/lib/postgresql/data
       # mounting create uuid extension statement to initialization folder in container.
-      - ./create_uuid_extension.sql:/docker-entrypoint-initdb.d/create_uuid_extension.sql
+      - ./db_script/create_uuid_extension.sql:/docker-entrypoint-initdb.d/create_uuid_extension.sql
     expose:
       - 5432
     ports:
@@ -17,6 +17,7 @@ services:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_ACCOUNT}
       POSTGRES_PASSWORD: ${DB_PASSWD}
+    env_file: ./.env
   et-platform:
     image: et_platform:latest
     container_name: ET_PLATFORM

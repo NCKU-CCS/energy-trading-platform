@@ -63,12 +63,12 @@ class PowerDatasResource(Resource):
     def get(self):
         args = self.get_parser.parse_args()
         logger.info(
-            f"[Get PowerData Request]\nUser Account:{g.account}\nUUID:{g.uuid}\nIs_Aggregator:{g.is_aggregator}\n"
+            f"[Get PowerData Request]\nUser Account:{g.account}\nUUID:{g.uuid}\nRole:{g.role}\n"
         )
         # Account confirmation by UUID
         # Default account
         field = g.account
-        if g.is_aggregator and args["participant_id"]:
+        if g.role == "aggregator" and args["participant_id"]:
             # if participant_id is present, replace field name by requested account
             user = User.query.filter_by(uuid=args["participant_id"]).first()
             if user:
