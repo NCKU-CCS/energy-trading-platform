@@ -154,7 +154,7 @@ class LoginResource(Resource):
         else:
             return make_response(jsonify({"error": "Unauthorized access"}), 401)
         logger.info(
-            f"[Post Login Request]\nUser Account:{g.username}\nUUID:{g.uuid}\nRole:{g.role}\n"
+            f"[Post Login Request]\nUsername:{g.username}\nUUID:{g.uuid}\nRole:{g.role}\n"
         )
         short_lived_token = serializer.dumps(g.tag).decode("utf-8")
         response = jsonify(

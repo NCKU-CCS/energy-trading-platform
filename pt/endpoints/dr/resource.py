@@ -7,6 +7,7 @@ from loguru import logger
 from utils.oauth import auth, g
 
 from .model import DRBidModel, aggregator_accept, user_add_bid, get_user_by_account
+from ..user.model import User
 
 
 class DRBid(Resource):
@@ -59,11 +60,20 @@ class DRBid(Resource):
     def get(self):
         logger.info(f"[Get DRBid Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n")
         args = self.get_parser.parse_args()
-        criteria = [DRBidModel.start_time >= args["date"], DRBidModel.start_time < args["date"] + timedelta(days=1)]
-        if g.role != "aggregator":
-            # user can only get their own bids
-            criteria.append(DRBidModel.executor == g.account)
-        dr_bids = DRBidModel.query.filter(*criteria).order_by(DRBidModel.start_time).all()
+
+        date = [DRBidModel.start_time >= args["date"], DRBidModel.start_time < args["date"] + timedelta(days=1)]
+        roles = []
+        if g.role == "user":
+            roles.append(g.account)
+        elif g.role == "aggregator":
+            accounts = User.query.filter(User.role.in_(["aggregator", "user"])).all()
+            roles.extend([user.account for user in accounts])
+        elif g.role == "tpc":
+            accounts = User.query.filter_by(role="aggregator").all()
+            roles.extend([user.account for user in accounts])
+
+        dr_bids = DRBidModel.query.filter(*date,
+                                          DRBidModel.executor.in_(roles)).order_by(DRBidModel.start_time).all()
         return [
             {"uuid": bid.uuid, "executor": bid.executor, "volume": bid.volume, "price": bid.price} for bid in dr_bids
         ]
@@ -132,36 +142,43 @@ class DRBidResult(Resource):
             logger.info(
                 f"[Get DRBidResult] Query by date\nstart date: {args['start_date']}, end date: {args['end_date']}"
             )
-            criteria = [
+            search_args = [
                 DRBidModel.start_time >= args["start_date"],
-                DRBidModel.start_time < args["end_date"] + timedelta(days=1),
+                DRBidModel.end_time < args["end_date"] + timedelta(days=1),
             ]
         elif args["uuid"]:
             logger.info(f"[Get DRBidResult] Query by uuid\nuuids: {args['uuid']}")
-            criteria = [DRBidModel.uuid.in_(args["uuid"])]
+            search_args = [DRBidModel.uuid.in_(args["uuid"])]
         else:
             logger.error("[Get DRBidResult] No valid parameters")
             return "parameter is required", 400
 
-        if g.role != "aggregator":
-            # user can only get their bids
-            criteria.append(DRBidModel.executor == g.account)
+        roles = []
+        if g.role == "user":
+            roles.append(g.account)
+        elif g.role == "aggregator":
+            accounts = User.query.filter(User.role.in_(["aggregator", "user"])).all()
+            roles.extend([user.account for user in accounts])
+        elif g.role == "tpc":
+            accounts = User.query.filter_by(role="aggregator").all()
+            roles.extend([user.account for user in accounts])
 
-        dr_bids = DRBidModel.query.filter(*criteria).order_by(DRBidModel.start_time).all()
+        dr_bids = DRBidModel.query.filter(*search_args,
+                                          DRBidModel.executor.in_(roles)).order_by(DRBidModel.start_time).all()
         return [
             {
                 "uuid": bid.uuid,
                 "executor": bid.executor,
                 "acceptor": bid.acceptor,
                 "counterpart_name": (
-                    get_user_by_account(bid.executor).username
-                    if g.role == "aggregator"
-                    else get_user_by_account(bid.acceptor).username
+                    get_user_by_account(bid.executor).username       # tpc, aggregator in acceptor
+                    if g.role == "tpc" or (g.role == "aggregator" and bid.acceptor in accounts)
+                    else get_user_by_account(bid.acceptor).username  # user, aggregator in executor
                 ),
                 "counterpart_address": (
-                    get_user_by_account(bid.executor).address
-                    if g.role == "aggregator"
-                    else get_user_by_account(bid.acceptor).address
+                    get_user_by_account(bid.executor).address        # tpc, aggregator in acceptor
+                    if g.role == "tpc" or (g.role == "aggregator" and bid.acceptor in accounts)
+                    else get_user_by_account(bid.acceptor).address   # user, aggregator in executor
                 ),
                 "start_time": bid.start_time.strftime("%Y-%m-%d %H:%M:%S"),
                 "end_time": bid.end_time.strftime("%Y-%m-%d %H:%M:%S") if bid.end_time else None,
