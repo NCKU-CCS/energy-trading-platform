@@ -61,7 +61,9 @@ class DRBid(Resource):
         logger.info(f"[Get DRBid Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n")
         args = self.get_parser.parse_args()
 
-        date = [DRBidModel.start_time >= args["date"], DRBidModel.start_time < args["date"] + timedelta(days=1)]
+        criteria = [DRBidModel.start_time >= args["date"],
+                    DRBidModel.start_time < args["date"] + timedelta(days=10)]
+
         roles = []
         if g.role == "user":
             roles.append(g.account)
@@ -72,7 +74,7 @@ class DRBid(Resource):
             accounts = User.query.filter_by(role="aggregator").all()
             roles.extend([user.account for user in accounts])
 
-        dr_bids = DRBidModel.query.filter(*date,
+        dr_bids = DRBidModel.query.filter(*criteria,
                                           DRBidModel.executor.in_(roles)).order_by(DRBidModel.start_time).all()
         return [
             {"uuid": bid.uuid, "executor": bid.executor, "volume": bid.volume, "price": bid.price} for bid in dr_bids
@@ -136,19 +138,20 @@ class DRBidResult(Resource):
     # pylint: disable=R0201
     @auth.login_required
     def get(self):
-        logger.info(f"[Get DRBidResult Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n")
+        logger.info(f"[Get DR Bid Result Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n")
         args = self.get_parser.parse_args()
+        criteria = [DRBidModel.result is True]
         if args["start_date"] and args["end_date"]:
             logger.info(
                 f"[Get DRBidResult] Query by date\nstart date: {args['start_date']}, end date: {args['end_date']}"
             )
-            search_args = [
+            criteria.extend([
                 DRBidModel.start_time >= args["start_date"],
                 DRBidModel.end_time < args["end_date"] + timedelta(days=1),
-            ]
+            ])
         elif args["uuid"]:
             logger.info(f"[Get DRBidResult] Query by uuid\nuuids: {args['uuid']}")
-            search_args = [DRBidModel.uuid.in_(args["uuid"])]
+            criteria.append(DRBidModel.uuid.in_(args["uuid"]))
         else:
             logger.error("[Get DRBidResult] No valid parameters")
             return "parameter is required", 400
@@ -163,7 +166,7 @@ class DRBidResult(Resource):
             accounts = User.query.filter_by(role="aggregator").all()
             roles.extend([user.account for user in accounts])
 
-        dr_bids = DRBidModel.query.filter(*search_args,
+        dr_bids = DRBidModel.query.filter(*criteria,
                                           DRBidModel.executor.in_(roles)).order_by(DRBidModel.start_time).all()
         return [
             {
