@@ -27,7 +27,7 @@ black:
 lint: flake8 pylint
 
 build:
-	docker build -t et_platform pt --no-cache
+	docker build -t et_platform . --no-cache
 
 run:
 	pipenv run python pt/app.py
