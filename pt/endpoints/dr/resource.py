@@ -59,6 +59,51 @@ class DRBid(Resource):
             help="acceptor_role argument is required by aggregator",
         )
 
+    def _set_post_parser(self):
+        self.post_parser = reqparse.RequestParser()
+        self.post_parser.add_argument(
+            "start_time",
+            type=lambda x: datetime.strptime(x, "%Y-%m-%d"),
+            required=True,
+            location="json",
+            help="start_time is required"
+        )
+        self.post_parser.add_argument(
+            "volume",
+            type=float,
+            required=True,
+            location="json",
+            help="volume is required"
+        )
+        self.post_parser.add_argument(
+            "price",
+            type=float,
+            required=True,
+            location="json",
+            help="price is required"
+        )
+        self.post_parser.add_argument(
+            "settlement",
+            type=float,
+            required=True,
+            location="json",
+            help="settlement is required"
+        )
+        self.post_parser.add_argument(
+            "trading_mode",
+            type=int,
+            required=True,
+            location="json",
+            help="trading_mode is required"
+        )
+        self.post_parser.add_argument(
+            "order_method",
+            type=str,
+            required=True,
+            location="json",
+            help="order_method is required"
+        )
+
     def _set_patch_parser(self):
         patch_temp = reqparse.RequestParser()
         patch_temp.add_argument(
@@ -84,44 +129,6 @@ class DRBid(Resource):
             required=True,
             location="json",
             help="end_time is required",
-        )
-
-    def _set_post_parser(self):
-        self.post_parser = reqparse.RequestParser()
-        self.post_parser.add_argument(
-            "start_time",
-            type=lambda x: datetime.strptime(x, "%Y-%m-%d %H:%M:%S"),
-            required=True,
-            location="json",
-            help="start_time is required"
-        )
-        self.post_parser.add_argument(
-            "volume",
-            type=float,
-            required=True,
-            location="json",
-            help="volume is required"
-        )
-        self.post_parser.add_argument(
-            "price",
-            type=float,
-            required=True,
-            location="json",
-            help="price is required"
-        )
-        self.post_parser.add_argument(
-            "trading_mode",
-            type=int,
-            required=True,
-            location="json",
-            help="trading_mode is required"
-        )
-        self.post_parser.add_argument(
-            "order_method",
-            type=str,
-            required=True,
-            location="json",
-            help="order_method is required"
         )
 
     # pylint: disable=R0201
@@ -190,47 +197,51 @@ class DRBid(Resource):
     def post(self):
         logger.info(f"[Post DR]\nUser Account: {g.account}\nUUID: {g.uuid}\n")
         args = self.post_parser.parse_args()
-        logger.info(f"[DR]\nstart: {args['start_time']}\nvolume: {args['volume']}\nprice: {args['price']}\n\
-                            trading_mode: {args['trading_mode']}\norder_method: {args['order_method']}")
+        args["start_time"] += timedelta(hours=8)
+        logger.info(f"[DR]\nstart: {args['start_time']}\nvolume: {args['volume']}\nprice: {args['price']}\
+                    \nsettlement: {args['settlement']}\ntrading_mode: {args['trading_mode']}\
+                    \norder_method: {args['order_method']}")
         if g.role != 'tpc':
             data = {
                 "uuid": uuid.uuid4(),
                 "executor": g.account,
-                "start_time": args['start_time'],
-                "volume": args['volume'],
-                "price": args['price'],
+                "start_time": args["start_time"],
+                "volume": args["volume"],
+                "price": args["price"],
+                "settlement": args["settlement"],
                 "result": False,
                 "status": "投標中",
-                "trading_mode": args['trading_mode'],
-                "order_method": args['order_method'],
+                "trading_mode": args["trading_mode"],
+                "order_method": args["order_method"],
             }
             DRBidModel(**data).add()
             return "OK", 200
         return "error", 400
 
-    # @auth.login_required
-    # def patch(self):
-    #     logger.info(f"[PATCH DR]\nUser Account: {g.account}\nUUID: {g.uuid}\n")
-    #     # aggregator只有決標才需要time_patch!!! Bug 待修
-    #     args =( self.patch_parser.parse_args()
-    #             if g.role == "user"
-    #             else self.time_patch_parser.parse_args())
-
-    #     logger.info(f"\nuuid: {args['uuid']}\n")
-    #     dr = DRBidModel.query.filter_by(uuid=args["uuid"]).first()
-    #     if g.role == "user":
-    #         dr.status = "已投標"
-    #     else:
-    #         dr.start_time = args["start_time"]
-    #         dr.end_time = args["end_time"]
-    #         dr.result = True
-    #         dr.status = "得標"
-    #     try:
-    #         DRBidModel.update(dr)
-    #         logger.success("success update dr")
-    #     except Exception as error:
-    #         logger.error(f"[PATCH DR]\nrole: {g.role}\nuuid: {args['uuid']}\n")
-    #         DRBidModel.rollback()
+    @auth.login_required
+    def patch(self):
+        logger.info(f"[PATCH DR]\nUser Account: {g.account}\nUUID: {g.uuid}\n")
+        args = self.patch_parser.parse_args()
+        logger.info(f"\nuuid: {args['uuid']}\n")
+        dr_bid = DRBidModel.query.filter_by(uuid=args["uuid"]).first()
+        if dr_bid.executor != g.account:
+            args = self.time_patch_parser.parse_args()
+            logger.info(f"\nstart_time: {args['start_time']}\nend_time: {args['end_time']}\n")
+            dr_bid.start_time = args["start_time"]
+            dr_bid.end_time = args["end_time"]
+            dr_bid.acceptor = g.account
+            dr_bid.result = True
+            dr_bid.status = "得標"
+        else:
+            dr_bid.status = "已投標"
+        try:
+            DRBidModel.update(dr_bid)
+            logger.success("success update dr_bid")
+            return "OK", 200
+        except Exception:
+            logger.error(f"[PATCH DR]\nrole: {g.role}\nuuid: {args['uuid']}\n")
+            DRBidModel.rollback()
+            return "update error", 400
 
     def data_table(self, criteria, roles, per_page=10, page=1):
         return (DRBidModel.query.filter(*criteria, DRBidModel.executor.in_(roles))
