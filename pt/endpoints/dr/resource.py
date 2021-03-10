@@ -1,4 +1,5 @@
 import uuid
+import copy
 from datetime import datetime, timedelta
 
 from flask_restful import Resource, reqparse
@@ -12,21 +13,26 @@ from .model import DRBidModel, get_role_account, get_counterpart
 class DRBid(Resource):
     def __init__(self):
         self._set_get_parser()
-        self._set_aggregator_get_parser()
         self._set_post_parser()
         self._set_patch_parser()
-        self._set_time_patch_parser()
 
     def _set_get_parser(self):
-        self.get_parser = reqparse.RequestParser()
-        self.get_parser.add_argument(
+        get_temp = reqparse.RequestParser()
+        get_temp.add_argument(
             "date",
             type=lambda x: datetime.strptime(x, "%Y-%m-%d"),
             required=False,
             location="args",
             help="date type is %Y-%m-%d",
         )
-        self.get_parser.add_argument(
+        get_temp.add_argument(
+            "order_method",
+            type=str,
+            required=False,
+            location="args",
+            help="order_method is required"
+        )
+        get_temp.add_argument(
             "per_page",
             type=int,
             required=False,
@@ -34,7 +40,7 @@ class DRBid(Resource):
             default=10,
             help="dr number of per page",
         )
-        self.get_parser.add_argument(
+        get_temp.add_argument(
             "page",
             type=int,
             required=False,
@@ -43,31 +49,8 @@ class DRBid(Resource):
             help="which page",
         )
 
-    def _set_aggregator_get_parser(self):
-        self.aggregator_get_parser = reqparse.RequestParser()
-        self.aggregator_get_parser.add_argument(
-            "date",
-            type=lambda x: datetime.strptime(x, "%Y-%m-%d"),
-            required=False,
-            location="args",
-            help="date type is %Y-%m-%d",
-        )
-        self.aggregator_get_parser.add_argument(
-            "per_page",
-            type=int,
-            required=False,
-            location="args",
-            default=10,
-            help="dr number of per page",
-        )
-        self.aggregator_get_parser.add_argument(
-            "page",
-            type=int,
-            required=False,
-            location="args",
-            default=1,
-            help="which page",
-        )
+        self.get_parser = copy.deepcopy(get_temp)
+        self.aggregator_get_parser = copy.deepcopy(get_temp)
         self.aggregator_get_parser.add_argument(
             "acceptor_role",
             type=str,
@@ -77,8 +60,8 @@ class DRBid(Resource):
         )
 
     def _set_patch_parser(self):
-        self.patch_parser = reqparse.RequestParser()
-        self.patch_parser.add_argument(
+        patch_temp = reqparse.RequestParser()
+        patch_temp.add_argument(
             "uuid",
             type=lambda x: uuid.UUID(x, version=4),
             required=True,
@@ -86,15 +69,8 @@ class DRBid(Resource):
             help="uuid is required"
         )
 
-    def _set_time_patch_parser(self):
-        self.time_patch_parser = reqparse.RequestParser()
-        self.time_patch_parser.add_argument(
-            "uuid",
-            type=lambda x: uuid.UUID(x, version=4),
-            required=True,
-            location="json",
-            help="uuid is required"
-        )
+        self.patch_parser = copy.deepcopy(patch_temp)
+        self.time_patch_parser = copy.deepcopy(patch_temp)
         self.time_patch_parser.add_argument(
             "start_time",
             type=lambda x: datetime.strptime(x, "%Y-%m-%d %H:%M:%S"),
@@ -172,15 +148,16 @@ class DRBid(Resource):
 
         criteria = []
         if args["date"]:
-            logger.info(f"[GET DR]\ndate: {args['date']}")
+            logger.info(f"[GET DR]\ndate: {args['date']}\n")
             criteria.extend([DRBidModel.start_time >= args["date"],
                              DRBidModel.start_time < args["date"] + timedelta(days=1)])
+        if args["order_method"]:
+            logger.info(f"[GET DR]\norder_method: {args['order_method']}\n")
+            criteria.append(DRBidModel.order_method == args["order_method"])
 
-        # dr_bids = ( self.data_table(criteria, roles, args["per_page"], args["page"])
-        #             if args["per_page"] and args["page"]
-        #             else self.data_table(criteria, roles) )
         dr_bids = self.data_table(criteria, roles, args["per_page"], args["page"])
-        return [
+        logger.debug(f"[GET DR]\nnumber of dr_bids: {len(dr_bids)}\n")
+        return ([
             {
                 "uuid": bid.uuid,
                 "executor": bid.executor,
@@ -202,10 +179,12 @@ class DRBid(Resource):
                 "rate": bid.rate,
                 "blockchain_url": bid.blockchain_url,
                 "trading_mode": bid.trading_mode,
-                "order_method": bid.order_method,
             }
             for bid in dr_bids
         ]
+            if dr_bids
+            else ("no data on this page", 400)
+        )
 
     @auth.login_required
     def post(self):
