@@ -181,6 +181,7 @@ class DRBid(Resource):
                 "end_time": bid.end_time.strftime("%Y-%m-%d %H:%M:%S") if bid.end_time else None,
                 "volume": bid.volume,
                 "price": bid.price,
+                "settlement": bid.settlement,
                 "result": bid.result,
                 "status": bid.status,
                 "rate": bid.rate,
