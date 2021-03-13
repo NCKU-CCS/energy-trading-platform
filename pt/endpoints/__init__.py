@@ -3,7 +3,7 @@ from endpoints.user.resource import UserResource, LoginResource, ParticipantReso
 from endpoints.news.resource import NewsResource
 from endpoints.powerdata.resource import PowerDatasResource
 from endpoints.bid.resource import HomePageResource, MatchResultsResource, BidSubmitResource, BidStatusResource
-from endpoints.dr.resource import DRBid, DRBidResult
+from endpoints.dr.resource import DRBid
 from endpoints.socketio.resource import SocketResource
 
 RESOURCES = {
@@ -19,6 +19,5 @@ RESOURCES = {
     "homepage": HomePageResource,
     "bidstatus": BidStatusResource,
     "DR_bid": DRBid,
-    "DR_result": DRBidResult,
     "socketio": SocketResource,
 }

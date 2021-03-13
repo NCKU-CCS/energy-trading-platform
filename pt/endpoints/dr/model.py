@@ -25,6 +25,8 @@ class DRBidModel(db.Model, ETBaseMixin):
     rate = db.Column(db.Float, nullable=True)
     settlement = db.Column(db.Float, nullable=True)
     blockchain_url = db.Column(db.String(), nullable=True)
+    trading_mode = db.Column(db.Integer, nullable=False)
+    order_method = db.Column(db.String(), nullable=False)
 
 
 def user_add_bid(bid: dict):
@@ -95,3 +97,13 @@ def get_start_of_day(day: datetime):
 
 def get_user_by_account(account: str):
     return User.query.filter_by(account=account).first()
+
+
+def get_role_account(role: str):
+    return User.query.filter_by(role=role).all()
+
+
+def get_counterpart(executor: str, acceptor: str, logging_role: str, acceptor_role: str):
+    return (get_user_by_account(executor)
+            if logging_role in ["tpc", acceptor_role]
+            else get_user_by_account(acceptor))

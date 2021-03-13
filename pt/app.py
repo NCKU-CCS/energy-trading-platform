@@ -70,7 +70,6 @@ def create_app(config_mode):
     api.add_resource(RESOURCES["homepage"], "/homepage")
     api.add_resource(RESOURCES["bidstatus"], "/bidstatus")
     api.add_resource(RESOURCES["DR_bid"], "/DR_bid")
-    api.add_resource(RESOURCES["DR_result"], "/DR_result")
     api.add_resource(RESOURCES["socketio"], "/socket_settlement")
 
     return app
