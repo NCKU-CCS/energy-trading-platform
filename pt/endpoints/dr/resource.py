@@ -187,6 +187,7 @@ class DRBid(Resource):
                 "rate": bid.rate,
                 "blockchain_url": bid.blockchain_url,
                 "trading_mode": bid.trading_mode,
+                "order_method": bid.order_method,
             }
             for bid in dr_bids
         ]
