@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 from flask_restful import Resource, reqparse
 from loguru import logger
-
+from sqlalchemy import desc
 from utils.oauth import auth, g
 
 from .model import DRBidModel, get_role_account, get_counterpart
@@ -48,6 +48,14 @@ class DRBid(Resource):
             default=1,
             help="which page",
         )
+        get_temp.add_argument(
+            "sort",
+            type=str,
+            required=False,
+            location="args",
+            default="ASC",
+            help="ASC or DESC"
+        )
 
         self.get_parser = copy.deepcopy(get_temp)
         self.aggregator_get_parser = copy.deepcopy(get_temp)
@@ -63,10 +71,17 @@ class DRBid(Resource):
         self.post_parser = reqparse.RequestParser()
         self.post_parser.add_argument(
             "start_time",
-            type=lambda x: datetime.strptime(x, "%Y-%m-%d"),
+            type=lambda x: datetime.strptime(x, "%Y-%m-%d %H:%M:%S"),
             required=True,
             location="json",
             help="start_time is required"
+        )
+        self.post_parser.add_argument(
+            "end_time",
+            type=lambda x: datetime.strptime(x, "%Y-%m-%d %H:%M:%S"),
+            required=True,
+            location="json",
+            help="end_time is required"
         )
         self.post_parser.add_argument(
             "volume",
@@ -162,32 +177,36 @@ class DRBid(Resource):
             logger.info(f"[GET DR]\norder_method: {args['order_method']}\n")
             criteria.append(DRBidModel.order_method == args["order_method"])
 
-        dr_bids = self.data_table(criteria, roles, args["per_page"], args["page"])
+        dr_bids, max_page = self.data_table(criteria, roles, args["sort"], args["per_page"], args["page"])
         logger.debug(f"[GET DR]\nnumber of dr_bids: {len(dr_bids)}\n")
         return ([
             {
-                "uuid": bid.uuid,
-                "executor": bid.executor,
-                "acceptor": bid.acceptor,
-                "counterpart_name": (
-                    get_counterpart(bid.executor, bid.acceptor, g.role, acceptor_role).username
-                    if bid.acceptor else None
-                ),
-                "counterpart_address": (
-                    get_counterpart(bid.executor, bid.acceptor, g.role, acceptor_role).address
-                    if bid.acceptor else None
-                ),
-                "start_time": bid.start_time.strftime("%Y-%m-%d %H:%M:%S"),
-                "end_time": bid.end_time.strftime("%Y-%m-%d %H:%M:%S") if bid.end_time else None,
-                "volume": bid.volume,
-                "price": bid.price,
-                "settlement": bid.settlement,
-                "result": bid.result,
-                "status": bid.status,
-                "rate": bid.rate,
-                "blockchain_url": bid.blockchain_url,
-                "trading_mode": bid.trading_mode,
-                "order_method": bid.order_method,
+                "current_page": args["page"],
+                "max_page": max_page,
+                "data": {
+                    "uuid": bid.uuid,
+                    "executor": bid.executor,
+                    "acceptor": bid.acceptor,
+                    "counterpart_name": (
+                        get_counterpart(bid.executor, bid.acceptor, g.role, acceptor_role).username
+                        if bid.acceptor else None
+                    ),
+                    "counterpart_address": (
+                        get_counterpart(bid.executor, bid.acceptor, g.role, acceptor_role).address
+                        if bid.acceptor else None
+                    ),
+                    "start_time": bid.start_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "end_time": bid.end_time.strftime("%Y-%m-%d %H:%M:%S") if bid.end_time else None,
+                    "volume": bid.volume,
+                    "price": bid.price,
+                    "settlement": bid.settlement,
+                    "result": bid.result,
+                    "status": bid.status,
+                    "rate": bid.rate,
+                    "blockchain_url": bid.blockchain_url,
+                    "trading_mode": bid.trading_mode,
+                    "order_method": bid.order_method,
+                },
             }
             for bid in dr_bids
         ]
@@ -200,14 +219,15 @@ class DRBid(Resource):
         logger.info(f"[Post DR]\nUser Account: {g.account}\nUUID: {g.uuid}\n")
         args = self.post_parser.parse_args()
         args["start_time"] += timedelta(hours=8)
-        logger.info(f"[DR]\nstart: {args['start_time']}\nvolume: {args['volume']}\nprice: {args['price']}\
-                    \nsettlement: {args['settlement']}\ntrading_mode: {args['trading_mode']}\
+        logger.info(f"[DR]\nstart: {args['start_time']}\nend: {args['end_time']}\nvolume: {args['volume']}\n\
+                    \nprice: {args['price']}\nsettlement: {args['settlement']}\ntrading_mode: {args['trading_mode']}\
                     \norder_method: {args['order_method']}")
         if g.role != 'tpc':
             data = {
                 "uuid": uuid.uuid4(),
                 "executor": g.account,
                 "start_time": args["start_time"],
+                "end_time": args["end_time"],
                 "volume": args["volume"],
                 "price": args["price"],
                 "settlement": args["settlement"],
@@ -245,9 +265,15 @@ class DRBid(Resource):
             DRBidModel.rollback()
             return "update error", 400
 
-    def data_table(self, criteria, roles, per_page=10, page=1):
-        return (DRBidModel.query.filter(*criteria, DRBidModel.executor.in_(roles))
-                                .order_by(DRBidModel.start_time)
-                                .offset((page - 1) * per_page)
-                                .limit(per_page)
-                                .all())
+    def data_table(self, criteria, roles, sort="ASC", per_page=10, page=1):
+        data = DRBidModel.query.filter(*criteria, DRBidModel.executor.in_(roles))
+        if sort == "ASC":
+            data = data.order_by(DRBidModel.start_time)
+        else:
+            data = data.order_by(desc(DRBidModel.start_time))
+        data = (data.offset((page - 1) * per_page)
+                    .limit(per_page)
+                    .all())
+        count = DRBidModel().query.count()
+        count = (count // per_page) + (count % per_page > 0)
+        return data, count
