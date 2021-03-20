@@ -266,14 +266,12 @@ class DRBid(Resource):
             return "update error", 400
 
     def data_table(self, criteria, roles, sort="ASC", per_page=10, page=1):
-        data = DRBidModel.query.filter(*criteria, DRBidModel.executor.in_(roles))
-        if sort == "ASC":
-            data = data.order_by(DRBidModel.start_time)
-        else:
-            data = data.order_by(desc(DRBidModel.start_time))
-        data = (data.offset((page - 1) * per_page)
-                    .limit(per_page)
-                    .all())
-        count = DRBidModel().query.count()
-        count = (count // per_page) + (count % per_page > 0)
-        return data, count
+        result = DRBidModel.query.filter(*criteria, DRBidModel.executor.in_(roles))
+        result = (result.order_by(DRBidModel.start_time)
+                  if sort == "ASC"
+                  else result.order_by(desc(DRBidModel.start_time)))
+        fragment = (result.offset((page - 1) * per_page)
+                          .limit(per_page)
+                          .all())
+        count = (result.count() // per_page) + (result.count() % per_page > 0)
+        return fragment, count
