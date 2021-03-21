@@ -30,7 +30,7 @@ class DRBid(Resource):
             type=str,
             required=False,
             location="args",
-            help="order_method is required"
+            help="lack of order_method"
         )
         get_temp.add_argument(
             "per_page",
@@ -151,24 +151,29 @@ class DRBid(Resource):
     def get(self):
         logger.info(f"[GET DR]\nUser Account: {g.account}\nUUID: {g.uuid}\n")
         acceptor_role = None
+        roles = []
+        criteria = []
         if g.role == "aggregator":
             args = self.aggregator_get_parser.parse_args()
             logger.info(f"[Get DR]\nacceptor_role: {args['acceptor_role']}")
             acceptor_role = args["acceptor_role"]
+
+            if g.role == acceptor_role:
+                roles.extend([user.account for user in get_role_account("user")])
+                if args["date"]:
+                    criteria.append(DRBidModel.status != "投標中")
+            else:
+                roles.extend([user.account for user in get_role_account("aggregator")])
+        elif g.role == "tpc":
+            args = self.get_parser.parse_args()
+            roles.extend([user.account for user in get_role_account("aggregator")])
+
+            if args["date"]:
+                criteria.append(DRBidModel.status != "投標中")
         else:
             args = self.get_parser.parse_args()
-
-        # if there is multiple user or aggregator, the code must be refactor
-        roles = []
-        if g.role == "user":
             roles.append(g.account)
-        else:
-            accounts = (get_role_account("user")
-                        if g.role == acceptor_role
-                        else get_role_account("aggregator"))
-            roles.extend([user.account for user in accounts])
 
-        criteria = []
         if args["date"]:
             logger.info(f"[GET DR]\ndate: {args['date']}\n")
             criteria.extend([DRBidModel.start_time >= args["date"],
@@ -266,14 +271,12 @@ class DRBid(Resource):
             return "update error", 400
 
     def data_table(self, criteria, roles, sort="ASC", per_page=10, page=1):
-        data = DRBidModel.query.filter(*criteria, DRBidModel.executor.in_(roles))
-        if sort == "ASC":
-            data = data.order_by(DRBidModel.start_time)
-        else:
-            data = data.order_by(desc(DRBidModel.start_time))
-        data = (data.offset((page - 1) * per_page)
-                    .limit(per_page)
-                    .all())
-        count = DRBidModel().query.count()
-        count = (count // per_page) + (count % per_page > 0)
-        return data, count
+        result = DRBidModel.query.filter(*criteria, DRBidModel.executor.in_(roles))
+        result = (result.order_by(DRBidModel.start_time)
+                  if sort == "ASC"
+                  else result.order_by(desc(DRBidModel.start_time)))
+        fragment = (result.offset((page - 1) * per_page)
+                          .limit(per_page)
+                          .all())
+        count = (result.count() // per_page) + (result.count() % per_page > 0)
+        return fragment, count
