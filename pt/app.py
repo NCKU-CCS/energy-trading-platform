@@ -25,7 +25,7 @@ def create_app(config_mode):
     def af_request(resp):
         resp = make_response(resp)
         resp.headers["Access-Control-Allow-Origin"] = "*"
-        resp.headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,OPTIONS"
+        resp.headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,PATCH,OPTIONS"
         resp.headers["Access-Control-Allow-Headers"] = "X-Requested-With, Content-Type, Authorization"
         return resp
 

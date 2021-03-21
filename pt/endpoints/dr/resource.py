@@ -161,7 +161,7 @@ class DRBid(Resource):
             if g.role == acceptor_role:
                 roles.extend([user.account for user in get_role_account("user")])
                 if args["date"]:
-                    criteria.append(DRBidModel.status == "已投標")
+                    criteria.append(DRBidModel.status != "投標中")
             else:
                 roles.extend([user.account for user in get_role_account("aggregator")])
         elif g.role == "tpc":
@@ -169,7 +169,7 @@ class DRBid(Resource):
             roles.extend([user.account for user in get_role_account("aggregator")])
 
             if args["date"]:
-                criteria.append(DRBidModel.status == "已投標")
+                criteria.append(DRBidModel.status != "投標中")
         else:
             args = self.get_parser.parse_args()
             roles.append(g.account)
