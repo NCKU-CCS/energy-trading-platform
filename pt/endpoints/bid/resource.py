@@ -1,5 +1,5 @@
 import random
-from itertools import groupby
+import uuid as uuid_gen
 from datetime import datetime, timedelta
 
 from flask import jsonify, make_response
@@ -8,6 +8,7 @@ from sqlalchemy import func
 from loguru import logger
 
 from config import db
+from endpoints.user.model import User
 from utils.oauth import auth, g
 from .model import Tenders, BidSubmit, add_bidsubmit, edit_bidsubmit
 
@@ -80,29 +81,15 @@ class HomePageResource(Resource):
 
 
 class MatchResultsResource(Resource):
-    def __init__(self):
-        # parser for tpc
-        self._set_get_parser()
-
-    def _set_get_parser(self):
-        self.get_parser = reqparse.RequestParser()
-        self.get_parser.add_argument(
-            "tpc",
-            type=bool,
-            required=False,
-            location="args",
-        )
-
-    # pylint: disable=R0201
+    # pylint: disable=R0201, R0914
     @auth.login_required
     def get(self):
-        args = self.get_parser.parse_args()
-
         logger.info(
             f"[Get MatchResults Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n"
         )
 
-        if not args["tpc"]:
+        user = User.query.filter_by(account=g.account).first()
+        if user.role != "tpc":
             # Query three recent days
             last_three_day = datetime.combine((datetime.now() - timedelta(days=3)).date(), datetime.min.time())
             if g.uuid in [tender.user_id for tender in Tenders.query.all()]:
@@ -143,48 +130,59 @@ class MatchResultsResource(Resource):
             else:
                 bids = []
         else:
-            query_bids = BidSubmit.query.filter(BidSubmit.status != "NULL").order_by(BidSubmit.start_time.desc()).all()
-            tender_hour_bids = [
-                list(grouped_entry)
-                for (tender_id, start_time), grouped_entry
-                in groupby(query_bids, lambda bid: (bid.tenders_id, bid.start_time))
-            ]
-            result = [
-                {
-                    "id": bids[0].uuid,
-                    "date": bids[0].start_time.strftime("%Y/%m/%d"),
-                    "time": f'{bids[0].start_time.strftime("%H")}:00-{bids[0].end_time.strftime("%H")}:00',
-                    "bid_type": bids[0].bid_type,
-                    "win": bids[0].win,
-                    "status": bids[0].status,
-                    "transaction_hash": bids[0].transaction_hash,
-                    "upload": bids[0].upload_time.strftime("%Y/%m/%d %H:%M:%S"),
-                    "user": {
-                        "name": bids[0].tenders.user.username,
-                        "address": bids[0].tenders.user.address,
-                    },
-                    "counterpart": {
-                        "name": bids[0].counterpart_name,
-                        "address": bids[0].counterpart_address,
-                    },
-                    "bids": {
-                        "price": bids[0].price,
-                        "value": bids[0].value,
-                    },
-                    "wins": {
-                        "price": bids[0].price,
-                        "value": bids[0].value,
-                    },
-                    "achievement": random.random(),
-                    "settlement": random.randint(0, 100),
-                }
-                for bids in tender_hour_bids
-            ]
-            bids = result
+            # faking data status
+            # this recent 5 hours
+            action = ["已結算", "執行中", "已得標"]
+            # action = [None, None, None, None, None]
+
+            now = datetime.now()
+            fake_start = datetime(now.year, now.month, now.day, now.hour) - timedelta(hours=1)
+
+            non_tpc_users = User.query.filter(User.role != "tpc").all()
+
+            bids = []
+            bid_types = ["buy", "sell"]
+            for i in range(3):
+                start_time = fake_start + timedelta(hours=i)
+                end_time = start_time + timedelta(hours=1)
+                for _ in range(3):
+                    pair_uuid = str(uuid_gen.uuid4())
+                    common_value = {
+                        "bids": {
+                            "price": 1 + random.random() * 10,
+                            "value": random.randint(5, 30),
+                        },
+                        "wins": {
+                            "price": 1 + random.random() * 10,
+                            "value": random.randint(5, 30),
+                        },
+                        "achievement": random.random(),
+                        "settlement": random.randint(0, 100),
+                    }
+                    for k, target in enumerate(random.choices(non_tpc_users, k=2)):
+                        bids.append(
+                            {
+                                "id": pair_uuid,
+                                "date": start_time.strftime("%Y/%m/%d"),
+                                "time": f'{start_time.strftime("%H")}:00-{end_time.strftime("%H")}:00',
+                                "bid_type": bid_types[k],
+                                "win": 1,
+                                "status": action[i],
+                                "transaction_hash": (
+                                    "0xb594d64485d32b009af3fbb3b456c8c7e463794af120c58eb9a3ab34de4f2543"
+                                ),
+                                "upload": start_time.strftime("%Y/%m/%d %H:%M:%S"),
+                                "counterpart": {
+                                    "name": target.username,
+                                    "address": target.address,
+                                },
+                                **common_value,
+                            }
+                        )
         response = jsonify(bids)
         return response
 
-    # pylint: enable=R0201
+    # pylint: enable=R0201, R0914
 
 
 class BidStatusResource(Resource):
