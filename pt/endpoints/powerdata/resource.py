@@ -86,7 +86,7 @@ class PowerDatasResource(Resource):
             logger.info(f"[Get PowerData Request]:Data Charts Mode\nField:{field}")
             chart_date = datetime.strptime(args["chart_date"], "%Y/%m/%d")
             start_time = chart_date - timedelta(days=6)
-            end_time = chart_date + timedelta(days=1)
+            end_time = chart_date
             return self.chart_mode(start_time, end_time, field)
         # Day Summary Mode
         if args["summary_date"]:
