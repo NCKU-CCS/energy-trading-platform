@@ -166,6 +166,14 @@ class DRBid(Resource):
             args = self.get_parser.parse_args()
             roles.append(g.account)
 
+        _bidding_status = {
+            "競標": ["投標中", "已投標"],
+            "執行中": ["已得標", "未得標", "執行中"],
+            "結算": ["結算中", "已結算"]
+        }
+        if args["status"] in _bidding_status.keys():
+            logger.info(f"[GET DR]\nstatus: {args['status']}\n")
+            criteria.append(DRBidModel.status.in_(_bidding_status.get(args["status"])))
         if args["date"]:
             logger.info(f"[GET DR]\ndate: {args['date']}\n")
             criteria.extend([DRBidModel.start_time >= args["date"],
@@ -173,14 +181,6 @@ class DRBid(Resource):
         if args["order_method"]:
             logger.info(f"[GET DR]\norder_method: {args['order_method']}\n")
             criteria.append(DRBidModel.order_method == args["order_method"])
-        if args["status"]:
-            logger.info(f"[GET DR]\nstatus: {args['status']}\n")
-            if args["status"] == "競標":
-                criteria.append(DRBidModel.status.in_(["投標中", "已投標"]))
-            elif args["status"] == "執行中":
-                criteria.append(DRBidModel.status.in_(["已得標", "未得標", "執行中"]))
-            elif args["status"] == "結算":
-                criteria.append(DRBidModel.status.in_(["結算中", "已結算"]))
 
         dr_bids, max_page = self.data_table(criteria, roles, args["sort"], args["per_page"], args["page"])
         logger.debug(f"[GET DR]\nnumber of dr_bids: {len(dr_bids)}\n")
