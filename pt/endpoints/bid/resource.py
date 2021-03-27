@@ -7,39 +7,28 @@ from loguru import logger
 
 from config import db
 from utils.oauth import auth, g
+from endpoints.user.model import User
 from .model import Tenders, BidSubmit, add_bidsubmit, edit_bidsubmit
+from .fake_data import matchresult
 
 
 class HomePageResource(Resource):
     # pylint: disable=R0201
     @auth.login_required
     def get(self):
-        logger.info(
-            f"[Get HomePage Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n"
-        )
+        logger.info(f"[Get HomePage Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n")
         # format of response for real time execution info matched bid list
-        data = {
-            "buy": {"price": None, "volume": None},
-            "sell": {"price": None, "volume": None},
-            "results": [],
-        }
+        data = {"buy": {"price": None, "volume": None}, "sell": {"price": None, "volume": None}, "results": []}
         # matched bids are status in one of the ['已得標', '執行中', '結算中', '已結算']
         if g.uuid in [tender.user_id for tender in Tenders.query.all()]:
             results = BidSubmit.query.filter(
                 BidSubmit.status.in_(["已得標", "執行中", "結算中", "已結算"]),
-                BidSubmit.tenders_id.in_(
-                    [
-                        tender.uuid
-                        for tender in Tenders.query.filter_by(user_id=g.uuid).all()
-                    ]
-                ),
+                BidSubmit.tenders_id.in_([tender.uuid for tender in Tenders.query.filter_by(user_id=g.uuid).all()]),
             )
             # check current time execution info by further filter the `results` query
             current_time = datetime.now()
             executing_bids = results.filter(
-                BidSubmit.start_time <= current_time,
-                BidSubmit.end_time > current_time,
-                BidSubmit.status == "執行中",
+                BidSubmit.start_time <= current_time, BidSubmit.end_time > current_time, BidSubmit.status == "執行中"
             )
             # if `buy` happening, update data object
             buy_bids = executing_bids.filter_by(bid_type="buy").all()
@@ -67,9 +56,7 @@ class HomePageResource(Resource):
                     "price": result.win_value,
                     "volume": result.win_price,
                 }
-                for result in results.order_by(BidSubmit.start_time.desc())
-                .limit(10)
-                .all()
+                for result in results.order_by(BidSubmit.start_time.desc()).limit(10).all()
             ]
         response = jsonify(data)
         return response
@@ -81,49 +68,38 @@ class MatchResultsResource(Resource):
     # pylint: disable=R0201
     @auth.login_required
     def get(self):
-        logger.info(
-            f"[Get MatchResults Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n"
-        )
+        logger.info(f"[Get MatchResults Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n")
 
-        # Query three recent days
-        last_three_day = datetime.combine((datetime.now() - timedelta(days=3)).date(), datetime.min.time())
-        if g.uuid in [tender.user_id for tender in Tenders.query.all()]:
-            bids = [
-                {
-                    "id": message.uuid,
-                    "date": message.start_time.strftime("%Y/%m/%d"),
-                    "time": f'{message.start_time.strftime("%H")}:00-{message.end_time.strftime("%H")}:00',
-                    "bid_type": message.bid_type,
-                    "win": message.win,
-                    "status": message.status,
-                    "transaction_hash": message.transaction_hash,
-                    "upload": message.upload_time,
-                    "counterpart": {
-                        "name": message.counterpart_name,
-                        "address": message.counterpart_address,
-                    },
-                    "bids": {"price": message.price, "value": message.value},
-                    "wins": {"price": message.win_price, "value": message.win_value},
-                    "achievement": message.achievement,
-                    "settlement": message.settlement,
-                }
-                for message in BidSubmit.query.filter(
-                    BidSubmit.tenders_id.in_(
-                        [
-                            tender.uuid
-                            for tender in Tenders.query.filter(
-                                Tenders.user_id == g.uuid,
-                                Tenders.start_time >= datetime.combine(last_three_day.date(), datetime.min.time())
-                            ).all()
-                        ]
-                    ),
-                    BidSubmit.status != "NULL",
-                )
-                .order_by(BidSubmit.start_time.desc())
-                .all()
-            ]
+        timdelta_status = {
+            "投標中": timedelta(hours=24),
+            "已得標": timedelta(hours=23),
+            "未得標": -timedelta(hours=1),
+            "執行中": timedelta(hours=0),
+            "已結算": -timedelta(hours=3),
+        }
+
+        # "date": message.start_time.strftime("%Y/%m/%d"),
+        # "time": f'{message.start_time.strftime("%H")}:00-{message.end_time.strftime("%H")}:00',
+
+        now = datetime.now()
+        # for demo only
+        user = User.query.filter_by(uuid=g.uuid).first()
+        if user.role == "tpc":
+            # tpc will list all data
+            total_bids = []
+            for value in matchresult.values():
+                total_bids.extend(value)
+            total_bids.sort(key=lambda item: (item["status"], item["id"]))
+            bids = total_bids
         else:
-            bids = []
+            bids = matchresult[user.username]
+        for i, _ in enumerate(bids):
+            diff = timdelta_status[bids[i]["status"]]
+            event_start_time = now + diff
+            event_end_time = event_start_time + timedelta(hours=1)
+            bids[i]["date"] = event_start_time.strftime("%Y/%m/%d")
+            bids[i]["time"] = f'{event_start_time.strftime("%H")}:00-{event_end_time.strftime("%H")}:00'
+            bids[i]["upload"] = event_start_time
         response = jsonify(bids)
         return response
 
@@ -134,16 +110,12 @@ class BidStatusResource(Resource):
     # pylint: disable=R0201
     @auth.login_required
     def get(self):
-        logger.info(
-            f"[Get BidStatus Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n"
-        )
+        logger.info(f"[Get BidStatus Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n")
         if datetime.today().minute < 40:
             start_time = datetime.today() + timedelta(hours=1)
         else:
             start_time = datetime.today() + timedelta(hours=2)
-        start_time = (
-            start_time.replace(minute=0).replace(second=0).replace(microsecond=0)
-        )
+        start_time = start_time.replace(minute=0).replace(second=0).replace(microsecond=0)
         # filter tenders on given time range
         user_group = Tenders.query.filter(Tenders.start_time == start_time)
         # default response all zeros
@@ -154,18 +126,10 @@ class BidStatusResource(Resource):
         if distinct_user_count:
             bid_info = (
                 db.session.query(
-                    (func.sum(BidSubmit.price) / func.count(BidSubmit.price)).label(
-                        "average_price"
-                    ),
-                    (func.sum(BidSubmit.value) / func.count(BidSubmit.value)).label(
-                        "average_volume"
-                    ),
+                    (func.sum(BidSubmit.price) / func.count(BidSubmit.price)).label("average_price"),
+                    (func.sum(BidSubmit.value) / func.count(BidSubmit.value)).label("average_volume"),
                 )
-                .filter(
-                    BidSubmit.tenders_id.in_(
-                        [bidder.uuid for bidder in user_group.all()]
-                    )
-                )
+                .filter(BidSubmit.tenders_id.in_([bidder.uuid for bidder in user_group.all()]))
                 .first()
             )
             # form the response
@@ -193,11 +157,7 @@ class BidSubmitResource(Resource):
     def _set_common_parser(self):
         self.common_parser = reqparse.RequestParser()
         self.common_parser.add_argument(
-            "bid_type",
-            type=str,
-            required=True,
-            location="json",
-            help="bid_type is required",
+            "bid_type", type=str, required=True, location="json", help="bid_type is required"
         )
         self.common_parser.add_argument(
             "start_time",
@@ -213,43 +173,19 @@ class BidSubmitResource(Resource):
             location="json",
             help="end_time is required",
         )
-        self.common_parser.add_argument(
-            "value",
-            type=float,
-            required=True,
-            location="json",
-            help="value is required",
-        )
-        self.common_parser.add_argument(
-            "price",
-            type=float,
-            required=True,
-            location="json",
-            help="price is required",
-        )
+        self.common_parser.add_argument("value", type=float, required=True, location="json", help="value is required")
+        self.common_parser.add_argument("price", type=float, required=True, location="json", help="price is required")
 
     def _set_get_parser(self):
         self.get_parser = reqparse.RequestParser()
         self.get_parser.add_argument(
-            "per_page",
-            type=int,
-            required=True,
-            location="args",
-            help="Get bidsubmit: limit is required",
+            "per_page", type=int, required=True, location="args", help="Get bidsubmit: limit is required"
         )
         self.get_parser.add_argument(
-            "page",
-            type=int,
-            required=True,
-            location="args",
-            help="Get bidsubmit: offset is required",
+            "page", type=int, required=True, location="args", help="Get bidsubmit: offset is required"
         )
         self.get_parser.add_argument(
-            "bid_type",
-            type=str,
-            required=True,
-            location="args",
-            help="Get bidsubmit: bid_type is required",
+            "bid_type", type=str, required=True, location="args", help="Get bidsubmit: bid_type is required"
         )
 
     def _set_post_parser(self):
@@ -258,21 +194,13 @@ class BidSubmitResource(Resource):
     def _set_put_parser(self):
         self.put_parser = self.common_parser.copy()
         self.put_parser.add_argument(
-            "id",
-            type=str,
-            required=True,
-            location="json",
-            help="Put bidsubmit: id is required",
+            "id", type=str, required=True, location="json", help="Put bidsubmit: id is required"
         )
 
     def _set_delete_parser(self):
         self.delete_parser = reqparse.RequestParser()
         self.delete_parser.add_argument(
-            "id",
-            type=str,
-            required=True,
-            location="json",
-            help="Delete bidsubmit: id is required",
+            "id", type=str, required=True, location="json", help="Delete bidsubmit: id is required"
         )
 
     # pylint: disable=R0201
@@ -280,12 +208,7 @@ class BidSubmitResource(Resource):
         bid_ids = [
             bid.uuid
             for bid in BidSubmit.query.filter(
-                BidSubmit.tenders_id.in_(
-                    [
-                        tender.uuid
-                        for tender in Tenders.query.filter_by(user_id=uuid).all()
-                    ]
-                )
+                BidSubmit.tenders_id.in_([tender.uuid for tender in Tenders.query.filter_by(user_id=uuid).all()])
             ).all()
         ]
         return bid_ids
@@ -299,9 +222,7 @@ class BidSubmitResource(Resource):
         limit = args["per_page"]
         offset = args["page"]
 
-        logger.info(
-            f"[Get BidSubmit Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n"
-        )
+        logger.info(f"[Get BidSubmit Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n")
         bid_query = BidSubmit.query.filter(
             BidSubmit.tenders_id.in_(
                 [
@@ -316,14 +237,10 @@ class BidSubmitResource(Resource):
         )
         # buy prices is in high to low order
         if args["bid_type"] == "buy":
-            bid_queryset = bid_query.order_by(
-                BidSubmit.start_time, BidSubmit.price.desc()
-            ).all()
+            bid_queryset = bid_query.order_by(BidSubmit.start_time, BidSubmit.price.desc()).all()
         # sell prices is in low to high order
         elif args["bid_type"] == "sell":
-            bid_queryset = bid_query.order_by(
-                BidSubmit.start_time, BidSubmit.price.asc()
-            ).all()
+            bid_queryset = bid_query.order_by(BidSubmit.start_time, BidSubmit.price.asc()).all()
         bids = [
             {
                 "id": message.uuid,
@@ -340,11 +257,7 @@ class BidSubmitResource(Resource):
             for message in bid_queryset
         ]
         response = jsonify(
-            {
-                "data": bids[(offset - 1) * limit : offset * limit],  # noqa: E203
-                "page": offset,
-                "totalCount": len(bids),
-            }
+            {"data": bids[(offset - 1) * limit : offset * limit], "page": offset, "totalCount": len(bids)}  # noqa: E203
         )
         return response
 
@@ -380,21 +293,9 @@ class BidSubmitResource(Resource):
         if target_id in bid_ids:
             target = BidSubmit.query.filter_by(uuid=target_id).first()
             if target.start_time < datetime.today():
-                return make_response(
-                    (
-                        jsonify(
-                            {
-                                "message": "Reject",
-                                "description": "The bid has been closed",
-                            }
-                        ),
-                        400,
-                    )
-                )
+                return make_response((jsonify({"message": "Reject", "description": "The bid has been closed"}), 400))
             BidSubmit.delete(target)
             return make_response(jsonify({"message": "Accept"}))
-        return make_response(
-            jsonify({"message": "Reject", "description": "Invalid ID"}), 400
-        )
+        return make_response(jsonify({"message": "Reject", "description": "Invalid ID"}), 400)
 
     # pylint: enable=R0201
