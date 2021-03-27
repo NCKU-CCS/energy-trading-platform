@@ -223,7 +223,6 @@ class DRBid(Resource):
     def post(self):
         logger.info(f"[Post DR]\nUser Account: {g.account}\nUUID: {g.uuid}\n")
         args = self.post_parser.parse_args()
-        args["start_time"] += timedelta(hours=8)
         logger.info(f"[DR]\nstart: {args['start_time']}\nend: {args['end_time']}\nvolume: {args['volume']}\n\
                     \nprice: {args['price']}\nsettlement: {args['settlement']}\ntrading_mode: {args['trading_mode']}\
                     \norder_method: {args['order_method']}")
