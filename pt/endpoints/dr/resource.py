@@ -56,6 +56,13 @@ class DRBid(Resource):
             default="ASC",
             help="ASC or DESC"
         )
+        get_temp.add_argument(
+            "status",
+            type=str,
+            required=False,
+            location="args",
+            help="bidding status page required parameter"
+        )
 
         self.get_parser = copy.deepcopy(get_temp)
         self.aggregator_get_parser = copy.deepcopy(get_temp)
@@ -130,21 +137,6 @@ class DRBid(Resource):
         )
 
         self.patch_parser = copy.deepcopy(patch_temp)
-        self.time_patch_parser = copy.deepcopy(patch_temp)
-        self.time_patch_parser.add_argument(
-            "start_time",
-            type=lambda x: datetime.strptime(x, "%Y-%m-%d %H:%M:%S"),
-            required=True,
-            location="json",
-            help="start_time is required",
-        )
-        self.time_patch_parser.add_argument(
-            "end_time",
-            type=lambda x: datetime.strptime(x, "%Y-%m-%d %H:%M:%S"),
-            required=True,
-            location="json",
-            help="end_time is required",
-        )
 
     # pylint: disable=R0201
     @auth.login_required
@@ -181,6 +173,14 @@ class DRBid(Resource):
         if args["order_method"]:
             logger.info(f"[GET DR]\norder_method: {args['order_method']}\n")
             criteria.append(DRBidModel.order_method == args["order_method"])
+        if args["status"]:
+            logger.info(f"[GET DR]\nstatus: {args['status']}\n")
+            if args["status"] == "競標":
+                criteria.append(DRBidModel.status.in_(["投標中", "已投標"]))
+            elif args["status"] == "執行中":
+                criteria.append(DRBidModel.status.in_(["已得標", "未得標", "執行中"]))
+            elif args["status"] == "結算":
+                criteria.append(DRBidModel.status.in_(["結算中", "已結算"]))
 
         dr_bids, max_page = self.data_table(criteria, roles, args["sort"], args["per_page"], args["page"])
         logger.debug(f"[GET DR]\nnumber of dr_bids: {len(dr_bids)}\n")
@@ -227,6 +227,9 @@ class DRBid(Resource):
         logger.info(f"[DR]\nstart: {args['start_time']}\nend: {args['end_time']}\nvolume: {args['volume']}\n\
                     \nprice: {args['price']}\nsettlement: {args['settlement']}\ntrading_mode: {args['trading_mode']}\
                     \norder_method: {args['order_method']}")
+
+        if args["end_time"] <= args["start_time"]:
+            return "end_time error", 400
         if g.role != 'tpc':
             data = {
                 "uuid": uuid.uuid4(),
@@ -243,7 +246,7 @@ class DRBid(Resource):
             }
             DRBidModel(**data).add()
             return "OK", 200
-        return "error", 400
+        return "role error", 400
 
     @auth.login_required
     def patch(self):
@@ -252,10 +255,6 @@ class DRBid(Resource):
         logger.info(f"\nuuid: {args['uuid']}\n")
         dr_bid = DRBidModel.query.filter_by(uuid=args["uuid"]).first()
         if dr_bid.executor != g.account:
-            args = self.time_patch_parser.parse_args()
-            logger.info(f"\nstart_time: {args['start_time']}\nend_time: {args['end_time']}\n")
-            dr_bid.start_time = args["start_time"]
-            dr_bid.end_time = args["end_time"]
             dr_bid.acceptor = g.account
             dr_bid.result = True
             dr_bid.status = "得標"
