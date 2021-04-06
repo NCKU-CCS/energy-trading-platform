@@ -1,4 +1,5 @@
-"""rename volume to bid_volume, add win_volume and cbl
+"""rename volume to bid_volume,
+   add win_volume, demand_volume and cbl
 
 Revision ID: ec3138328c31
 Revises: 6b007366be97
@@ -27,6 +28,7 @@ def upgrade():
     op.add_column('DR_bid', sa.Column('bid_volume', sa.Float(), nullable=False))
     op.add_column('DR_bid', sa.Column('cbl', sa.Float(), nullable=True))
     op.add_column('DR_bid', sa.Column('win_volume', sa.Float(), nullable=True))
+    op.add_column('DR_bid', sa.Column('demand_volume', sa.Float(), nullable=True))
     op.drop_column('DR_bid', 'volume')
     # ### end Alembic commands ###
 
@@ -37,4 +39,5 @@ def downgrade():
     op.drop_column('DR_bid', 'win_volume')
     op.drop_column('DR_bid', 'cbl')
     op.drop_column('DR_bid', 'bid_volume')
+    op.drop_column('DR_bid', 'demand_volume')
     # ### end Alembic commands ###

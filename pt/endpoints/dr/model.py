@@ -20,6 +20,7 @@ class DRBidModel(db.Model, ETBaseMixin):
     end_time = db.Column(UTCDatetime, nullable=True)
     bid_volume = db.Column(db.Float, nullable=False)
     win_volume = db.Column(db.Float, nullable=True)
+    demand_volume = db.Column(db.Float, nullable=False)
     price = db.Column(db.Float, nullable=False)
     result = db.Column(db.Boolean, nullable=True)
     status = db.Column(db.String(), nullable=True)
