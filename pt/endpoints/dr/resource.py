@@ -91,11 +91,11 @@ class DRBid(Resource):
             help="end_time is required"
         )
         self.post_parser.add_argument(
-            "volume",
+            "bid_volume",
             type=float,
             required=True,
             location="json",
-            help="volume is required"
+            help="bid_volume is required"
         )
         self.post_parser.add_argument(
             "price",
@@ -202,9 +202,11 @@ class DRBid(Resource):
                     ),
                     "start_time": bid.start_time.strftime("%Y-%m-%d %H:%M:%S"),
                     "end_time": bid.end_time.strftime("%Y-%m-%d %H:%M:%S") if bid.end_time else None,
-                    "volume": bid.volume,
+                    "bid_volume": bid.bid_volume,
+                    "win_volume": bid.win_volume,
                     "price": bid.price,
                     "settlement": bid.settlement,
+                    "cbl": bid.cbl,
                     "result": bid.result,
                     "status": bid.status,
                     "rate": bid.rate,
@@ -223,7 +225,7 @@ class DRBid(Resource):
     def post(self):
         logger.info(f"[Post DR]\nUser Account: {g.account}\nUUID: {g.uuid}\n")
         args = self.post_parser.parse_args()
-        logger.info(f"[DR]\nstart: {args['start_time']}\nend: {args['end_time']}\nvolume: {args['volume']}\n\
+        logger.info(f"[DR]\nstart: {args['start_time']}\nend: {args['end_time']}\nbid_volume: {args['bid_volume']}\n\
                     \nprice: {args['price']}\nsettlement: {args['settlement']}\ntrading_mode: {args['trading_mode']}\
                     \norder_method: {args['order_method']}")
 
@@ -235,7 +237,7 @@ class DRBid(Resource):
                 "executor": g.account,
                 "start_time": args["start_time"],
                 "end_time": args["end_time"],
-                "volume": args["volume"],
+                "bid_volume": args["bid_volume"],
                 "price": args["price"],
                 "settlement": args["settlement"],
                 "result": False,
