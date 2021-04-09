@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, time
-from loguru import logger
 from random import randint
+from loguru import logger
 
 from config import db
 from utils.base_models import UTCDatetime
