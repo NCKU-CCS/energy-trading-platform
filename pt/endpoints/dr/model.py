@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, time
-
 from loguru import logger
+from random import randint
 
 from config import db
 from utils.base_models import UTCDatetime
@@ -18,15 +18,13 @@ class DRBidModel(db.Model, ETBaseMixin):
     acceptor = db.Column(db.String(), nullable=True)
     start_time = db.Column(UTCDatetime, nullable=False)
     end_time = db.Column(UTCDatetime, nullable=True)
-    bid_volume = db.Column(db.Float, nullable=False)
-    win_volume = db.Column(db.Float, nullable=True)
-    demand_volume = db.Column(db.Float, nullable=False)
+    volume = db.Column(db.Float, nullable=False)
+    real_volume = db.Column(db.Float, nullable=True)
     price = db.Column(db.Float, nullable=False)
     result = db.Column(db.Boolean, nullable=True)
     status = db.Column(db.String(), nullable=True)
     rate = db.Column(db.Float, nullable=True)
     settlement = db.Column(db.Float, nullable=True)
-    cbl = db.Column(db.Float, nullable=True)
     blockchain_url = db.Column(db.String(), nullable=True)
     trading_mode = db.Column(db.Integer, nullable=False)
     order_method = db.Column(db.String(), nullable=False)
@@ -110,3 +108,24 @@ def get_counterpart(executor: str, acceptor: str, logging_role: str, acceptor_ro
     return (get_user_by_account(executor)
             if logging_role in ["tpc", acceptor_role]
             else get_user_by_account(acceptor))
+
+
+def get_dr_volume(start, end):
+    criteria = [DRBidModel.start_time == start,
+                DRBidModel.end_time == end]
+    bids = DRBidModel.query.filter(*criteria).all()
+    volume = sum([bid.volume for bid in bids])
+    return bids[0].real_volume - volume
+
+
+def get_cbl(start, end):
+    interval = [start, end]
+    window = []
+
+    for day in range(5):
+        temp = [i - timedelta(days=day) for i in interval]
+        criteria = [DRBidModel.start_time == temp[0], DRBidModel.end_time == temp[1]]
+        bid = DRBidModel.query.filter(*criteria).first()
+        # whether have value
+        window.append(bid.real_volume if bid else randint(1, 5))
+    return sum(window) / 5
