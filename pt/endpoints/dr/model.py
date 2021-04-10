@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, time
-from random import randint
+from copy import deepcopy
 from loguru import logger
 
 from config import db
@@ -110,22 +110,30 @@ def get_counterpart(executor: str, acceptor: str, logging_role: str, acceptor_ro
             else get_user_by_account(acceptor))
 
 
-def get_dr_volume(start, end):
-    criteria = [DRBidModel.start_time == start,
-                DRBidModel.end_time == end]
-    bids = DRBidModel.query.filter(*criteria).all()
-    volume = sum([bid.volume for bid in bids])
-    return bids[0].real_volume - volume
+def bid_query(bid):
+    criteria = [DRBidModel.start_time == bid.start_time,
+                DRBidModel.end_time == bid.end_time,
+                DRBidModel.executor == bid.executor,
+                DRBidModel.order_method == bid.order_method]
+    result = DRBidModel.query.filter(*criteria).first()
+    return result
 
 
-def get_cbl(start, end):
-    interval = [start, end]
+def get_dr_volume(bid):
+    bid = deepcopy(bid)
+    result = bid_query(bid)
+    cbl = get_cbl(bid)
+    return float('{:.2f}'.format(cbl - result.real_volume))
+
+
+def get_cbl(bid):
+    bid = deepcopy(bid)
+    interval = [bid.start_time, bid.end_time]
     window = []
 
-    for day in range(5):
-        temp = [i - timedelta(days=day) for i in interval]
-        criteria = [DRBidModel.start_time == temp[0], DRBidModel.end_time == temp[1]]
-        bid = DRBidModel.query.filter(*criteria).first()
+    for day in range(1, 6):
+        bid.start_time, bid.end_time = [i - timedelta(days=day) for i in interval]
+        result = bid_query(bid)
         # whether have value
-        window.append(bid.real_volume if bid else randint(1, 5))
-    return sum(window) / 5
+        window.append(result.real_volume if result else 5)
+    return float('{:.2f}'.format(sum(window) / 5))
