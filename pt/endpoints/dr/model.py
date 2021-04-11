@@ -128,11 +128,11 @@ def get_dr_volume(bid):
 
 def get_cbl(bid):
     bid = deepcopy(bid)
-    interval = [bid.start_time, bid.end_time]
     window = []
 
-    for day in range(1, 6):
-        bid.start_time, bid.end_time = [i - timedelta(days=day) for i in interval]
+    for _ in range(5):
+        bid.start_time -= timedelta(days=1)
+        bid.end_time -= timedelta(days=1)
         result = bid_query(bid)
         # whether have value
         window.append(result.real_volume if result else 5)
