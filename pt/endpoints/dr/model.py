@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, time
-
+from copy import deepcopy
 from loguru import logger
 
 from config import db
@@ -18,15 +18,13 @@ class DRBidModel(db.Model, ETBaseMixin):
     acceptor = db.Column(db.String(), nullable=True)
     start_time = db.Column(UTCDatetime, nullable=False)
     end_time = db.Column(UTCDatetime, nullable=True)
-    bid_volume = db.Column(db.Float, nullable=False)
-    win_volume = db.Column(db.Float, nullable=True)
-    demand_volume = db.Column(db.Float, nullable=False)
+    volume = db.Column(db.Float, nullable=False)
+    real_volume = db.Column(db.Float, nullable=True)
     price = db.Column(db.Float, nullable=False)
     result = db.Column(db.Boolean, nullable=True)
     status = db.Column(db.String(), nullable=True)
     rate = db.Column(db.Float, nullable=True)
     settlement = db.Column(db.Float, nullable=True)
-    cbl = db.Column(db.Float, nullable=True)
     blockchain_url = db.Column(db.String(), nullable=True)
     trading_mode = db.Column(db.Integer, nullable=False)
     order_method = db.Column(db.String(), nullable=False)
@@ -110,3 +108,32 @@ def get_counterpart(executor: str, acceptor: str, logging_role: str, acceptor_ro
     return (get_user_by_account(executor)
             if logging_role in ["tpc", acceptor_role]
             else get_user_by_account(acceptor))
+
+
+def bid_query(bid):
+    criteria = [DRBidModel.start_time == bid.start_time,
+                DRBidModel.end_time == bid.end_time,
+                DRBidModel.executor == bid.executor,
+                DRBidModel.order_method == bid.order_method]
+    result = DRBidModel.query.filter(*criteria).first()
+    return result
+
+
+def get_dr_volume(bid):
+    bid = deepcopy(bid)
+    result = bid_query(bid)
+    cbl = get_cbl(bid)
+    return float('{:.2f}'.format(cbl - result.real_volume))
+
+
+def get_cbl(bid):
+    bid = deepcopy(bid)
+    window = []
+
+    for _ in range(5):
+        bid.start_time -= timedelta(days=1)
+        bid.end_time -= timedelta(days=1)
+        result = bid_query(bid)
+        # whether have value
+        window.append(result.real_volume if result else 5)
+    return float('{:.2f}'.format(sum(window) / 5))

@@ -7,7 +7,7 @@ from loguru import logger
 from sqlalchemy import desc
 from utils.oauth import auth, g
 
-from .model import DRBidModel, get_role_account, get_counterpart
+from .model import DRBidModel, get_role_account, get_counterpart, get_dr_volume, get_cbl
 
 
 class DRBid(Resource):
@@ -91,11 +91,11 @@ class DRBid(Resource):
             help="end_time is required"
         )
         self.post_parser.add_argument(
-            "bid_volume",
+            "volume",
             type=float,
             required=True,
             location="json",
-            help="bid_volume is required"
+            help="volume is required"
         )
         self.post_parser.add_argument(
             "price",
@@ -202,15 +202,15 @@ class DRBid(Resource):
                     ),
                     "start_time": bid.start_time.strftime("%Y-%m-%d %H:%M:%S"),
                     "end_time": bid.end_time.strftime("%Y-%m-%d %H:%M:%S") if bid.end_time else None,
-                    "bid_volume": bid.bid_volume,
-                    "win_volume": bid.win_volume,
-                    "demand_volume": bid.demand_volume,
+                    "volume": bid.volume,
+                    "real_volume": bid.real_volume,
+                    "dr_volume": get_dr_volume(bid),
+                    "cbl": get_cbl(bid),
                     "price": bid.price,
-                    "settlement": bid.settlement,
-                    "cbl": bid.cbl,
+                    "settlement": "{:.2f}".format(bid.settlement),
                     "result": bid.result,
                     "status": bid.status,
-                    "rate": bid.rate,
+                    "rate": "{:.2%}".format(get_dr_volume(bid) / bid.volume),
                     "blockchain_url": bid.blockchain_url,
                     "trading_mode": bid.trading_mode,
                     "order_method": bid.order_method,
@@ -226,7 +226,7 @@ class DRBid(Resource):
     def post(self):
         logger.info(f"[Post DR]\nUser Account: {g.account}\nUUID: {g.uuid}\n")
         args = self.post_parser.parse_args()
-        logger.info(f"[DR]\nstart: {args['start_time']}\nend: {args['end_time']}\nbid_volume: {args['bid_volume']}\n\
+        logger.info(f"[DR]\nstart: {args['start_time']}\nend: {args['end_time']}\nvolume: {args['volume']}\n\
                     \nprice: {args['price']}\nsettlement: {args['settlement']}\ntrading_mode: {args['trading_mode']}\
                     \norder_method: {args['order_method']}")
 
@@ -238,7 +238,7 @@ class DRBid(Resource):
                 "executor": g.account,
                 "start_time": args["start_time"],
                 "end_time": args["end_time"],
-                "bid_volume": args["bid_volume"],
+                "volume": args["volume"],
                 "price": args["price"],
                 "settlement": args["settlement"],
                 "result": False,
