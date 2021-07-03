@@ -1,3 +1,5 @@
+import random
+import uuid as uuid_gen
 from datetime import datetime, timedelta
 
 from flask import jsonify, make_response
@@ -6,6 +8,7 @@ from sqlalchemy import func
 from loguru import logger
 
 from config import db
+from endpoints.user.model import User
 from utils.oauth import auth, g
 from .model import Tenders, BidSubmit, add_bidsubmit, edit_bidsubmit
 
@@ -78,56 +81,108 @@ class HomePageResource(Resource):
 
 
 class MatchResultsResource(Resource):
-    # pylint: disable=R0201
+    # pylint: disable=R0201, R0914
     @auth.login_required
     def get(self):
         logger.info(
             f"[Get MatchResults Request]\nUser Account:{g.account}\nUUID:{g.uuid}\n"
         )
 
-        # Query three recent days
-        last_three_day = datetime.combine((datetime.now() - timedelta(days=3)).date(), datetime.min.time())
-        if g.uuid in [tender.user_id for tender in Tenders.query.all()]:
-            bids = [
-                {
-                    "id": message.uuid,
-                    "date": message.start_time.strftime("%Y/%m/%d"),
-                    "time": f'{message.start_time.strftime("%H")}:00-{message.end_time.strftime("%H")}:00',
-                    "bid_type": message.bid_type,
-                    "win": message.win,
-                    "status": message.status,
-                    "transaction_hash": message.transaction_hash,
-                    "upload": message.upload_time,
-                    "counterpart": {
-                        "name": message.counterpart_name,
-                        "address": message.counterpart_address,
-                    },
-                    "bids": {"price": message.price, "value": message.value},
-                    "wins": {"price": message.win_price, "value": message.win_value},
-                    "achievement": message.achievement,
-                    "settlement": message.settlement,
-                }
-                for message in BidSubmit.query.filter(
-                    BidSubmit.tenders_id.in_(
-                        [
-                            tender.uuid
-                            for tender in Tenders.query.filter(
-                                Tenders.user_id == g.uuid,
-                                Tenders.start_time >= datetime.combine(last_three_day.date(), datetime.min.time())
-                            ).all()
-                        ]
-                    ),
-                    BidSubmit.status != "NULL",
-                )
-                .order_by(BidSubmit.start_time.desc())
-                .all()
-            ]
+        user = User.query.filter_by(account=g.account).first()
+        if user.role != "tpc":
+            # Query three recent days
+            last_three_day = datetime.combine((datetime.now() - timedelta(days=3)).date(), datetime.min.time())
+            if g.uuid in [tender.user_id for tender in Tenders.query.all()]:
+                bids = [
+                    {
+                        "id": message.uuid,
+                        "date": message.start_time.strftime("%Y/%m/%d"),
+                        "time": f'{message.start_time.strftime("%H")}:00-{message.end_time.strftime("%H")}:00',
+                        "bid_type": message.bid_type,
+                        "win": message.win,
+                        "status": message.status,
+                        "transaction_hash": message.transaction_hash,
+                        "upload": message.upload_time,
+                        "counterpart": {
+                            "name": message.counterpart_name,
+                            "address": message.counterpart_address,
+                        },
+                        "bids": {"price": message.price, "value": message.value},
+                        "wins": {"price": message.win_price, "value": message.win_value},
+                        "achievement": message.achievement,
+                        "settlement": message.settlement,
+                    }
+                    for message in BidSubmit.query.filter(
+                        BidSubmit.tenders_id.in_(
+                            [
+                                tender.uuid
+                                for tender in Tenders.query.filter(
+                                    Tenders.user_id == g.uuid,
+                                    Tenders.start_time >= datetime.combine(last_three_day.date(), datetime.min.time())
+                                ).all()
+                            ]
+                        ),
+                        BidSubmit.status != "NULL",
+                    )
+                    .order_by(BidSubmit.start_time.desc())
+                    .all()
+                ]
+            else:
+                bids = []
         else:
+            # faking data status
+            # this recent 5 hours
+            action = ["已結算", "執行中", "已得標"]
+            # action = [None, None, None, None, None]
+
+            now = datetime.now()
+            fake_start = datetime(now.year, now.month, now.day, now.hour) - timedelta(hours=1)
+
+            non_tpc_users = User.query.filter(User.role != "tpc").all()
+
             bids = []
+            bid_types = ["buy", "sell"]
+            for i in range(3):
+                start_time = fake_start + timedelta(hours=i)
+                end_time = start_time + timedelta(hours=1)
+                for _ in range(3):
+                    pair_uuid = str(uuid_gen.uuid4())
+                    common_value = {
+                        "bids": {
+                            "price": 1 + random.random() * 10,
+                            "value": random.randint(5, 30),
+                        },
+                        "wins": {
+                            "price": 1 + random.random() * 10,
+                            "value": random.randint(5, 30),
+                        },
+                        "achievement": random.random(),
+                        "settlement": random.randint(0, 100),
+                    }
+                    for k, target in enumerate(random.choices(non_tpc_users, k=2)):
+                        bids.append(
+                            {
+                                "id": pair_uuid,
+                                "date": start_time.strftime("%Y/%m/%d"),
+                                "time": f'{start_time.strftime("%H")}:00-{end_time.strftime("%H")}:00',
+                                "bid_type": bid_types[k],
+                                "win": 1,
+                                "status": action[i],
+                                "transaction_hash": (
+                                    "0xb594d64485d32b009af3fbb3b456c8c7e463794af120c58eb9a3ab34de4f2543"
+                                ),
+                                "upload": start_time.strftime("%Y/%m/%d %H:%M:%S"),
+                                "counterpart": {
+                                    "name": target.username,
+                                    "address": target.address,
+                                },
+                                **common_value,
+                            }
+                        )
         response = jsonify(bids)
         return response
 
-    # pylint: enable=R0201
+    # pylint: enable=R0201, R0914
 
 
 class BidStatusResource(Resource):
