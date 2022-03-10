@@ -123,7 +123,7 @@ def get_dr_volume(bid):
     bid = deepcopy(bid)
     result = bid_query(bid)
     cbl = get_cbl(bid)
-    return float('{:.2f}'.format(cbl - result.real_volume))
+    return float('{:.2f}'.format(cbl - result.real_volume if result.real_volume else 0))
 
 
 def get_cbl(bid):

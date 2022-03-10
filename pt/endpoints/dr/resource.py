@@ -202,7 +202,7 @@ class DRBid(Resource):
                     ),
                     "start_time": bid.start_time.strftime("%Y-%m-%d %H:%M:%S"),
                     "end_time": bid.end_time.strftime("%Y-%m-%d %H:%M:%S") if bid.end_time else None,
-                    "volume": bid.volume,
+                    "volume": bid.volume if bid.volume else 0,
                     "real_volume": bid.real_volume,
                     "dr_volume": get_dr_volume(bid),
                     "cbl": get_cbl(bid),
@@ -218,9 +218,10 @@ class DRBid(Resource):
             }
             for bid in dr_bids
         ]
-            if dr_bids
+            if dr_bids is not None
             else ("no data on this page", 400)
         )
+        return ("OK", 200)
 
     @auth.login_required
     def post(self):
